@@ -24,6 +24,7 @@ services:
       DATABASE_URL: postgres://sirac:${POSTGRES_PASSWORD}@db:5432/sirac
       DJANGO_ALLOWED_HOSTS: sirac.dbltech.tech,backend,localhost,127.0.0.1
       GIT_SHA: ${GIT_SHA:-sin-version}
+      SERVIDOR_VPS: srv2164565.hstgr.cloud
     depends_on:
       db:
         condition: service_healthy

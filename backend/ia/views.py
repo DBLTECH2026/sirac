@@ -1,4 +1,5 @@
 import json
+import os
 import platform
 import socket
 
@@ -33,7 +34,7 @@ def salud(request):
     m = servicio.modelos()["metricas"]
     return JsonResponse({
         "estado": "ok" if bd == "ok" else "degradado", "servicio": "SIRAC API", "version": settings.VERSION,
-        "hora_servidor": timezone.localtime().isoformat(timespec="seconds"), "servidor": socket.gethostname(),
+        "hora_servidor": timezone.localtime().isoformat(timespec="seconds"), "servidor": os.environ.get("SERVIDOR_VPS", socket.gethostname()), "contenedor": socket.gethostname(),
         "python": platform.python_version(), "base_de_datos": bd, "motor_bd": connection.vendor,
         "modelos": {"calificador_auc": m["clasificacion"]["metricas"]["auc_roc"],
                     "proyeccion_r2": m["regresion"]["modelos"][m["regresion"]["mejor"]]["r2"]},
