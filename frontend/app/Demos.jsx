@@ -16,7 +16,7 @@ export function Estado() {
   if (!s) return <p className="estado">Consultando el servidor…</p>;
   return (
     <p className="estado estado-ok">
-      <span className="punto" /> API en línea · versión <b>{s.version}</b> · {s.servidor} · Python {s.python} · base de datos {s.motor_bd}
+      <span className="punto" /><span>API en línea · versión <b>{s.version}</b> · {s.servidor} · Python {s.python} · {s.motor_bd}</span>
     </p>
   );
 }
