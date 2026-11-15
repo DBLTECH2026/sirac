@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>SIRAC · Configuración · Usuarios</title>
+<meta name="viewport" content="width=1440">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="../js/tw-config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../css/sirac.css">
+<script src="../js/shell.js"></script>
+<style>
+  /* Solo layout de la vista: la sección Configuración llena el alto del marco (padding, cabecera y marco vienen de sirac.css v0.3) */
+  .main { display: flex; flex-direction: column; }
+  .cfg { flex: 1; min-height: 0; }
+
+  /* Tarjetas de rol */
+  .rol { display: flex; align-items: center; gap: 14px; padding: 10px 16px 10px 10px; border-radius: 18px; }
+  .rol-ilus { position: relative; width: 88px; height: 88px; flex: 0 0 88px; border-radius: 16px; background: var(--niebla); overflow: hidden; }
+  .rol-ilus img { width: 100%; height: 100%; object-fit: cover; display: block; background: transparent; } /* PNG transparente: sin las rayas del marcador */
+  .rol-n { position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); height: 20px; padding: 0 8px; border-radius: 999px; background: #fff; border: 1px solid var(--linea); font-size: 10.5px; font-weight: 600; color: var(--t2); display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+  .rol-n b { color: var(--noche); font-weight: 800; }
+  .rol-info { flex: 1; min-width: 0; }
+  .rol-info .chip-kinti { vertical-align: middle; margin: -4px 0 -3px 0; } /* no agranda la línea de la descripción; sin margen lateral para que la frase quepa en una línea */
+  .rol-mod { width: 112px; flex: 0 0 112px; padding-left: 14px; border-left: 1px solid var(--linea); align-self: stretch; display: flex; flex-direction: column; justify-content: center; }
+  .lbl { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--t2); }
+  .segs { display: flex; gap: 3px; margin: 7px 0 6px; }
+  .segs i { width: 8px; height: 14px; border-radius: 3px; background: #E6EDF5; display: block; }
+  .segs i.e { background: var(--verde); } .segs i.v { background: var(--celeste); }
+  .apila { display: flex; }
+  .apila .av { border: 2px solid #fff; margin-left: -4px; }
+  .apila .av:first-child { margin-left: 0; }
+  .av-pend { background: #fff !important; color: var(--t2) !important; border: 1.5px dashed var(--t3) !important; }
+
+  /* Matriz de permisos (tarjeta azul noche) */
+  .pm-grid { display: grid; grid-template-columns: 112px 1fr 1fr 1fr; column-gap: 0; }
+  .pm-grid > div { height: 22px; display: flex; align-items: center; font-size: 12px; white-space: nowrap; padding-right: 6px; }
+  .pm-h { flex-direction: column; align-items: flex-start !important; justify-content: center; height: 36px !important; border-bottom: 1px solid var(--noche3); margin-bottom: 3px; }
+  .pm-h b { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; color: var(--t3); text-transform: uppercase; line-height: 1.2; }
+  .pm-h small { font-size: 10.5px; color: #6E819A; line-height: 1.3; }
+  .pm-m { font-weight: 600; color: #fff; }
+  .pm { display: inline-flex; align-items: center; gap: 7px; }
+  .pm::before { content: ''; width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
+  .pm.e { color: #fff; } .pm.e::before { background: var(--verde); }
+  .pm.v { color: #C9D6E6; } .pm.v::before { background: var(--celeste); }
+  .pm.n { color: #4A5C74; } .pm.n::before { background: #4A5C74; }
+  .ley { display: inline-flex; align-items: center; gap: 5px; }
+  .ley::before { content: ''; width: 7px; height: 7px; border-radius: 50%; }
+  .ley.e::before { background: var(--verde); } .ley.v::before { background: var(--celeste); } .ley.n::before { background: #4A5C74; }
+
+  /* Tabla de usuarios */
+  .tu th { padding: 11px 8px 9px; font-size: 10.5px; white-space: nowrap; }
+  .tu td { padding: 4px 8px; height: 44px; border-bottom: 1px solid #EDF2F7; }
+  .tu tr:last-child td { border-bottom: 0; }
+  .tu .n1 { font-size: 13.5px; font-weight: 600; color: var(--noche); line-height: 1.25; white-space: nowrap; }
+  .tu .n2 { font-size: 11.5px; color: var(--t2); line-height: 1.3; white-space: nowrap; }
+  .tu tr.pend td { background: #F7FAFC; }
+  .tu tr.pend td:first-child { border-radius: 12px 0 0 12px; } .tu tr.pend td:last-child { border-radius: 0 12px 12px 0; }
+  .est { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 999px; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .est::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .est.ok { background: var(--verde-claro); color: var(--verde-texto); }
+  .est.inv { background: var(--aviso-claro); color: var(--aviso); }
+  .chip-rol { height: 22px; font-size: 11.5px; padding: 0 9px; }
+  .tu-chip-gerente { background: var(--celeste-claro); color: var(--celeste-texto); }
+  .tu-chip-ventas { background: var(--verde-claro); color: var(--verde-texto); }
+  .yo { height: 17px; padding: 0 6px; border-radius: 999px; background: var(--noche); color: #fff; font-size: 9.5px; font-weight: 700; display: inline-flex; align-items: center; margin-left: 6px; vertical-align: 1px; }
+  .koff { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--t2); white-space: nowrap; }
+  .koff .ap { width: 22px; height: 22px; border-radius: 50%; background: #EDF1F6; display: grid; place-items: center; color: var(--t2); }
+  .koff .ap svg { width: 12px; height: 12px; }
+  .reenv { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 700; color: var(--verde-texto); white-space: nowrap; }
+  .reenv svg { width: 12px; height: 12px; }
+  /* Kinti por usuario: interruptor violeta (lo que hace la IA), como en cfg-numeros */
+  .kon { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; color: var(--violeta-texto); white-space: nowrap; }
+  .kon .toggle { width: 32px; height: 18px; }
+  .kon .toggle::after { width: 14px; height: 14px; }
+  .kon .toggle.on { background: var(--violeta); }
+  .kon .toggle.on::after { left: 16px; }
+  .mas { color: var(--t3); }
+  .mas svg { width: 17px; height: 17px; }
+</style>
+</head>
+<body class="marco" data-rol="admin" data-activo="configuracion" data-sub="usuarios">
+<div class="app">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="top" id="top" data-sobre="Ajustes del CRM" data-titulo="Configuración"></div>
+
+    <div class="cfg">
+      <nav class="cfg-menu" id="cfgmenu" data-k="Equipo" data-t="6 personas, 3 roles" data-d="Rosa aún no acepta su invitación." data-img="assets/ilustraciones/crm-equipo-tienda.webp" data-barra="83"></nav>
+
+      <section style="flex:1;min-width:0" class="flex flex-col gap-[14px]">
+
+        <!-- Cabecera de la sección -->
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="sora text-[24px] font-bold leading-tight" style="letter-spacing:-.02em">Usuarios</div>
+            <div class="text-[13.5px] text-tinta-2 mt-[2px]"><b class="text-noche font-semibold">6 personas</b> · 5 activas · 1 invitación pendiente</div>
+          </div>
+          <div class="flex items-center gap-[10px]">
+            <span class="btn btn-borde" style="height:40px;padding:0 14px"><i data-lucide="filter"></i>Rol: Todos<i data-lucide="chevron-down" style="width:15px;height:15px;color:#6E819A"></i></span>
+            <span class="btn btn-verde"><i data-lucide="user-plus"></i>Invitar usuario</span>
+          </div>
+        </div>
+
+        <!-- Roles + matriz de permisos -->
+        <div class="grid gap-[14px]" style="grid-template-columns:minmax(0,1fr) 340px">
+
+          <div class="flex flex-col gap-[10px]">
+            <!-- Administrador -->
+            <div class="card rol">
+              <div class="rol-ilus"><img src="../assets/ilustraciones/crm-rol-administradora.webp" data-asset alt=""><span class="rol-n"><b>1</b> usuario</span></div>
+              <div class="rol-info">
+                <div class="flex items-center gap-2"><span class="sora text-[18px] font-bold" style="letter-spacing:-.02em">Administrador</span><span class="chip chip-osc" style="height:22px;font-size:11.5px">Acceso total</span></div>
+                <div class="text-[12.5px] text-tinta-2 mt-[2px]">Todo el CRM, con usuarios y sistema.</div>
+                <div class="flex items-center gap-2 mt-[9px]"><span class="av av-sm" style="background:#1E2E4E">CM</span><span class="text-[13px] font-semibold">Carla Mendoza</span><span class="yo" style="margin-left:0">Tú</span></div>
+              </div>
+              <div class="rol-mod">
+                <div class="lbl">Módulos</div>
+                <div class="segs"><i class="v"></i><i class="e"></i><i class="e"></i><i class="e"></i><i class="e"></i><i class="e"></i><i class="e"></i><i class="e"></i><i class="e"></i></div>
+                <div class="text-[12px] text-tinta-2">Edita <b class="text-noche">8</b> · Ve <b class="text-noche">1</b></div>
+              </div>
+            </div>
+
+            <!-- Gerente -->
+            <div class="card rol">
+              <div class="rol-ilus"><img src="../assets/ilustraciones/crm-rol-gerente.webp" data-asset alt=""><span class="rol-n"><b>1</b> usuario</span></div>
+              <div class="rol-info">
+                <div class="flex items-center gap-2"><span class="sora text-[18px] font-bold" style="letter-spacing:-.02em">Gerente</span><span class="chip tu-chip-gerente" style="height:22px;font-size:11.5px">Supervisa</span></div>
+                <div class="text-[12.5px] text-tinta-2 mt-[2px]">Ve todas las ventas, entrena a <span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>.</div>
+                <div class="flex items-center gap-2 mt-[9px]"><span class="av av-sm" style="background:#16B6D8">JS</span><span class="text-[13px] font-semibold">Jorge Salas</span><span class="text-[12px] text-tinta-2">· Gerente comercial</span></div>
+              </div>
+              <div class="rol-mod">
+                <div class="lbl">Módulos</div>
+                <div class="segs"><i class="v"></i><i class="e"></i><i class="e"></i><i class="e"></i><i class="v"></i><i class="e"></i><i class="v"></i><i class="v"></i><i></i></div>
+                <div class="text-[12px] text-tinta-2">Edita <b class="text-noche">4</b> · Ve <b class="text-noche">4</b></div>
+              </div>
+            </div>
+
+            <!-- Ventas -->
+            <div class="card rol">
+              <div class="rol-ilus"><img src="../assets/ilustraciones/crm-rol-ventas.webp" data-asset alt=""><span class="rol-n"><b>4</b> usuarios</span></div>
+              <div class="rol-info">
+                <div class="flex items-center gap-2"><span class="sora text-[18px] font-bold" style="letter-spacing:-.02em">Ventas</span><span class="chip tu-chip-ventas" style="height:22px;font-size:11.5px">Solo lo suyo</span></div>
+                <div class="text-[12.5px] text-tinta-2 mt-[2px]">Atiende sus propios chats y leads.</div>
+                <div class="flex items-center gap-2 mt-[9px]">
+                  <span class="apila"><span class="av av-sm" style="background:#0EB155;color:#0A1424">DQ</span><span class="av av-sm" style="background:#16B6D8">MR</span><span class="av av-sm" style="background:#1E2E4E">KH</span><span class="av av-sm av-pend">RC</span></span>
+                  <span class="text-[12.5px] font-semibold">3 activos</span><span class="text-[12.5px] text-tinta-2">·</span><span class="text-[12.5px] font-semibold" style="color:#B45309">1 invitada</span>
+                </div>
+              </div>
+              <div class="rol-mod">
+                <div class="lbl">Módulos</div>
+                <div class="segs"><i class="v"></i><i class="e"></i><i class="e"></i><i></i><i></i><i class="v"></i><i></i><i></i><i></i></div>
+                <div class="text-[12px] text-tinta-2">Edita <b class="text-noche">2</b> · Ve <b class="text-noche">2</b></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Permisos por rol -->
+          <div class="card-osc flex flex-col" style="padding:18px 20px 14px">
+            <div class="flex items-center gap-3">
+              <span class="w-[38px] h-[38px] rounded-[12px] grid place-items-center" style="background:#14213A;color:#0EB155"><i data-lucide="key-round" style="width:18px;height:18px"></i></span>
+              <div class="flex-1 min-w-0">
+                <div class="sora text-[16px] font-bold">Permisos por rol</div>
+                <div class="text-[12px]" style="color:#9FB3CC">Qué ve y edita cada rol</div>
+              </div>
+              <span class="btn btn-sm" style="background:#14213A;color:#fff;border:1px solid #1E2E4E"><i data-lucide="pencil" style="width:14px;height:14px"></i>Editar</span>
+            </div>
+
+            <div class="pm-grid mt-[12px]">
+              <div class="pm-h"><b>Módulo</b><small>9 en total</small></div><div class="pm-h"><b>Admin</b><small>total</small></div><div class="pm-h"><b>Gerente</b><small>supervisa</small></div><div class="pm-h"><b>Ventas</b><small>lo suyo</small></div>
+              <div class="pm-m">Dashboard</div><div><span class="pm v">Ve</span></div><div><span class="pm v">Ve</span></div><div><span class="pm v">Ve</span></div>
+              <div class="pm-m">Chats</div><div><span class="pm e">Edita</span></div><div><span class="pm e">Edita</span></div><div><span class="pm e">Edita</span></div>
+              <div class="pm-m">Embudo</div><div><span class="pm e">Edita</span></div><div><span class="pm e">Edita</span></div><div><span class="pm e">Edita</span></div>
+              <div class="pm-m">Entrenamiento</div><div><span class="pm e">Edita</span></div><div><span class="pm e">Edita</span></div><div><span class="pm n">—</span></div>
+              <div class="pm-m">Números</div><div><span class="pm e">Edita</span></div><div><span class="pm v">Ve</span></div><div><span class="pm n">—</span></div>
+              <div class="pm-m">Catálogo</div><div><span class="pm e">Edita</span></div><div><span class="pm e">Edita</span></div><div><span class="pm v">Ve</span></div>
+              <div class="pm-m">Empresa</div><div><span class="pm e">Edita</span></div><div><span class="pm v">Ve</span></div><div><span class="pm n">—</span></div>
+              <div class="pm-m">Usuarios</div><div><span class="pm e">Edita</span></div><div><span class="pm v">Ve</span></div><div><span class="pm n">—</span></div>
+              <div class="pm-m">Sistema</div><div><span class="pm e">Edita</span></div><div><span class="pm n">—</span></div><div><span class="pm n">—</span></div>
+            </div>
+
+            <div class="mt-auto pt-[10px] flex items-center justify-between gap-[12px] text-[11px] whitespace-nowrap" style="border-top:1px solid #1E2E4E;color:#C9D6E6">
+              <div class="flex items-center gap-[10px]"><span class="ley e">Edita</span><span class="ley v">Ve</span><span class="ley n">Sin acceso</span></div>
+              <span style="color:#9FB3CC">Editado por Carla · 2 oct</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de usuarios -->
+        <div class="card" style="padding:4px 12px 6px;flex:1;min-height:0">
+          <table class="tabla tu" style="height:100%">
+            <colgroup><col style="width:196px"><col style="width:132px"><col style="width:176px"><col style="width:100px"><col style="width:92px"><col><col style="width:24px"></colgroup>
+            <thead><tr><th>Usuario</th><th>Rol</th><th>Número de WhatsApp</th><th>Kinti · IA</th><th>Estado</th><th>Último acceso</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td><div class="flex items-center gap-[10px]"><span class="av" style="background:#1E2E4E">CM</span><div><div class="n1">Carla Mendoza<span class="yo">Tú</span></div><div class="n2">carla@kusihogar.pe</div></div></div></td>
+                <td><span class="chip chip-osc chip-rol">Administradora</span></td>
+                <td><div class="n1">—</div><div class="n2">Ve los 4 números</div></td>
+                <td><span class="n2">—</span></td>
+                <td><span class="est ok">Activa</span></td>
+                <td><div class="n1" style="color:#0A7A3C">Ahora</div><div class="n2">En línea · Web</div></td>
+                <td class="mas"><i data-lucide="more-vertical"></i></td>
+              </tr>
+              <tr>
+                <td><div class="flex items-center gap-[10px]"><span class="av" style="background:#16B6D8">JS</span><div><div class="n1">Jorge Salas</div><div class="n2">jorge@kusihogar.pe</div></div></div></td>
+                <td><span class="chip tu-chip-gerente chip-rol">Gerente comercial</span></td>
+                <td><div class="n1">Principal · supervisa</div><div class="n2 tnum">+51 987 654 321</div></td>
+                <td><span class="kon"><span class="toggle on"></span>Activo</span></td>
+                <td><span class="est ok">Activo</span></td>
+                <td><div class="n1">Hace 20 min</div><div class="n2">Web · Chrome</div></td>
+                <td class="mas"><i data-lucide="more-vertical"></i></td>
+              </tr>
+              <tr>
+                <td><div class="flex items-center gap-[10px]"><span class="av" style="background:#0EB155;color:#0A1424">DQ</span><div><div class="n1">Diego Quispe</div><div class="n2">diego@kusihogar.pe</div></div></div></td>
+                <td><span class="chip tu-chip-ventas chip-rol">Ventas · Lima</span></td>
+                <td><div class="n1">Ventas Diego</div><div class="n2 tnum">+51 912 345 678</div></td>
+                <td><span class="kon"><span class="toggle on"></span>Activo</span></td>
+                <td><span class="est ok">Activo</span></td>
+                <td><div class="n1">Hace 2 min</div><div class="n2">App · Android</div></td>
+                <td class="mas"><i data-lucide="more-vertical"></i></td>
+              </tr>
+              <tr>
+                <td><div class="flex items-center gap-[10px]"><span class="av" style="background:#16B6D8">MR</span><div><div class="n1">Milagros Rojas</div><div class="n2">milagros@kusihogar.pe</div></div></div></td>
+                <td><span class="chip tu-chip-ventas chip-rol">Ventas · Lima</span></td>
+                <td><div class="n1">Ventas Milagros</div><div class="n2 tnum">+51 934 556 210</div></td>
+                <td><span class="kon"><span class="toggle on"></span>Activo</span></td>
+                <td><span class="est ok">Activa</span></td>
+                <td><div class="n1">Hace 9 min</div><div class="n2">Web · Chrome</div></td>
+                <td class="mas"><i data-lucide="more-vertical"></i></td>
+              </tr>
+              <tr>
+                <td><div class="flex items-center gap-[10px]"><span class="av" style="background:#1E2E4E">KH</span><div><div class="n1">Kevin Huamán</div><div class="n2">kevin@kusihogar.pe</div></div></div></td>
+                <td><span class="chip tu-chip-ventas chip-rol">Ventas · Provincias</span></td>
+                <td><div class="n1">Provincias</div><div class="n2 tnum">+51 955 108 442</div></td>
+                <td><span class="koff"><span class="ap"><i data-lucide="pause"></i></span>Apagado</span><div class="n2" style="margin-top:1px">atiende Kevin</div></td>
+                <td><span class="est ok">Activo</span></td>
+                <td><div class="n1">Hace 1 h</div><div class="n2">App · iPhone</div></td>
+                <td class="mas"><i data-lucide="more-vertical"></i></td>
+              </tr>
+              <tr class="pend">
+                <td><div class="flex items-center gap-[10px]"><span class="av av-pend">RC</span><div><div class="n1">Rosa Ccori</div><div class="n2">rosa@kusihogar.pe</div></div></div></td>
+                <td><span class="chip tu-chip-ventas chip-rol">Ventas</span></td>
+                <td><div class="n1">—</div><div class="n2">Se asigna al aceptar</div></td>
+                <td><span class="n2">—</span></td>
+                <td><span class="est inv">Invitada</span><div class="n2" style="margin-top:2px">hace 2 días</div></td>
+                <td><div class="n1" style="color:#6E819A">Aún no entra</div><span class="reenv"><i data-lucide="send"></i>Reenviar invitación</span></td>
+                <td class="mas"><i data-lucide="more-vertical"></i></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </section>
+    </div>
+  </main>
+</div>
+</body></html>

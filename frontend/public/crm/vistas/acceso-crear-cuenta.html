@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>SIRAC · Crear cuenta</title>
+<meta name="viewport" content="width=1440">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="../js/tw-config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../css/sirac.css">
+<script src="../js/shell.js"></script>
+<style>
+  /* ===== Estructura común de las pantallas de ACCESO (igual que acceso-iniciar-sesion.html) =====
+     .acc 1440×900 (el marco sin scroll lo da body.marco de sirac.css) · .acc-izq columna blanca 662 px · .acc-der panel Azul Noche 778 px
+     (órbitas SVG + círculo Niebla Ø380 con la ilustración + 2 tarjetas flotantes + frase con .chip-kinti) */
+  .acc { display: flex; width: 1440px; height: 900px; overflow: hidden; background: #fff; }
+
+  .acc-izq { width: 662px; flex: 0 0 662px; background: #fff; display: flex; flex-direction: column; padding: 44px 80px 36px; }
+  .acc-cab { display: flex; align-items: center; justify-content: space-between; height: 36px; }
+  .acc-cab img { height: 32px; display: block; }
+  .acc-enlace { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600; color: var(--t2); text-decoration: none; }
+  .acc-enlace svg { width: 16px; height: 16px; }
+  .acc-form { flex: 1; display: flex; flex-direction: column; justify-content: center; width: 502px; }
+  .acc-sobre { font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--verde-texto); display: flex; align-items: center; gap: 8px; }
+  .acc-sobre::before, .acc-sobre::after { content: ''; width: 14px; height: 2px; border-radius: 2px; background: var(--verde); }
+  .acc-titulo { font-family: Sora, sans-serif; font-weight: 800; font-size: 38px; line-height: 1.12; letter-spacing: -0.035em; margin: 0 0 10px; }
+  .acc-texto { font-size: 15px; line-height: 1.55; color: var(--t2); margin: 0 0 18px; }
+  .acc .input { height: 48px; font-size: 15px; }
+  .acc .input svg { width: 18px; height: 18px; color: var(--t3); flex: 0 0 auto; }
+  .acc .input .der { margin-left: auto; color: var(--t2); }
+  .acc .input.foco { border-color: var(--verde); }
+  .acc .input .puntos { letter-spacing: .18em; font-size: 16px; }
+  .acc-check { display: flex; align-items: flex-start; gap: 10px; color: #33445C; }
+  .acc-check .caja { width: 18px; height: 18px; border-radius: 5px; background: var(--verde); display: grid; place-items: center; color: var(--noche); flex: 0 0 auto; margin-top: 1px; }
+  .acc-check .caja.vacia { background: #fff; border: 1.5px solid var(--borde); }
+  .acc-check .caja svg { width: 13px; height: 13px; stroke-width: 3; }
+  .acc-link { color: var(--verde-texto); font-weight: 700; text-decoration: none; }
+  .acc-btn { width: 100%; height: 50px; justify-content: center; font-size: 15px; }
+  .acc-btn svg { width: 18px; height: 18px; }
+  .acc-pie { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: var(--t2); padding-top: 16px; border-top: 1px solid #EDF2F7; }
+  .acc-pie span { display: inline-flex; align-items: center; gap: 7px; }
+  .acc-pie svg { width: 15px; height: 15px; }
+
+  .acc-der { flex: 1; position: relative; background: var(--noche); overflow: hidden; color: #fff; }
+  .acc-orbitas { position: absolute; inset: 0; }
+  .acc-circulo { position: absolute; left: 199px; top: 152px; width: 380px; height: 380px; border-radius: 50%; background: var(--niebla); display: grid; place-items: center; overflow: hidden; }
+  .acc-circulo img { width: 318px; height: 318px; object-fit: contain; background: none; }
+  .acc-flota { position: absolute; display: flex; align-items: center; gap: 11px; padding: 11px 16px 11px 11px; border-radius: 16px; background: #fff; color: var(--noche); }
+  .acc-flota .ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex: 0 0 auto; }
+  .acc-flota .ic svg { width: 19px; height: 19px; }
+  .acc-flota .k { font-size: 11px; font-weight: 700; letter-spacing: .04em; }
+  .acc-flota .v { font-size: 14px; font-weight: 700; margin-top: 1px; white-space: nowrap; }
+  .acc-flota .v small { font-weight: 500; color: var(--t2); font-size: 12.5px; }
+  .acc-frase { position: absolute; left: 0; right: 0; top: 576px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .acc-frase h2 { font-family: Sora, sans-serif; font-weight: 700; font-size: 30px; line-height: 1.2; letter-spacing: -0.025em; margin: 16px 0 10px; }
+  .acc-frase p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--t3); max-width: 520px; text-wrap: balance; }
+  .acc-puntos { position: absolute; left: 0; right: 0; bottom: 43px; display: flex; justify-content: center; gap: 8px; }
+  .acc-puntos i { width: 7px; height: 7px; border-radius: 999px; background: var(--noche3); }
+  .acc-puntos i.on { width: 24px; background: var(--verde); }
+
+  /* ===== Propio de Crear cuenta ===== */
+  /* Pasos 1 de 2 */
+  .pasos { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+  .paso { display: flex; align-items: center; gap: 10px; }
+  .paso .num { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; flex: 0 0 auto; }
+  .paso.on .num { background: var(--verde); color: var(--noche); }
+  .paso.off .num { background: #fff; color: var(--t2); border: 1.5px solid var(--borde); }
+  .paso .t { font-size: 13.5px; font-weight: 700; line-height: 1.15; white-space: nowrap; }
+  .paso.off .t { color: var(--t2); font-weight: 600; }
+  .paso .d { font-size: 11.5px; color: var(--t2); margin-top: 2px; white-space: nowrap; }
+  .pasos .linea { flex: 1; height: 2px; border-radius: 2px; background: var(--linea); position: relative; min-width: 28px; }
+  .pasos .linea > i { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; background: var(--verde); border-radius: 2px; }
+  /* Campos en dos columnas */
+  .acc-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 14px; }
+  .acc-campos .ancho { grid-column: 1 / -1; }
+  .acc .campo label { font-size: 11.5px; }
+  .acc-campos .input { height: 44px; font-size: 14.5px; padding: 0 12px; gap: 9px; }
+  .pref { display: inline-flex; align-items: center; gap: 4px; height: 100%; padding-right: 10px; margin-right: 2px; border-right: 1.5px solid var(--linea); font-weight: 600; }
+  .acc .input .pref svg { width: 14px; height: 14px; color: var(--t2); }
+  .ayuda { font-size: 12px; color: var(--t2); display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+  .ayuda svg { width: 13px; height: 13px; flex: 0 0 auto; }
+  /* Seguridad de la contraseña */
+  .medidor { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; flex: 1; }
+  .medidor i { height: 5px; border-radius: 999px; background: #E6EDF5; display: block; }
+  .medidor i.on { background: var(--verde); }
+  .req { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--t2); white-space: nowrap; }
+  .req svg { width: 14px; height: 14px; }
+  .req.ok { color: var(--verde-texto); }
+  .enlace { color: var(--noche); font-weight: 600; text-decoration: underline; text-decoration-color: var(--borde); text-underline-offset: 2px; }
+  .acc-frase h2 { max-width: 500px; text-wrap: balance; }
+  .acc-demo { position: absolute; top: 56px; right: 40px; margin: 0; }
+</style>
+</head>
+<body class="marco">
+<div class="acc">
+
+  <!-- ===== Columna izquierda: formulario ===== -->
+  <section class="acc-izq">
+    <header class="acc-cab">
+      <img src="../assets/marca/logo-sirac-noche.svg" alt="SIRAC">
+      <a class="acc-enlace"><i data-lucide="arrow-left"></i>Volver al inicio</a>
+    </header>
+
+    <div class="acc-form">
+      <!-- Pasos 1 de 2 -->
+      <div class="pasos">
+        <div class="paso on"><span class="num">1</span><div><div class="t">Tu cuenta</div><div class="d">Tus datos y tu negocio</div></div></div>
+        <div class="linea"><i></i></div>
+        <div class="paso off"><span class="num">2</span><div><div class="t">Tu WhatsApp</div><div class="d">Conectar por QR y activar Kinti · IA</div></div></div>
+      </div>
+
+      <div class="acc-sobre" style="margin-bottom:8px">Paso 1 de 2 · Tu cuenta</div>
+      <h1 class="acc-titulo">Crea tu cuenta</h1>
+      <p class="acc-texto">Empieza con tus datos y los de tu negocio. En el paso 2 conectas tu WhatsApp y presentas a tu asistente virtual <span class="chip-kinti" style="vertical-align:-2px"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span></p>
+
+      <div class="acc-campos">
+        <div class="campo"><label>Nombre y apellido</label>
+          <div class="input"><i data-lucide="user-round"></i><span>Carla Mendoza</span></div></div>
+        <div class="campo"><label>Correo</label>
+          <div class="input"><i data-lucide="mail"></i><span>carla@kusihogar.pe</span></div></div>
+
+        <div class="campo"><label>Nombre del negocio</label>
+          <div class="input"><i data-lucide="store"></i><span>Kusi Hogar</span></div>
+          <div class="ayuda"><i data-lucide="info"></i>Así te presentará Kinti</div></div>
+        <div class="campo"><label>WhatsApp del negocio</label>
+          <div class="input foco"><span class="pref">+51<i data-lucide="chevron-down"></i></span><span class="tnum">987 654 321</span></div>
+          <div class="ayuda"><i data-lucide="qr-code"></i>Lo conectas con un QR</div></div>
+
+        <div class="campo ancho"><label>Contraseña</label>
+          <div class="input"><i data-lucide="lock"></i><span class="puntos">••••••••••</span><i data-lucide="eye" class="der"></i></div>
+          <div style="display:flex;align-items:center;gap:14px;margin-top:4px">
+            <div class="medidor"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+            <span style="font-size:12.5px;color:var(--t2);white-space:nowrap">Seguridad: <b style="color:var(--verde-texto)">buena</b></span>
+          </div>
+          <div style="display:flex;gap:14px">
+            <span class="req ok"><i data-lucide="circle-check"></i>8 caracteres o más</span>
+            <span class="req ok"><i data-lucide="circle-check"></i>Un número</span>
+            <span class="req"><i data-lucide="circle"></i>Un símbolo (!#@)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Consentimientos (Ley N.° 29733, de protección de datos personales) -->
+      <div style="margin:14px 0 16px;display:flex;flex-direction:column;gap:8px;font-size:13px;line-height:1.45">
+        <div class="acc-check"><span class="caja"><i data-lucide="check"></i></span>
+          <span>Acepto los <a class="enlace">Términos</a> y la <a class="enlace">Política de privacidad</a>, y autorizo el tratamiento de mis datos personales (Ley N.° 29733).</span></div>
+        <div class="acc-check"><span class="caja vacia"></span>
+          <span>Quiero recibir novedades de SIRAC por correo <span style="color:var(--t2)">(opcional)</span></span></div>
+      </div>
+
+      <span class="btn btn-verde acc-btn">Crear cuenta<i data-lucide="arrow-right"></i></span>
+      <div style="margin-top:14px;text-align:center;font-size:14px;color:var(--t2)">¿Ya tienes cuenta? <a class="acc-link">Inicia sesión</a></div>
+    </div>
+
+    <footer class="acc-pie">
+      <span><i data-lucide="graduation-cap"></i>Demo del proyecto SIRAC · UTP 2026-I</span>
+      <span><i data-lucide="globe"></i>Español (Perú)</span>
+    </footer>
+  </section>
+
+  <!-- ===== Panel derecho Azul Noche ===== -->
+  <section class="acc-der">
+    <!-- Fondo de órbitas (marca-fondo-acceso): centrado en el círculo (389, 342) -->
+    <svg class="acc-orbitas" width="778" height="900" viewBox="0 0 778 900" fill="none" aria-hidden="true">
+      <g transform="translate(389 342) rotate(-24)" stroke="#1E2E4E" stroke-width="1.5">
+        <ellipse rx="300" ry="122"/>
+        <ellipse rx="420" ry="196"/>
+        <ellipse rx="550" ry="282"/>
+        <ellipse rx="700" ry="380"/>
+        <circle cx="300" cy="0" r="5" fill="#0EB155" stroke="none"/>
+        <circle cx="-300" cy="0" r="5" fill="#0EB155" stroke="none"/>
+      </g>
+    </svg>
+
+    <div class="acc-circulo">
+      <img src="../assets/ilustraciones/acceso-crear-cuenta.webp" data-asset="acceso-crear-cuenta" alt="Dueña de negocio que enciende su negocio en SIRAC desde el celular">
+    </div>
+
+    <!-- Sello honesto (equivale al de la barra lateral del CRM) -->
+    <div class="sb-demo acc-demo"><i class="pt"></i>Datos de demostración · Kusi Hogar es ficticia</div>
+
+    <!-- Vista previa en vivo de lo que va escribiendo en el formulario -->
+    <div class="acc-flota" style="left:64px;top:166px">
+      <span class="ic" style="background:var(--niebla);color:var(--noche)"><i data-lucide="qr-code"></i></span>
+      <div><div class="k" style="color:var(--t2);display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#6E819A;flex:0 0 auto"></span>WhatsApp · por conectar</div><div class="v tnum">+51 987 654 321</div></div>
+    </div>
+    <div class="acc-flota" style="right:40px;top:484px">
+      <span class="ic" style="background:var(--niebla);color:var(--noche)"><i data-lucide="store"></i></span>
+      <div><div class="k" style="color:var(--t2)">Tu negocio</div><div class="v">Kusi Hogar <small>· Mesa Redonda</small></div></div>
+    </div>
+
+    <div class="acc-frase">
+      <span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>
+      <h2>Registra tu negocio y conecta tu WhatsApp</h2>
+      <p>Escaneas un QR con tu WhatsApp Business y Kinti responde en segundos, avisando que es un asistente virtual. Tu equipo cierra la venta.</p>
+    </div>
+
+    <div class="acc-puntos"><i></i><i class="on"></i><i></i></div>
+  </section>
+
+</div>
+</body></html>

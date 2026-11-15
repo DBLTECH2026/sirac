@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>SIRAC · Configuración · Empresa</title>
+<meta name="viewport" content="width=1440">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="../js/tw-config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../css/sirac.css">
+<script src="../js/shell.js"></script>
+<style>
+  /* v0.3: el marco 1440×900 lo da body.marco; el padding de .main, la cabecera .top y la tarjeta
+     ilustrada del submenú (.cfg-menu / .cfg-card) vienen de sirac.css. Aquí solo el reparto del alto:
+     .main en columna para que .cfg ocupe lo que queda bajo la cabecera. */
+  .main.main-cfg { display: flex; flex-direction: column; }
+  .cfg { flex: 1; min-height: 0; }
+
+  /* Sello honesto de demo (perfil de WhatsApp y reseñas) */
+  .sello-demo { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 999px; background: var(--aviso-claro); color: var(--aviso); font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .sello-demo i { width: 6px; height: 6px; border-radius: 50%; background: var(--aviso); display: inline-block; }
+
+  .sec { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .sec-cab { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+  .sec-cab h2 { font-size: 22px; font-weight: 700; margin: 0; line-height: 1.2; }
+  .sec-cab .ed { font-size: 13px; color: var(--t2); margin-top: 3px; }
+  .sec-cab .ed b { color: var(--noche); font-weight: 600; }
+  .pend { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: var(--aviso); white-space: nowrap; margin-right: 6px; }
+  .pend i { width: 8px; height: 8px; border-radius: 50%; background: var(--aviso); display: inline-block; }
+
+  .rejilla { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 12px; }
+  .col { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+  .fila2 { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; }
+  .fc { min-width: 0; overflow: hidden; }
+  .fila2 .fc-cuerpo { flex: 1; justify-content: space-between; }
+
+  /* Tarjeta de formulario */
+  .fc { padding: 16px 18px 14px; display: flex; flex-direction: column; min-height: 0; }
+  .fc-cab { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .fc-cab .ib { width: 30px; height: 30px; border-radius: 10px; background: var(--niebla); display: grid; place-items: center; flex: 0 0 auto; }
+  .fc-cab .ib svg { width: 16px; height: 16px; }
+  .fc-cab h3 { font-family: Sora; font-size: 16.5px; font-weight: 700; margin: 0; letter-spacing: -0.02em; }
+  .fc-cab .nota { margin-left: auto; font-size: 12px; color: var(--t2); white-space: nowrap; }
+  .fc-cuerpo { display: flex; flex-direction: column; gap: 9px; }
+
+  .lb { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--t2); display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .lb .md { width: 6px; height: 6px; border-radius: 50%; background: var(--aviso); display: inline-block; }
+  .in { height: 36px; border-radius: 11px; border: 1.5px solid var(--borde); background: #fff; padding: 0 12px; display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--noche); white-space: nowrap; overflow: hidden; }
+  .in > svg { width: 16px; height: 16px; color: var(--t2); flex: 0 0 auto; }
+  .in .der { margin-left: auto; }
+  .in.mod { border-color: var(--aviso); box-shadow: 0 0 0 3px var(--aviso-claro); }
+  .in .cnt { font-size: 11px; color: var(--t2); }
+  .alto { height: auto; padding-top: 8px; padding-bottom: 8px; align-items: flex-start; }
+  .dos { display: grid; grid-template-columns: 88px minmax(0,1fr); gap: 8px; }
+  .dos .in.mon { padding: 0 8px; }
+  .dos .in.zona { padding: 0 10px; gap: 5px; }
+  .dos .in.zona > svg { width: 15px; height: 15px; }
+
+  /* Identidad */
+  .ident { display: flex; gap: 16px; align-items: flex-start; }
+  .logo-box { width: 132px; flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .logo-box .btn { width: 100%; justify-content: center; padding: 0 10px; gap: 7px; }
+  .logo-box .cuadro { width: 86px; height: 86px; border-radius: 18px; background: var(--niebla); display: grid; place-items: center; }
+  .logo-box .cuadro svg { width: 66px; height: 66px; }
+  .ident .campos { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(0,.8fr) minmax(0,1.2fr); gap: 10px 12px; }
+
+  /* Listas dentro de un campo (redes, horario, delivery) */
+  .lista { border: 1.5px solid var(--borde); border-radius: 11px; background: #fff; overflow: hidden; }
+  .lista.mod { border-color: var(--aviso); box-shadow: 0 0 0 3px var(--aviso-claro); }
+  .lista .r { display: flex; align-items: center; gap: 9px; padding: 0 12px; height: 32px; font-size: 13px; white-space: nowrap; }
+  .lista .r + .r { border-top: 1px solid #EDF2F7; }
+  .lista .r .der { margin-left: auto; color: var(--t2); font-size: 12.5px; }
+  .ic { width: 24px; height: 24px; border-radius: 50%; background: var(--niebla); display: grid; place-items: center; flex: 0 0 auto; color: var(--noche); }
+  .ic svg { width: 13px; height: 13px; }
+  .lista .r2 { height: auto; padding-top: 7px; padding-bottom: 7px; align-items: flex-start; }
+  .lista .r2 .t1 { font-weight: 600; font-size: 13px; line-height: 1.3; }
+  .lista .r2 .t2 { color: var(--t2); font-size: 11.5px; line-height: 1.3; }
+
+  /* «Equipo» con la misma medida que .chip-kinti (gris: lo hace una persona) */
+  .mini-eq { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px 0 8px; border-radius: 999px; background: #EDF1F6; color: #33445C; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .mini-eq svg { width: 12px; height: 12px; }
+  .hor { width: 52px; font-weight: 700; font-size: 13px; }
+
+  .txt { border: 1.5px solid var(--borde); border-radius: 11px; padding: 9px 12px 7px; font-size: 13px; line-height: 1.45; color: #23344C; display: flex; flex-direction: column; }
+  .txt .cnt { align-self: flex-end; font-size: 11px; color: var(--t2); margin-top: 2px; }
+
+  /* Vista previa WhatsApp (azul noche) */
+  .wa { background: var(--noche); color: #fff; border-radius: 20px; padding: 13px 16px 14px; display: flex; flex-direction: column; }
+  .wa .cab { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }
+  .wa .k { font-size: 10.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--verde); }
+  .wa .pw { font-size: 11.5px; color: var(--t3); display: inline-flex; align-items: center; gap: 5px; }
+  .wa .pw svg { width: 13px; height: 13px; }
+  .wa .portada-box { position: relative; }
+  .wa .portada { width: 100%; height: 62px; border-radius: 12px; object-fit: cover; display: block; }
+  .wa .portada-box .sello-demo { position: absolute; top: 7px; right: 7px; box-shadow: 0 2px 6px rgba(10,20,36,.25); }
+  .wa .perfil { display: flex; align-items: flex-start; gap: 11px; padding: 0 2px; }
+  .wa .perfil .avl { width: 58px; height: 58px; border-radius: 50%; margin-top: -24px; margin-left: 8px; box-shadow: 0 0 0 3px var(--noche); flex: 0 0 auto; position: relative; z-index: 1; }
+  .wa .perfil .avl svg { width: 58px; height: 58px; display: block; }
+  .wa .nom { font-family: Sora; font-weight: 700; font-size: 17px; display: flex; align-items: center; gap: 6px; margin-top: 6px; letter-spacing: -0.02em; }
+  .wa .nom svg { width: 16px; height: 16px; color: var(--verde); }
+  .wa .esl { color: var(--verde); font-size: 13px; font-weight: 600; }
+  .wa .tipo { font-size: 11.5px; color: var(--t3); margin-top: 6px; }
+  .wa .lineas { border-top: 1px solid var(--noche3); margin-top: 8px; padding-top: 8px; display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; color: #DCE5EF; }
+  .wa .lineas div { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .wa .lineas svg { width: 14px; height: 14px; color: var(--t3); flex: 0 0 auto; }
+  .wa .lineas b { font-weight: 600; color: #fff; }
+  .wa .cat { margin-top: 9px; display: flex; align-items: center; gap: 7px; }
+  .wa .cat .l { font-size: 11.5px; color: var(--t3); margin-right: auto; line-height: 1.25; }
+  .wa .cat .l b { display: block; color: #fff; font-size: 12.5px; font-weight: 600; }
+  .wa .cat img, .wa .cat .mas { width: 38px; height: 38px; border-radius: 9px; object-fit: cover; background: var(--noche2); }
+  .wa .cat .mas { display: grid; place-items: center; font-size: 12px; font-weight: 700; color: var(--t3); border: 1px solid var(--noche3); }
+
+  /* Reseñas */
+  .res-top { display: flex; align-items: center; gap: 12px; background: var(--niebla); border-radius: 14px; padding: 7px 14px; }
+  .res-top .n { font-family: Sora; font-weight: 700; font-size: 30px; letter-spacing: -0.03em; line-height: 1; }
+  .estrellas { display: flex; gap: 1px; color: var(--verde); }
+  .estrellas svg { width: 13px; height: 13px; fill: currentColor; }
+  .estrellas svg.media { fill: none; }
+  .res-top .s { font-size: 11.5px; color: var(--t2); margin-top: 3px; }
+  .res-top .der { margin-left: auto; text-align: right; border-left: 1px solid var(--borde); padding-left: 12px; }
+  .res-top .der .a { font-size: 11px; color: var(--t2); }
+  .res-top .der .b { font-family: Sora; font-weight: 700; font-size: 17px; color: var(--verde-texto); }
+  .plat { display: flex; flex-direction: column; margin-top: 4px; }
+  .plat .r { display: flex; align-items: center; gap: 10px; height: 36px; border-bottom: 1px solid #EDF2F7; }
+  .plat .r:last-child { border-bottom: 0; }
+  .plat .ic { width: 32px; height: 32px; }
+  .plat .ic svg { width: 16px; height: 16px; }
+  .plat .nm { font-weight: 700; font-size: 13.5px; line-height: 1.2; }
+  .plat .ds { font-size: 11.5px; color: var(--t2); white-space: nowrap; }
+  .plat .r > div { min-width: 0; }
+  .plat .val { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-size: 14px; }
+  .plat .val svg { width: 13px; height: 13px; color: var(--verde); fill: currentColor; }
+  .fc-cab.con-sello { align-items: flex-start; }
+  .fc-cab .tit { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding-top: 5px; }
+  /* Lo que hace Kinti con las reseñas: borde violeta suave y su mensaje de ejemplo como burbuja de IA */
+  .citar { margin-top: auto; background: #fff; border: 1.5px solid #DDD4FE; border-radius: 14px; padding: 9px 11px 10px; display: flex; flex-direction: column; gap: 6px; }
+  .citar .f1 { display: flex; align-items: center; gap: 7px; }
+  .citar .t { font-weight: 600; font-size: 13px; color: var(--noche); white-space: nowrap; }
+  .citar .toggle { margin-left: auto; }
+  .citar .q .ej { display: inline-block; vertical-align: 1px; margin-right: 5px; padding: 0 6px; height: 16px; line-height: 16px; border-radius: 999px; background: #fff; color: var(--violeta-texto); font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .citar .q { background: var(--violeta-claro); border-radius: 12px; border-top-right-radius: 4px; padding: 6px 10px; font-size: 12px; color: #2E2466; line-height: 1.4; }
+</style>
+</head>
+<body class="marco" data-rol="admin" data-activo="configuracion" data-sub="empresa">
+
+<!-- Logo demo de Kusi Hogar: círculo azul noche, tetera de línea y «K» -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="logo-kusi" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="50" fill="#0A1424"/>
+      <g fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M31 45 H69 L72.5 67 A6 6 0 0 1 66.6 74 H33.4 A6 6 0 0 1 27.5 67 Z"/>
+        <path d="M38 45 Q50 33 62 45"/>
+        <circle cx="50" cy="35.5" r="2.4"/>
+        <path d="M70.5 55 L80 47.5 L83 49.5"/>
+        <path d="M29 51 Q19 54 22 62 Q24 66 28.5 66"/>
+      </g>
+      <path d="M57 24 q3 -4 0 -8 q-3 -4 0 -8" fill="none" stroke="#0EB155" stroke-width="3" stroke-linecap="round"/>
+      <text x="50" y="69.5" text-anchor="middle" font-family="Sora, sans-serif" font-weight="800" font-size="22" fill="#FFFFFF">K</text>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <aside class="sb" id="sb"></aside>
+  <main class="main main-cfg">
+    <div class="top" id="top" data-sobre="Ajustes del CRM" data-titulo="Configuración"></div>
+
+    <div class="cfg">
+      <nav class="cfg-menu" id="cfgmenu" data-k="Perfil público" data-t="Así te presenta Kinti · IA" data-d="Usa estos datos al responder a tus clientes." data-img="assets/ilustraciones/agente-saludando.webp"></nav>
+
+      <section class="sec">
+        <!-- Cabecera de la sección -->
+        <div class="sec-cab">
+          <div>
+            <h2 class="sora">Datos de la empresa</h2>
+            <div class="ed">Última edición: <b>Carla Mendoza</b> · 8 oct 2026</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="pend"><i></i>2 cambios sin guardar</span>
+            <span class="btn btn-borde">Descartar</span>
+            <span class="btn btn-verde"><i data-lucide="check"></i>Guardar cambios</span>
+          </div>
+        </div>
+
+        <div class="rejilla">
+          <!-- Columna izquierda -->
+          <div class="col">
+            <!-- Identidad -->
+            <div class="card fc">
+              <div class="fc-cab"><span class="ib"><i data-lucide="store"></i></span><h3>Identidad</h3><span class="nota">Nombre y marca que ven tus clientes</span></div>
+              <div class="ident">
+                <div class="logo-box">
+                  <div class="cuadro"><svg aria-label="Logo Kusi Hogar"><use href="#logo-kusi"/></svg></div>
+                  <span class="btn btn-borde btn-sm"><i data-lucide="upload"></i>Cambiar logo</span>
+                </div>
+                <div class="campos">
+                  <div><div class="lb">Nombre comercial</div><div class="in">Kusi Hogar</div></div>
+                  <div><div class="lb">Razón social</div><div class="in">Kusi Hogar S.A.C.</div></div>
+                  <div><div class="lb">RUC</div><div class="in tnum">20612345678<i data-lucide="badge-check" class="der" style="width:16px;height:16px;color:var(--verde)"></i></div></div>
+                  <div><div class="lb">Eslogan <span class="md"></span></div><div class="in mod">Tu cocina, más fácil<span class="der cnt">20 / 40</span></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="fila2">
+              <!-- Contacto -->
+              <div class="card fc">
+                <div class="fc-cab"><span class="ib"><i data-lucide="phone"></i></span><h3>Contacto</h3><span class="nota">Lo ven tus clientes</span></div>
+                <div class="fc-cuerpo">
+                  <div><div class="lb">Dirección de la tienda</div>
+                    <div class="in alto"><i data-lucide="map-pin" style="margin-top:2px"></i><div style="line-height:1.3"><div style="font-weight:600">Jr. Andahuaylas 845, int. 214</div><div style="font-size:11.5px;color:var(--t2)">Mesa Redonda · Cercado de Lima</div></div></div>
+                  </div>
+                  <div><div class="lb">Teléfono · WhatsApp</div><div class="in tnum"><i data-lucide="message-circle" style="color:var(--verde)"></i>+51 987 654 321<span class="der" style="font-size:11.5px;color:var(--t2)">Principal</span></div></div>
+                  <div><div class="lb">Web</div><div class="in"><i data-lucide="globe"></i>kusihogar.pe<i data-lucide="external-link" class="der" style="width:15px;height:15px;color:var(--t2)"></i></div></div>
+                  <div><div class="lb">Correo</div><div class="in"><i data-lucide="mail"></i>ventas@kusihogar.pe</div></div>
+                  <div><div class="lb">Redes</div>
+                    <div class="lista">
+                      <div class="r"><span class="ic"><i data-lucide="instagram"></i></span><b style="font-weight:600">Instagram</b><span class="der">@kusihogar</span></div>
+                      <div class="r"><span class="ic"><i data-lucide="facebook"></i></span><b style="font-weight:600">Facebook</b><span class="der">@kusihogar</span></div>
+                      <div class="r"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3v11.5a3.5 3.5 0 1 1-3.5-3.5"/><path d="M13.5 3c.4 2.6 2.2 4.3 5 4.5"/></svg></span><b style="font-weight:600">TikTok</b><span class="der">@kusihogar</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Operación -->
+              <div class="card fc">
+                <div class="fc-cab"><span class="ib"><i data-lucide="settings-2"></i></span><h3>Operación</h3><span class="nota">Horario y envíos</span></div>
+                <div class="fc-cuerpo">
+                  <div class="dos">
+                    <div><div class="lb">Moneda</div><div class="in mon"><span class="chip chip-osc" style="height:22px;font-size:11.5px;padding:0 9px">S/ · soles</span></div></div>
+                    <div><div class="lb">Zona horaria</div><div class="in zona"><i data-lucide="clock"></i><span style="font-size:13px">Lima · GMT-5</span><i data-lucide="chevron-down" class="der" style="width:14px;height:14px;color:var(--t2)"></i></div></div>
+                  </div>
+                  <div><div class="lb">Horario de atención <span class="md"></span></div>
+                    <div class="lista mod">
+                      <div class="r"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="hor" style="margin-left:2px">24/7</span><span class="der">lun–dom</span></div>
+                      <div class="r"><span class="mini-eq"><i data-lucide="users"></i>Equipo</span><span class="hor" style="margin-left:2px">lun–sáb</span><span class="der tnum">9:00–19:00</span></div>
+                    </div>
+                  </div>
+                  <div><div class="lb">Delivery</div>
+                    <div class="lista">
+                      <div class="r r2"><span class="ic"><i data-lucide="truck"></i></span><div><div class="t1">Lima · 24 h · S/ 10</div><div class="t2">Gratis desde S/ 299</div></div></div>
+                      <div class="r r2"><span class="ic"><i data-lucide="package"></i></span><div><div class="t1">Provincias · por agencia</div><div class="t2">Shalom u Olva · 2 a 4 días</div></div></div>
+                    </div>
+                  </div>
+                  <div><div class="lb">Política de cambios</div>
+                    <div class="txt">Aceptamos cambios hasta 7 días con boleta y empaque original. Garantía de 12 meses.<span class="cnt">83 / 280</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna derecha -->
+          <div class="col">
+            <!-- Vista previa del perfil de WhatsApp -->
+            <div class="wa">
+              <div class="cab"><span class="k">Vista previa</span><span class="pw"><i data-lucide="message-circle"></i>Perfil de WhatsApp</span></div>
+              <div class="portada-box"><img class="portada" src="../assets/fotos/catalogo-portada-tienda.webp" data-asset alt=""><span class="sello-demo"><i></i>Demo · datos ficticios</span></div>
+              <div class="perfil">
+                <span class="avl"><svg aria-label="Logo Kusi Hogar"><use href="#logo-kusi"/></svg></span>
+                <div><div class="nom">Kusi Hogar<i data-lucide="badge-check"></i></div><div class="esl">Tu cocina, más fácil</div></div>
+              </div>
+              <div class="tipo">Cuenta de empresa · Electrohogar y menaje</div>
+              <div class="lineas">
+                <div><i data-lucide="map-pin"></i>Mesa Redonda, Cercado de Lima</div>
+                <div><i data-lucide="globe"></i><b>kusihogar.pe</b></div>
+                <div><i data-lucide="clock"></i><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>24/7 · equipo 9:00–19:00</div>
+              </div>
+              <div class="cat">
+                <div class="l"><b>Catálogo</b>10 productos</div>
+                <img src="../assets/fotos/catalogo-freidora-aire.webp" data-asset alt="">
+                <img src="../assets/fotos/catalogo-licuadora.webp" data-asset alt="">
+                <img src="../assets/fotos/catalogo-termo.webp" data-asset alt="">
+                <span class="mas">+7</span>
+              </div>
+            </div>
+
+            <!-- Reseñas y canales -->
+            <div class="card fc" style="flex:1">
+              <div class="fc-cab con-sello" style="margin-bottom:8px"><span class="ib"><i data-lucide="star"></i></span><div class="tit"><h3>Reseñas y canales</h3><span class="sello-demo"><i></i>Demo · datos ficticios</span></div></div>
+              <div class="res-top">
+                <div class="n tnum">4.7</div>
+                <div>
+                  <div class="estrellas"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star-half"></i></div>
+                  <div class="s">312 reseñas</div>
+                </div>
+                <div class="der"><div class="a">Este mes</div><div class="b tnum">+24</div></div>
+              </div>
+              <div class="plat">
+                <div class="r"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 12H12.5"/></svg></span><div><div class="nm">Google</div><div class="ds">Perfil de empresa · 186 reseñas</div></div><span class="val tnum"><i data-lucide="star"></i>4.7</span></div>
+                <div class="r"><span class="ic"><i data-lucide="facebook"></i></span><div><div class="nm">Facebook</div><div class="ds">Página · 126 reseñas</div></div><span class="val tnum"><i data-lucide="star"></i>4.8</span></div>
+                <div class="r"><span class="ic"><i data-lucide="instagram"></i></span><div><div class="nm">Instagram · Tienda</div><div class="ds">Catálogo sincronizado</div></div><span class="chip chip-venta" style="margin-left:auto;height:22px;font-size:11.5px;padding:0 9px"><i class="pt"></i>Activo</span></div>
+              </div>
+              <div class="citar">
+                <div class="f1"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="t">cita tus reseñas</span><span class="toggle on"></span></div>
+                <div class="q"><span class="ej">Ejemplo</span>Tenemos 4.8 en Facebook con 126 reseñas. ¿Te la separo?</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</body></html>

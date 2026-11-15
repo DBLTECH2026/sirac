@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>SIRAC · Front</title>
+<meta name="viewport" content="width=1440">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="../js/tw-config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Se vuelve a cargar DESPUÉS del CDN: si solo va antes, el CDN pisa tailwind.config y se pierden los colores (noche, niebla, verde…) -->
+<script src="../js/tw-config.js"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../css/sirac.css">
+<!-- shell.js solo aporta íconos Lucide y marcadores de imágenes pendientes (no hay #sb ni #top en el Front) -->
+<script src="../js/shell.js"></script>
+<style>
+  /* Estilos propios del Front (no tocan sirac.css) */
+  body { width: 1440px; background: #fff; color: var(--noche); }
+  .wrap { width: 1200px; margin: 0 auto; position: relative; }
+  .bajada { font-size: 16px; line-height: 1.5; color: var(--t2); margin: 0; }
+  .h2f { font-family: Sora, sans-serif; font-weight: 700; font-size: 40px; line-height: 1.12; letter-spacing: -0.025em; margin: 0; }
+  .h3f { font-family: Sora, sans-serif; font-weight: 700; font-size: 26px; line-height: 1.2; letter-spacing: -0.02em; margin: 0; }
+  .lead { font-size: 17px; line-height: 1.6; color: #33445C; }
+  .txt { font-size: 15.5px; line-height: 1.65; color: #33445C; }
+  .foto { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 20px; }
+  .pie { display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 13px; color: var(--t2); }
+  .pie b { color: var(--noche); font-weight: 600; white-space: nowrap; }
+  .pie svg { width: 14px; height: 14px; color: var(--verde-texto); }
+  .nav a { font-size: 15px; font-weight: 500; color: #33445C; text-decoration: none; }
+  .link { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 15px; color: var(--noche); text-decoration: underline; text-underline-offset: 5px; text-decoration-color: var(--borde); text-decoration-thickness: 2px; }
+  .link svg { width: 17px; height: 17px; }
+  .btn-l { height: 48px; padding: 0 22px; font-size: 15px; }
+  .tarjeta-flota { position: absolute; color: var(--noche); background: #fff; border: 1px solid var(--linea); border-radius: 16px; box-shadow: 0 8px 24px -10px rgba(10,20,36,.18); }
+  .mini { font-size: 12.5px; line-height: 1.45; padding: 8px 11px; border-radius: 12px; }
+  .mini.cli { background: #fff; border: 1px solid var(--linea); border-top-left-radius: 4px; }
+  .mini.ia { background: var(--violeta-claro); border-top-right-radius: 4px; margin-left: auto; }
+  .mini .meta { font-size: 10.5px; color: var(--t2); margin-top: 3px; display: flex; gap: 4px; justify-content: flex-end; align-items: center; }
+  .mini .meta svg { width: 12px; height: 12px; }
+  /* Vista del CLIENTE (su WhatsApp): el negocio/Kinti a la izquierda, el cliente a la derecha */
+  .mini.ia-izq { background: var(--violeta-claro); border-top-left-radius: 4px; margin-right: auto; }
+  .mini.cli-der { background: #fff; border: 1px solid var(--linea); border-top-right-radius: 4px; margin-left: auto; }
+  /* Chat de la combi: la hora va en la última línea (como en WhatsApp) para que la tarjeta no toque el borde de la foto */
+  .tarjeta-flota.combi .mini { font-size: 10.5px; line-height: 1.4; padding: 6px 9px; position: relative; }
+  .tarjeta-flota.combi .mini .meta { font-size: 9px; margin: 0; position: absolute; right: 8px; bottom: 5px; }
+  .tarjeta-flota.combi .mini .hueco { display: inline-block; width: 30px; }
+  .tarjeta-flota .cola { position: absolute; width: 14px; height: 14px; background: #fff; border-right: 1px solid var(--linea); border-bottom: 1px solid var(--linea); transform: rotate(45deg); bottom: -8px; }
+  /* Pantalla encendida del celular de la combi (se proyecta con matrix3d sobre la pantalla negra de la foto) */
+  .cel-recorte { position: absolute; inset: 0; pointer-events: none; }
+  .cel { position: absolute; left: 0; top: 0; width: 150px; height: 345px; transform-origin: 0 0; background: var(--niebla); border-radius: 16px; overflow: hidden; font-family: Inter, sans-serif; color: var(--noche); }
+  .cel .cab { height: 40px; background: #fff; border-bottom: 1px solid var(--linea); display: flex; align-items: center; gap: 6px; padding: 12px 10px 0; }
+  .cel .b { font-size: 8.5px; line-height: 1.3; padding: 5px 7px; border-radius: 9px; margin: 6px 8px 0; max-width: 124px; }
+  .cel .b.k { background: var(--violeta-claro); border-top-left-radius: 3px; }
+  .cel .b.c { background: #fff; border: 1px solid var(--linea); border-top-right-radius: 3px; margin-left: auto; }
+  .cel .barra { position: absolute; left: 8px; right: 8px; bottom: 10px; display: flex; gap: 5px; align-items: center; }
+  .cel .barra span { flex: 1; height: 22px; border-radius: 999px; background: #fff; border: 1px solid var(--linea); }
+  .cel .barra i { width: 22px; height: 22px; border-radius: 50%; background: var(--verde); display: block; }
+  .chip-neutro { background: #fff; color: #33445C; border: 1px solid var(--linea); }
+  .chip-neutro img { width: 14px; height: 14px; }
+  /* Aviso honesto de imágenes IA + datos ficticios (apertura, mosaico y pie) */
+  .aviso-ia { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 1.4; color: var(--t2); }
+  .aviso-ia svg { width: 15px; height: 15px; flex: none; }
+  .chip svg { width: 13px; height: 13px; }
+  .paso-t { font-size: 13px; font-weight: 600; color: var(--t2); }
+  .reservado { border: 1.5px dashed var(--linea); background: var(--niebla); border-radius: 20px; position: relative; }
+  .sello-utp { position: absolute; left: 18px; top: 18px; display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border-radius: 999px; background: #fff; border: 1px solid var(--linea); font-size: 12px; font-weight: 600; color: var(--noche); white-space: nowrap; }
+  .sello-utp svg { width: 14px; height: 14px; color: var(--t2); }
+  .recorte { background: var(--niebla); border-radius: 14px; padding: 14px; height: 176px; overflow: hidden; position: relative; }
+  .pantalla img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; border-radius: 3px; }
+  img[data-asset] { background: none; } /* sirac.css pone rayas de marcador que se ven detrás de los PNG transparentes */
+  .chip-kinti img { background: #fff; } /* la regla anterior pisaba el fondo blanco del avatar del componente estándar */
+  .paso { display: flex; flex-direction: column; padding: 0 22px 0 18px; }
+  .paso .tt { font-size: 16px; font-weight: 700; line-height: 1.35; margin-top: 8px; min-height: 43px; }
+  .paso .ch { margin-top: auto; padding-top: 14px; display: flex; } /* flex: los 5 chips quedan a la misma altura aunque lleven imagen */
+  .pie-osc a { color: #C9D6E6; text-decoration: none; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- Logo demo de Kusi Hogar (el mismo de Config › Empresa): círculo azul noche, olla de línea, «K» y vapor verde -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="logo-kusi" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="50" fill="#0A1424"/>
+      <g fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M31 45 H69 L72.5 67 A6 6 0 0 1 66.6 74 H33.4 A6 6 0 0 1 27.5 67 Z"/>
+        <path d="M38 45 Q50 33 62 45"/>
+        <circle cx="50" cy="35.5" r="2.4"/>
+        <path d="M70.5 55 L80 47.5 L83 49.5"/>
+        <path d="M29 51 Q19 54 22 62 Q24 66 28.5 66"/>
+      </g>
+      <path d="M57 24 q3 -4 0 -8 q-3 -4 0 -8" fill="none" stroke="#0EB155" stroke-width="3" stroke-linecap="round"/>
+      <text x="50" y="69.5" text-anchor="middle" font-family="Sora, sans-serif" font-weight="800" font-size="22" fill="#FFFFFF">K</text>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ============ (0) CABECERA ============ -->
+<header class="bg-white border-b border-linea">
+  <div class="wrap flex items-center h-[76px]">
+    <img src="../assets/marca/logo-sirac-noche.svg" alt="SIRAC" style="height:30px">
+    <span class="ml-4 inline-flex items-center h-[24px] px-[10px] rounded-full bg-niebla text-[12px] font-semibold text-tinta-2">Demo académica</span>
+    <nav class="nav ml-14 flex items-center gap-9">
+      <a href="#quienes">Quiénes somos</a>
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <div class="ml-auto flex items-center gap-7">
+      <a class="text-[15px] font-semibold text-noche" style="text-decoration:none" href="acceso-iniciar-sesion.html">Iniciar sesión</a>
+      <a class="btn btn-verde" style="text-decoration:none" href="#contacto">Solicitar acceso a la demo</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ (1) APERTURA ============ -->
+<section class="bg-white">
+  <div class="wrap grid items-center" style="grid-template-columns:720px 420px;column-gap:60px;padding:72px 0 104px">
+    <!-- margin-top negativo: sube la columna 20 px para que la 1.ª línea del titular no roce la tarjeta flotante -->
+    <div style="margin-top:-40px">
+      <p class="bajada">Un CRM con agente de IA para negocios que venden por WhatsApp</p>
+      <h1 class="mt-4 mb-0" style="font-weight:700;font-size:42px;line-height:1.16;letter-spacing:-0.025em;white-space:nowrap">No pierdas clientes en WhatsApp<br>ni pagues anuncios a ciegas.</h1>
+      <p class="lead mt-5 mb-0" style="max-width:640px"><span class="chip-kinti" style="vertical-align:-2px"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span> responde en segundos, también de noche, y tu equipo cierra con todo el contexto. Tus anuncios aprenden de las ventas reales, no de los clics.</p>
+      <div class="flex items-center gap-7 mt-8">
+        <a class="btn btn-verde btn-l" style="text-decoration:none" href="#contacto">Solicitar acceso a la demo</a>
+        <a class="link" href="#como-funciona">Ver cómo funciona<i data-lucide="arrow-down"></i></a>
+      </div>
+      <div class="aviso-ia mt-8"><i data-lucide="image"></i>Imágenes ilustrativas creadas con IA · Kusi Hogar y sus datos son ficticios (demo)</div>
+    </div>
+
+    <figure class="m-0 relative">
+      <div style="width:420px;height:525px">
+        <img class="foto" src="../assets/fotos/foto-apertura-gamarra.webp" data-asset alt="Dueña de un stand en Gamarra atiende a una clienta mientras su celular espera boca abajo">
+      </div>
+      <!-- Tarjetita real del panel -->
+      <div class="tarjeta-flota" style="left:-104px;bottom:40px;width:332px;padding:13px 14px 14px">
+        <div class="flex items-center gap-2">
+          <span class="chip-kinti" style="flex:none"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>
+          <span class="min-w-0 truncate text-[12px] text-tinta-2">con <b class="text-noche font-semibold">Rosa Huamaní</b> · Comas</span>
+          <span class="ml-auto flex-none text-[11px] text-tinta-2 whitespace-nowrap">ejemplo</span>
+        </div>
+        <div class="sep" style="margin:11px 0 10px"></div>
+        <div class="mini cli" style="max-width:92%">¿La freidora de 5 L llega a Comas? 😊<div class="meta">11:42</div></div>
+        <div class="mini ia mt-2" style="max-width:94%">Hola, soy Kinti, asistente virtual de Kusi Hogar. Te respondo al toque y, si quieres, te paso con una persona del equipo.<div class="meta"><i data-lucide="zap"></i>11:42 · respondió en 6 s</div></div>
+        <div class="mini ia mt-[6px]" style="max-width:94%">Sí, Rosa: llega en 24 h y el delivery cuesta S/ 10. Hoy está a S/ 279. ¿Te paso con Diego para separarla?<div class="meta">11:42</div></div>
+      </div>
+      <figcaption class="pie"><i data-lucide="map-pin"></i><b>Gamarra, La Victoria</b><span>· un negocio como el tuyo</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ (2) QUIÉNES SOMOS ============ -->
+<section id="quienes" class="bg-white border-t border-linea">
+  <div class="wrap grid" style="grid-template-columns:560px 560px;column-gap:80px;padding:96px 0 100px">
+    <div>
+      <h2 class="h2f">Somos un equipo de la UTP<br>y esto es una demo.</h2>
+      <p class="txt mt-6 mb-0">SIRAC es nuestro proyecto del curso Innovación y Transformación Digital (2026-I). Partimos de algo que se ve en cualquier galería de Lima: el WhatsApp suena cuando nadie puede contestar, y la publicidad se paga sin saber qué anuncio trajo la venta.</p>
+      <p class="txt mt-4 mb-0">Aquí te mostramos cómo lo resolveríamos. La tienda del ejemplo, Kusi Hogar, y todas sus cifras son inventadas; no vendemos planes ni te pediremos una tarjeta.</p>
+      <div class="mt-9 text-[14px] font-semibold text-tinta-2">El equipo, 5 integrantes</div>
+      <ul class="list-none p-0 m-0 mt-2">
+        <li class="flex items-center gap-3 py-[9px] border-b border-linea"><span class="av" style="background:#1E2E4E">LL</span><span class="text-[15px] font-semibold">Luis Alessandro López Lapa</span></li>
+        <li class="flex items-center gap-3 py-[9px] border-b border-linea"><span class="av" style="background:#EEF3F8;color:#0A1424;box-shadow:inset 0 0 0 1px #DCE5EF">FL</span><span class="text-[15px] font-semibold">Frank Carlos Lope Carbajal</span></li>
+        <li class="flex items-center gap-3 py-[9px] border-b border-linea"><span class="av" style="background:#0A1424">YE</span><span class="text-[15px] font-semibold">Yelina Lariza Espinoza Flores</span></li>
+        <li class="flex items-center gap-3 py-[9px] border-b border-linea"><span class="av" style="background:#EEF3F8;color:#0A1424;box-shadow:inset 0 0 0 1px #DCE5EF">ER</span><span class="text-[15px] font-semibold">Eduardo Alejandro Danilo Rivera López</span></li>
+        <li class="flex items-center gap-3 py-[9px]"><span class="av" style="background:#1E2E4E">MC</span><span class="text-[15px] font-semibold">Marlon Gerardo Condori Sotelo</span></li>
+      </ul>
+    </div>
+
+    <div class="pt-[6px]">
+      <figure class="m-0">
+        <div class="reservado flex flex-col items-center justify-center text-center" style="width:560px;height:300px" data-reservado="foto-equipo-real">
+          <span class="sello-utp"><i data-lucide="graduation-cap"></i>Proyecto UTP · 2026-I</span>
+          <span class="w-[52px] h-[52px] rounded-full bg-white border border-linea grid place-items-center text-tinta-2"><i data-lucide="camera" style="width:22px;height:22px"></i></span>
+          <div class="sora mt-4 text-[17px] font-semibold">Foto real del equipo SIRAC (la pone Luis)</div>
+          <div class="text-[13px] text-tinta-2 mt-1">Espacio reservado · sin fotos generadas ni caras inventadas</div>
+        </div>
+        <figcaption class="pie"><i data-lucide="map-pin"></i><b>Equipo SIRAC</b><span>· Universidad Tecnológica del Perú</span></figcaption>
+      </figure>
+      <div class="flex gap-4 mt-8 p-5 rounded-[16px] bg-niebla">
+        <img src="../assets/marca/isotipo-sirac-noche.svg" alt="" style="width:40px;height:40px;flex:none">
+        <div>
+          <div class="text-[15px] font-bold">¿Por qué «SIRAC»?</div>
+          <p class="m-0 mt-1 text-[14px] leading-[1.6] text-[#33445C]">Sistema Inteligente de Retroalimentación y Atención Comercial. La «retroalimentación» es la venta real que vuelve a tus anuncios; por eso el logo es una órbita que se cierra.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pensado para negocios como estos -->
+<section class="bg-niebla">
+  <div class="wrap" style="padding:88px 0 92px">
+    <div class="flex items-end justify-between">
+      <h3 class="h3f" style="font-size:30px">Pensado para negocios como estos</h3>
+      <p class="txt m-0" style="max-width:470px;font-size:15px">Todavía no tenemos clientes. Estos son los negocios en los que pensamos al diseñar SIRAC: venden por WhatsApp y muchos ya pagan anuncios.</p>
+    </div>
+    <div class="grid mt-10" style="grid-template-columns:repeat(4,282px);column-gap:24px;align-items:start">
+      <figure class="m-0">
+        <div style="height:352px"><img class="foto" src="../assets/fotos/foto-pyme-importadora.webp" data-asset alt="Importadora fotografía mochilas para enviarlas por WhatsApp"></div>
+        <figcaption class="pie"><i data-lucide="map-pin"></i><b>Importadora · Mesa Redonda</b></figcaption>
+      </figure>
+      <figure class="m-0" style="margin-top:44px">
+        <div style="height:352px"><img class="foto" src="../assets/fotos/foto-pyme-ferreteria.webp" data-asset alt="Ferretera anota un pedido de WhatsApp en su cuaderno"></div>
+        <figcaption class="pie"><i data-lucide="map-pin"></i><b>Ferretería · Surquillo</b></figcaption>
+      </figure>
+      <figure class="m-0">
+        <div style="height:352px"><img class="foto" src="../assets/fotos/foto-pyme-tapiceria.webp" data-asset alt="Tapicero fotografía un sillón terminado para el cliente"></div>
+        <figcaption class="pie"><i data-lucide="map-pin"></i><b>Tapicería · Villa El Salvador</b></figcaption>
+      </figure>
+      <figure class="m-0" style="margin-top:44px">
+        <div style="height:352px"><img class="foto" src="../assets/fotos/foto-pyme-reposteria.webp" data-asset alt="Repostero cierra la caja de una torta por pedido"></div>
+        <figcaption class="pie"><i data-lucide="map-pin"></i><b>Repostería · Miraflores</b></figcaption>
+      </figure>
+    </div>
+    <div class="aviso-ia mt-8"><i data-lucide="image"></i>Imágenes ilustrativas creadas con IA · Kusi Hogar y sus datos son ficticios (demo)</div>
+  </div>
+</section>
+
+<!-- ============ (3) CÓMO FUNCIONA ============ -->
+<section id="como-funciona">
+  <!-- Banda azul noche corta -->
+  <div class="bg-noche text-white grid" style="grid-template-columns:720px 720px;height:400px">
+    <div class="flex flex-col justify-center" style="padding:0 60px 8px 120px">
+      <h2 class="h2f text-white" style="font-size:42px">Tu tienda cierra;<br>tus anuncios no.</h2>
+      <p class="m-0 mt-5 text-[16px] leading-[1.6] text-tinta-3" style="max-width:520px">Son las 9:40 p. m. y alguien que vio tu anuncio pregunta por una freidora. Si nadie contesta, mañana ya compró en otro lado.</p>
+      <div class="flex items-center gap-3 mt-7">
+        <span class="chip" style="background:transparent;border:1px solid #1E2E4E;color:#C9D6E6"><i data-lucide="users"></i>Tu equipo · lun–sáb 9:00–19:00</span>
+        <span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA · 24/7</span>
+      </div>
+    </div>
+    <div class="relative overflow-hidden">
+      <img src="../assets/fotos/foto-tienda-noche.webp" data-asset alt="Tienda de menaje de noche, con la puerta enrollable cerrada y un celular encendido boca abajo" style="width:720px;height:400px;object-fit:cover;display:block">
+      <div class="tarjeta-flota" style="left:36px;bottom:36px;width:326px;padding:12px;box-shadow:none;border-color:#1E2E4E">
+        <div class="mini cli" style="max-width:80%">Hola, ¿todavía atienden? Quiero la freidora de aire<div class="meta">21:40</div></div>
+        <div class="mini ia mt-2" style="max-width:94%"><b class="text-violeta-texto" style="font-size:11.5px">Kinti · IA</b><br>Hola, soy Kinti, asistente virtual de Kusi Hogar. Te respondo al toque y, si quieres, te paso con una persona del equipo.<div class="meta">21:40</div></div>
+        <div class="mini ia mt-[6px]" style="max-width:94%">Una persona del equipo te escribe mañana desde las 9:00; mientras, te ayudo con precios, stock y envíos.<div class="meta">21:40</div></div>
+      </div>
+      <span class="absolute right-5 bottom-5 inline-flex items-center gap-[6px] text-[12px] font-medium text-white rounded-full px-3 h-[26px]" style="background:rgba(10,20,36,.72)"><i data-lucide="map-pin" style="width:13px;height:13px"></i>Tienda de menaje · Cercado de Lima, 9:40 p. m.</span>
+    </div>
+  </div>
+
+  <!-- El recorrido de una venta -->
+  <div class="bg-white">
+    <div class="wrap" style="padding:92px 0 96px">
+      <div class="grid items-end" style="grid-template-columns:1fr 470px;column-gap:80px">
+        <h2 class="h2f">El recorrido de una venta</h2>
+        <p class="txt m-0" style="font-size:15px">Sigue a Lucía, de Surco (cliente de ejemplo): vio el anuncio «Aspiradoras Lima» en Google, escribió de noche y al día siguiente ya tenía su aspiradora.</p>
+      </div>
+
+      <!-- Ilustraciones -->
+      <div class="grid mt-12" style="grid-template-columns:repeat(5,240px)">
+        <div class="flex justify-center"><img src="../assets/ilustraciones/ref-cliente-respuesta.webp" data-asset alt="Cliente recibe respuesta en su celular" style="width:176px;height:176px;object-fit:contain"></div>
+        <div class="flex justify-center"><img src="../assets/ilustraciones/agente-atendiendo.webp" data-asset alt="Kinti · IA atendiendo" style="width:176px;height:176px;object-fit:contain"></div>
+        <div class="flex justify-center"><img src="../assets/ilustraciones/front-paso-3-derivacion.webp" data-asset alt="Un vendedor recibe el chat derivado con la ficha del cliente" style="width:176px;height:176px;object-fit:contain"></div>
+        <div class="flex justify-center"><img src="../assets/ilustraciones/ref-vendedora-cierre.webp" data-asset alt="La vendedora cierra la venta" style="width:176px;height:176px;object-fit:contain"></div>
+        <div class="flex justify-center"><img src="../assets/ilustraciones/front-paso-5-devolucion.webp" data-asset alt="El dueño con un megáfono: los anuncios traen compradores" style="width:176px;height:176px;object-fit:contain"></div>
+      </div>
+
+      <!-- Línea-órbita del ciclo: ida por arriba (sólida), vuelta del 5 al 1 por abajo (punteada) -->
+      <svg width="1200" height="74" viewBox="0 0 1200 74" style="display:block;margin-top:10px" aria-hidden="true">
+        <path d="M 14 37 A 586 30 0 0 1 1186 37" fill="none" stroke="#0EB155" stroke-width="3" stroke-linecap="round"/>
+        <path d="M 1186 37 A 586 30 0 0 1 14 37" fill="none" stroke="#0EB155" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1 9"/>
+        <!-- puntas de la vuelta (hacia la izquierda) -->
+        <path d="M 312 63 l 9 -5 M 312 63 l 9 5" stroke="#0EB155" stroke-width="2.5" stroke-linecap="round" fill="none" transform="rotate(-4 312 63)"/>
+        <path d="M 900 63 l 9 -5 M 900 63 l 9 5" stroke="#0EB155" stroke-width="2.5" stroke-linecap="round" fill="none" transform="rotate(4 900 63)"/>
+        <!-- 5 nodos sobre el arco de ida -->
+        <circle cx="120" cy="19.8" r="7" fill="#0EB155" stroke="#fff" stroke-width="3"/>
+        <circle cx="360" cy="9.6" r="7" fill="#7C5CFC" stroke="#fff" stroke-width="3"/>
+        <circle cx="600" cy="7"    r="7" fill="#0EB155" stroke="#fff" stroke-width="3"/>
+        <circle cx="840" cy="9.6" r="7" fill="#0EB155" stroke="#fff" stroke-width="3"/>
+        <circle cx="1080" cy="19.8" r="7" fill="#0EB155" stroke="#fff" stroke-width="3"/>
+      </svg>
+
+      <!-- Textos de los pasos -->
+      <div class="grid mt-4" style="grid-template-columns:repeat(5,240px)">
+        <div class="paso">
+          <div class="paso-t">Paso 1 · Captación</div>
+          <div class="tt">El anuncio lleva a tu WhatsApp</div>
+          <p class="m-0 mt-2 text-[13.5px] leading-[1.55] text-[#33445C]">SIRAC anota de qué campaña llegó cada chat.</p>
+          <div class="ch"><span class="chip chip-neutro"><i data-lucide="megaphone"></i>Google · Aspiradoras Lima</span></div>
+        </div>
+        <div class="paso">
+          <div class="paso-t" style="color:#4B2FD0">Paso 2 · Atención</div>
+          <div class="tt">Kinti · IA responde en segundos</div>
+          <p class="m-0 mt-2 text-[13.5px] leading-[1.55] text-[#33445C]">Con tu catálogo y tus precios; pregunta lo justo para saber si va en serio.</p>
+          <div class="ch"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA · respondió en 8 s</span></div>
+        </div>
+        <div class="paso">
+          <div class="paso-t">Paso 3 · Derivación</div>
+          <div class="tt">Pasa a una persona de tu equipo, con contexto</div>
+          <p class="m-0 mt-2 text-[13.5px] leading-[1.55] text-[#33445C]">Si hay intención de compra, esa persona recibe el chat con el resumen y la ficha.</p>
+          <div class="ch"><span class="chip chip-neutro" style="padding-left:4px"><span class="av" style="width:18px;height:18px;font-size:8.5px;background:#1E2E4E">MR</span>Para Milagros · Ventas</span></div>
+        </div>
+        <div class="paso">
+          <div class="paso-t">Paso 4 · Cierre</div>
+          <div class="tt">Tu equipo cierra la venta</div>
+          <p class="m-0 mt-2 text-[13.5px] leading-[1.55] text-[#33445C]">El panel guarda el monto, el producto y la campaña de origen.</p>
+          <div class="ch"><span class="chip chip-venta"><i class="pt"></i>Venta cerrada · S/ 459</span></div>
+        </div>
+        <div class="paso">
+          <div class="paso-t">Paso 5 · Devolución</div>
+          <div class="tt">La venta vuelve a Meta y Google</div>
+          <p class="m-0 mt-2 text-[13.5px] leading-[1.55] text-[#33445C]">SIRAC la envía sola: tus anuncios buscan compradores, no clics, y el ciclo vuelve al paso 1.</p>
+          <div class="ch"><span class="chip chip-neutro"><img src="../assets/marca/isotipo-sirac-noche.svg" alt="">SIRAC envió la venta</span></div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 mt-10 pt-5 border-t border-linea text-[13px] text-tinta-2"><i data-lucide="lock" style="width:15px;height:15px"></i>Solo el dato de la venta viaja a Meta y Google, cifrado, con aviso de privacidad a tus clientes (Ley 29733).</div>
+    </div>
+  </div>
+
+  <!-- Así se ve tu panel -->
+  <div class="bg-niebla">
+    <div class="wrap" style="padding:92px 0 100px">
+      <div class="grid items-end" style="grid-template-columns:1fr 470px;column-gap:80px">
+        <h2 class="h2f">Así se ve tu panel</h2>
+        <p class="txt m-0" style="font-size:15px">Todo lo que pasa en tus WhatsApp, en un solo lugar: quién escribió, de qué anuncio vino, qué respondió Kinti · IA y quién cerró la venta.</p>
+      </div>
+
+      <div class="grid mt-10" style="grid-template-columns:744px 400px;column-gap:56px;align-items:start">
+        <figure class="m-0">
+          <div class="relative" style="height:496px">
+            <img class="foto" src="../assets/fotos/foto-panel-laptop.webp" data-asset alt="Laptop sobre el mostrador de una tienda de menaje">
+            <!-- Captura real del dashboard sobre la pantalla de la laptop -->
+            <div class="pantalla absolute" style="left:205px;top:128px;width:275px;height:152px;overflow:hidden">
+              <img src="../assets/capturas/crm-dashboard-admin.webp" data-asset alt="Dashboard de SIRAC (demo)">
+            </div>
+          </div>
+          <figcaption class="pie"><i data-lucide="map-pin"></i><b>Tienda de menaje · Mesa Redonda</b><span>· el panel de Kusi Hogar, con datos ficticios (demo)</span></figcaption>
+        </figure>
+
+        <figure class="m-0">
+          <div class="relative" style="height:496px">
+            <img class="foto" src="../assets/fotos/foto-chat-combi.webp" data-asset alt="Un cliente lee la respuesta de Kinti · IA en su celular dentro de una combi" style="object-position:center top">
+            <!-- Pantalla encendida: el chat se proyecta (matrix3d) sobre la pantalla negra; el recorte deja el pulgar por encima -->
+            <div class="cel-recorte" style="clip-path:polygon(259.4px 267.2px, 261.7px 264.1px, 265.6px 262.9px, 312.5px 266.0px, 315.2px 267.6px, 316.4px 270.3px, 316.0px 274.2px, 312.5px 302.7px, 305.5px 341.8px, 298.0px 378.1px, 295.7px 382.0px, 285.2px 380.1px, 273.4px 380.1px, 268.0px 385.9px, 266.8px 394.5px, 268.0px 402.3px, 240.2px 396.9px, 237.1px 395.3px, 235.9px 392.2px, 236.3px 388.7px, 238.3px 371.1px, 244.9px 335.9px, 252.0px 302.7px, 257.4px 271.1px)">
+              <div class="cel" style="transform:matrix3d(0.293617,-0.059634,0,-0.000317,-0.068197,0.39135,0,0.000006,0,0,1,0,258.984375,262.304688,0,1)">
+                <div class="cab"><svg width="20" height="20" aria-hidden="true"><use href="#logo-kusi"/></svg><b style="font-size:10.5px">Kusi Hogar</b></div>
+                <div class="b c">¿La aspiradora llega mañana a Chorrillos?</div>
+                <div class="b k"><b style="color:#4B2FD0">Kinti · IA</b><br>Hola, soy Kinti, asistente virtual de Kusi Hogar. Te respondo al toque y, si quieres, te paso con una persona del equipo.</div>
+                <div class="b k">Sí, en 24 h y sin costo de envío. ¿Te paso con Diego?</div>
+                <div class="barra"><span></span><i></i></div>
+              </div>
+            </div>
+            <!-- El mismo chat, ampliado: nace del celular (la colita apunta a la pantalla). Orientación del cliente: Kinti a la izquierda, el cliente a la derecha -->
+            <div class="tarjeta-flota combi" style="left:124px;bottom:246px;width:266px;padding:10px 11px 11px">
+              <div class="flex items-center gap-2 mb-[7px]">
+                <svg width="20" height="20" aria-label="Logo Kusi Hogar"><use href="#logo-kusi"/></svg>
+                <span class="text-[11.5px] font-bold">Kusi Hogar</span><span class="text-[10.5px] text-tinta-2">· WhatsApp</span>
+              </div>
+              <div class="mini cli-der" style="max-width:86%">¿La aspiradora llega mañana a Chorrillos?<span class="hueco"></span><div class="meta">17:52</div></div>
+              <div class="mini ia-izq mt-[5px]" style="max-width:94%"><b class="text-violeta-texto" style="font-size:10px">Kinti · IA</b><br>Hola, soy Kinti, asistente virtual de Kusi Hogar. Te respondo al toque y, si quieres, te paso con una persona del equipo.</div>
+              <div class="mini ia-izq mt-[4px]" style="max-width:94%">Sí, en 24 h y sin costo de envío. ¿Te paso con Diego?<span class="hueco"></span><div class="meta">17:52</div></div>
+              <span class="cola" style="left:158px"></span>
+            </div>
+          </div>
+          <figcaption class="pie"><i data-lucide="map-pin"></i><b>En la combi · Av. Javier Prado</b><span>· lo que ve tu cliente</span></figcaption>
+        </figure>
+      </div>
+
+      <!-- 3 recortes del panel -->
+      <div class="grid mt-12" style="grid-template-columns:repeat(3,384px);column-gap:24px">
+        <!-- Chats -->
+        <div class="card" style="padding:14px 14px 20px">
+          <div class="recorte">
+            <div class="bg-white rounded-[10px] border border-linea px-3 py-[9px] flex items-center gap-[10px]">
+              <span class="av" style="width:28px;height:28px;font-size:10px;background:#1E2E4E">RH</span>
+              <div class="leading-tight min-w-0"><div class="text-[12.5px] font-semibold">Rosa Huamaní</div><div class="text-[11px] text-tinta-2">Freidora de aire 5 L</div></div>
+              <span class="chip chip-ia ml-auto" style="height:20px;font-size:10.5px;padding:0 8px"><i class="pt"></i>Calificado por IA</span>
+            </div>
+            <div class="bg-white rounded-[10px] border border-linea px-3 py-[9px] flex items-center gap-[10px] mt-2">
+              <span class="av" style="width:28px;height:28px;font-size:10px;background:#EEF3F8;color:#0A1424;box-shadow:inset 0 0 0 1px #C8D8E8">MR</span>
+              <div class="leading-tight min-w-0"><div class="text-[12.5px] font-semibold">Martín Ríos</div><div class="text-[11px] text-tinta-2">Freidora + hervidor</div></div>
+              <span class="chip chip-nuevo ml-auto" style="height:20px;font-size:10.5px;padding:0 8px"><i class="pt"></i>Nuevo</span>
+            </div>
+            <div class="mt-2 flex items-center gap-2 rounded-[10px] pl-[6px] pr-3 h-[34px] bg-noche text-white text-[11.5px]">
+              <span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><b class="whitespace-nowrap">derivó este chat a Diego</b>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 mt-4 px-1"><i data-lucide="message-circle" class="text-verde-texto" style="width:18px;height:18px"></i><b class="text-[15.5px]">Chats</b></div>
+          <p class="m-0 mt-1 px-1 text-[13.5px] leading-[1.55] text-[#33445C]">Todos tus números en una sola bandeja. Ves qué respondió Kinti y tomas el chat cuando quieras.</p>
+        </div>
+        <!-- Embudo -->
+        <div class="card" style="padding:14px 14px 20px">
+          <div class="recorte" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+            <div>
+              <div class="flex items-center gap-1 text-[10.5px] font-semibold text-[#4A5C74] whitespace-nowrap"><i style="width:6px;height:6px;border-radius:50%;background:#6E819A"></i>Nuevo · 2</div>
+              <div class="bg-white rounded-[8px] border border-linea p-[6px] mt-[6px]"><div class="text-[10.5px] font-semibold">Martín R.</div><div class="text-[10px] text-tinta-2">S/ 378</div></div>
+              <div class="bg-white rounded-[8px] border border-linea p-[6px] mt-[5px]"><div class="text-[10.5px] font-semibold">Elena Q.</div><div class="text-[10px] text-tinta-2">S/ 177</div></div>
+            </div>
+            <div>
+              <div class="flex items-center gap-1 text-[10.5px] font-semibold text-violeta-texto whitespace-nowrap"><i style="width:6px;height:6px;border-radius:50%;background:#7C5CFC"></i>Calif. IA · 3</div>
+              <div class="bg-white rounded-[8px] border border-linea p-[6px] mt-[6px]"><div class="text-[10.5px] font-semibold">Rosa H.</div><div class="text-[10px] text-tinta-2">S/ 279</div></div>
+              <div class="bg-white rounded-[8px] border border-linea p-[6px] mt-[5px]"><div class="text-[10.5px] font-semibold">Pedro C.</div><div class="text-[10px] text-tinta-2">S/ 189</div></div>
+            </div>
+            <div>
+              <div class="flex items-center gap-1 text-[10.5px] font-semibold text-celeste-texto whitespace-nowrap"><i style="width:6px;height:6px;border-radius:50%;background:#16B6D8"></i>Cotiz. · 3</div>
+              <div class="bg-white rounded-[8px] border border-linea p-[6px] mt-[6px]"><div class="text-[10.5px] font-semibold">Jhon P.</div><div class="text-[10px] text-tinta-2">S/ 349</div></div>
+              <div class="bg-white rounded-[8px] border border-linea p-[6px] mt-[5px]"><div class="text-[10.5px] font-semibold">Andrea S.</div><div class="text-[10px] text-tinta-2">S/ 399</div></div>
+            </div>
+            <div>
+              <div class="flex items-center gap-1 text-[10.5px] font-semibold text-verde-texto whitespace-nowrap"><i style="width:6px;height:6px;border-radius:50%;background:#0EB155"></i>Venta · 3</div>
+              <div class="bg-white rounded-[8px] p-[6px] mt-[6px]" style="border:1px solid #0EB155"><div class="text-[10.5px] font-semibold">Lucía F.</div><div class="text-[10px] text-verde-texto font-semibold">S/ 459</div></div>
+              <div class="bg-white rounded-[8px] border border-linea p-[6px] mt-[5px]"><div class="text-[10.5px] font-semibold">Raúl B.</div><div class="text-[10px] text-tinta-2">S/ 459</div></div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 mt-4 px-1"><i data-lucide="filter" class="text-verde-texto" style="width:18px;height:18px"></i><b class="text-[15.5px]">Embudo</b></div>
+          <p class="m-0 mt-1 px-1 text-[13.5px] leading-[1.55] text-[#33445C]">Cada cliente en su etapa, con el monto y la campaña de donde vino.</p>
+        </div>
+        <!-- Entrenamiento -->
+        <div class="card" style="padding:14px 14px 20px">
+          <div class="recorte">
+            <div class="flex items-center gap-2">
+              <span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="text-[11.5px] text-tinta-2">14 reglas activas</span>
+            </div>
+            <div class="bg-white rounded-[10px] border border-linea px-3 py-[8px] mt-[10px] flex items-center gap-3">
+              <div class="leading-snug min-w-0"><div class="text-[12px] font-semibold">Si preguntan por el ventilador de torre</div><div class="text-[11px] text-tinta-2">«Está sin stock; te aviso cuando llegue»</div></div>
+              <span class="toggle on ml-auto" style="transform:scale(.85)"></span>
+            </div>
+            <div class="bg-white rounded-[10px] border border-linea px-3 py-[8px] mt-2 flex items-center gap-3">
+              <div class="leading-snug min-w-0"><div class="text-[12px] font-semibold">Envíos a provincia</div><div class="text-[11px] text-tinta-2">«Por agencia: Shalom u Olva»</div></div>
+              <span class="toggle on ml-auto" style="transform:scale(.85)"></span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 mt-4 px-1"><i data-lucide="sparkles" class="text-violeta" style="width:18px;height:18px"></i><b class="text-[15.5px]">Entrenamiento de Kinti</b></div>
+          <p class="m-0 mt-1 px-1 text-[13.5px] leading-[1.55] text-[#33445C]">Le enseñas tu catálogo, tus respuestas y cómo manejar objeciones. Tú decides qué ofrece.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ (4) CONTACTO ============ -->
+<section id="contacto" class="bg-white">
+  <div class="wrap grid" style="grid-template-columns:480px 640px;column-gap:80px;padding:100px 0 104px">
+    <figure class="m-0">
+      <div style="height:600px"><img class="foto" src="../assets/fotos/foto-contacto-manos.webp" data-asset alt="Manos sobre un escritorio: una sostiene el celular y la otra anota un pedido en la libreta"></div>
+      <figcaption class="pie"><i data-lucide="map-pin"></i><b>Oficina de una importadora · Cercado de Lima</b></figcaption>
+    </figure>
+
+    <div>
+      <div class="flex items-start justify-between gap-6">
+        <div>
+          <h2 class="h2f">Pide acceso a la demo</h2>
+          <p class="txt mt-4 mb-0" style="max-width:470px">Cuéntanos de tu negocio y te mandamos un usuario de prueba por correo o WhatsApp.</p>
+        </div>
+        <span class="shrink-0 w-[112px] h-[112px] rounded-full bg-niebla overflow-hidden grid place-items-center">
+          <img src="../assets/ilustraciones/acceso-solicitar-acceso.webp" data-asset alt="" style="width:104px;height:104px;object-fit:contain">
+        </span>
+      </div>
+
+      <div class="grid mt-8" style="grid-template-columns:1fr 1fr;gap:18px 20px">
+        <div class="campo"><label>Nombre</label><div class="input ph">Tu nombre y apellido</div></div>
+        <div class="campo"><label>Negocio</label><div class="input ph">Nombre de tu negocio</div></div>
+        <div class="campo"><label>WhatsApp</label><div class="input"><span class="text-tinta-2 font-medium">+51</span><span class="w-px h-5 bg-linea"></span><span class="text-tinta-3">9__ ___ ___</span></div></div>
+        <div class="campo"><label>Rubro</label><div class="input ph">Elige tu rubro<i data-lucide="chevron-down" class="ml-auto text-tinta-2" style="width:18px;height:18px"></i></div></div>
+        <div class="campo" style="grid-column:1 / -1"><label>Mensaje</label><div class="input ph" style="height:104px;align-items:flex-start;padding-top:12px;line-height:1.5">Cuéntanos cómo vendes hoy: ¿cuántos números de WhatsApp usan? ¿haces anuncios en Meta o Google?</div></div>
+      </div>
+
+      <div class="flex items-center gap-6 mt-7">
+        <a class="btn btn-verde btn-l" style="text-decoration:none" href="acceso-solicitar-acceso.html"><i data-lucide="send"></i>Solicitar acceso a la demo</a>
+        <span class="text-[14px] text-tinta-2">o escríbenos a <a class="text-noche font-semibold" href="mailto:sirac.utp@gmail.com">sirac.utp@gmail.com</a></span>
+      </div>
+
+      <div class="flex gap-3 mt-8 p-4 rounded-[14px] bg-niebla text-[13.5px] leading-[1.55] text-[#33445C]">
+        <i data-lucide="info" class="text-tinta-2 shrink-0 mt-[1px]" style="width:18px;height:18px"></i>
+        <span>Es una demo académica: no hay planes de pago ni te pediremos tarjeta. Usamos tus datos solo para darte acceso y luego los borramos.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ (5) PIE ============ -->
+<footer class="bg-noche text-white relative overflow-hidden">
+
+  <div class="wrap relative" style="padding:64px 0 0">
+    <div class="grid" style="grid-template-columns:420px 1fr 1fr 1fr;column-gap:48px">
+      <div>
+        <img src="../assets/marca/logo-sirac-blanco.svg" alt="SIRAC" style="height:30px">
+        <p class="m-0 mt-5 text-[14px] leading-[1.6] text-tinta-3" style="max-width:340px">Sistema Inteligente de Retroalimentación y Atención Comercial. CRM con agente de IA para PYMES que venden por WhatsApp.</p>
+      </div>
+      <div class="pie-osc flex flex-col gap-3">
+        <div class="text-[14px] font-semibold text-white mb-1">Página</div>
+        <a href="#quienes">Quiénes somos</a><a href="#como-funciona">Cómo funciona</a><a href="#contacto">Contacto</a><a href="acceso-iniciar-sesion.html">Iniciar sesión</a>
+      </div>
+      <div class="pie-osc flex flex-col gap-3">
+        <div class="text-[14px] font-semibold text-white mb-1">Contacto</div>
+        <a href="mailto:sirac.utp@gmail.com" class="inline-flex items-center gap-2"><i data-lucide="mail" style="width:15px;height:15px"></i>sirac.utp@gmail.com</a>
+        <a href="#contacto" style="color:#0EB155;font-weight:600">Solicitar acceso a la demo</a>
+      </div>
+      <div class="pie-osc flex flex-col gap-3">
+        <div class="text-[14px] font-semibold text-white mb-1">Privacidad</div>
+        <span class="text-[13.5px] leading-[1.55] text-[#C9D6E6]">Solo el dato de la venta viaja a Meta y Google, cifrado, con aviso de privacidad a tus clientes (Ley 29733).</span>
+        <a href="#">Política de privacidad</a>
+      </div>
+    </div>
+
+    <!-- Una sola órbita del logo que cruza el pie, con sus 2 puntos verdes -->
+    <svg width="1440" height="104" viewBox="0 0 1440 104" style="display:block;margin:28px 0 8px -120px" aria-hidden="true">
+      <g transform="rotate(-1.5 720 52)">
+        <ellipse cx="720" cy="52" rx="820" ry="30" fill="none" stroke="#1E2E4E" stroke-width="2.5"/>
+        <circle cx="1130" cy="26" r="5" fill="#0EB155"/>
+        <circle cx="310" cy="78" r="5" fill="#0EB155"/>
+      </g>
+    </svg>
+    <div class="relative flex items-center justify-between py-6 border-t border-noche-3 text-[13px] text-tinta-3">
+      <span class="inline-flex items-center gap-2"><i data-lucide="graduation-cap" style="width:16px;height:16px"></i>Proyecto UTP · Innovación y Transformación Digital · 2026-I</span>
+      <span>Imágenes ilustrativas creadas con IA · Kusi Hogar y sus datos son ficticios (demo)</span>
+    </div>
+  </div>
+</footer>
+
+</body></html>

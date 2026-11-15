@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>SIRAC · Configuración · Catálogo</title>
+<meta name="viewport" content="width=1440">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="../js/tw-config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../css/sirac.css">
+<script src="../js/shell.js"></script>
+<style>
+  /* v0.3: el marco 1440 × 900 sin scroll lo da body.marco; .main, .top y la tarjeta ilustrada (.cfg-card) vienen de sirac.css.
+     Aquí solo: columna flex para que el submenú y la grilla llenen el alto. */
+  .main { display: flex; flex-direction: column; }
+  .cfg { flex: 1; min-height: 0; }
+
+  /* Pie del submenú: nota de Kinti · IA + tarjeta ilustrada estándar, juntas al fondo (la tarjeta queda donde en las demás vistas) */
+  .cfg-menu .pie { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
+  .cfg-menu .nota { background: #fff; border: 1px solid var(--linea); border-radius: 16px; padding: 12px 14px 13px; font-size: 12.5px; line-height: 1.45; color: #33445C; }
+  .cfg-menu .nota .chip-kinti { margin-bottom: 7px; }
+  .cfg-menu .nota em { font-style: normal; font-weight: 600; color: var(--noche); }
+
+  /* Cabecera de la sección */
+  .seccion { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+  .sec-h { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+  .sec-h h2 { font-family: Sora, sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.02em; margin: 0; line-height: 28px; }
+  .sec-h p { margin: 2px 0 0; font-size: 13.5px; color: var(--t2); }
+  .sec-h p b { color: var(--noche); font-weight: 700; }
+  .sec-h .acc { display: flex; gap: 8px; }
+
+  /* Pestañas de categoría + orden */
+  .filtros { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .tabs { display: flex; gap: 6px; }
+  .tab { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 8px 0 14px; border-radius: 999px; background: #fff; border: 1px solid var(--linea); font-size: 13px; font-weight: 600; color: #33445C; white-space: nowrap; }
+  .tab em { font-style: normal; min-width: 22px; height: 20px; padding: 0 6px; border-radius: 999px; background: #EDF1F6; color: #4A5C74; font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .tab.on { background: var(--noche); border-color: var(--noche); color: #fff; }
+  .tab.on em { background: var(--verde); color: var(--noche); }
+  .der { display: flex; align-items: center; gap: 8px; }
+  .orden { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 12px; border-radius: 999px; background: #fff; border: 1px solid var(--linea); font-size: 13px; color: var(--t2); white-space: nowrap; }
+  .orden b { color: var(--noche); font-weight: 600; }
+  .orden svg { width: 15px; height: 15px; }
+  .orden .cv { width: 14px; height: 14px; color: var(--t3); }
+  .vista { padding: 2px; }
+  .vista span { height: 28px; width: 34px; padding: 0; justify-content: center; }
+  .vista span svg { width: 15px; height: 15px; }
+
+  /* Grilla de productos 5 × 2 */
+  .grilla { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .pc { background: #fff; border: 1px solid var(--linea); border-radius: 16px; padding: 6px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .ft { position: relative; height: 100px; flex: 0 0 auto; border-radius: 11px; overflow: hidden; background: #E9EFF5; }
+  .ft img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .bdg { position: absolute; top: 7px; left: 7px; height: 21px; padding: 0 8px; border-radius: 999px; font-size: 10.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+  .bdg svg { width: 11px; height: 11px; stroke-width: 2.2; }
+  .bdg-top { background: var(--verde); color: var(--noche); }
+  .bdg-top svg { fill: currentColor; }
+  .bdg-nuevo { background: var(--noche); color: #fff; }
+  .bdg-sin { background: #fff; color: var(--error); border: 1px solid #F5C6CF; }
+  .bdg-sin i.pt { width: 6px; height: 6px; border-radius: 50%; background: var(--error); display: inline-block; }
+  .edit { position: absolute; right: 7px; top: 7px; width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 1px solid var(--linea); display: grid; place-items: center; color: var(--noche); }
+  .edit svg { width: 13px; height: 13px; }
+  .cu { padding: 9px 5px 0; }
+  .nm { font-size: 13.5px; font-weight: 700; line-height: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .es { font-size: 11.5px; color: var(--t2); line-height: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pr { display: flex; align-items: baseline; justify-content: space-between; margin-top: 6px; }
+  .pr b { font-family: Sora, sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .pr span { font-size: 11px; color: var(--t2); font-weight: 600; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+  .pr span svg { width: 12px; height: 12px; color: var(--celeste); stroke-width: 2.2; }
+  .dt { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 7px; }
+  .dt > div { background: var(--niebla); border-radius: 8px; padding: 5px 7px; min-width: 0; }
+  .dt small { display: block; font-size: 9px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t2); line-height: 12px; }
+  .dt b { display: block; font-size: 12px; font-weight: 600; line-height: 15px; white-space: nowrap; }
+  .dt .w { grid-column: span 2; display: flex; align-items: center; justify-content: space-between; gap: 6px; height: 25px; padding: 0 7px; }
+  .dt .w b { font-size: 11.5px; }
+  .dt .poco b { color: var(--aviso); }
+  .dt .cero b { color: var(--error); }
+  .dt .w.aviso { background: var(--aviso-claro); color: var(--aviso); justify-content: flex-start; gap: 5px; }
+  .dt .w.aviso svg { width: 13px; height: 13px; flex: 0 0 auto; }
+  .dt .w.aviso b { color: var(--aviso); font-size: 11px; }
+  .tg { margin-top: auto; border-top: 1px solid #EDF2F7; padding: 7px 5px 2px; display: flex; flex-direction: column; gap: 5px; }
+  .tg > div { display: flex; align-items: center; justify-content: space-between; height: 18px; font-size: 12px; font-weight: 600; }
+  .tg > div.k { height: 24px; } /* fila del interruptor de Kinti: lleva el .chip-kinti estándar (24 px) */
+  .toggle.sm { width: 30px; height: 17px; }
+  .toggle.sm::after { width: 13px; height: 13px; }
+  .toggle.sm.on::after { left: 15px; }
+  .toggle.ia.on { background: var(--violeta); }
+
+  /* Producto en pausa (sin stock): Kinti no hace nada con él → sin violeta (chip apagado en gris) */
+  .pc.pausa .ft img { opacity: .5; filter: grayscale(.5); }
+  .pc.pausa .tg .k .chip-kinti { filter: grayscale(1); opacity: .6; }
+  .tg .est-pausa > span:first-child { color: var(--t2); }
+</style>
+</head>
+<body class="marco" data-rol="admin" data-activo="configuracion" data-sub="catalogo">
+<div class="app">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="top" id="top" data-sobre="Ajustes del CRM" data-titulo="Configuración"></div>
+
+    <div class="cfg">
+      <nav class="cfg-menu" id="cfgmenu" data-k="Kinti · IA" data-t="Ofrece 9 de 10 productos" data-d="El ventilador está en pausa por falta de stock." data-img="assets/ilustraciones/agente-catalogo.webp" data-barra="90" data-barra-ia=""></nav>
+
+      <section class="seccion">
+        <div class="sec-h">
+          <div>
+            <h2>Catálogo</h2>
+            <p><b>10 productos</b> · 3 categorías · precios en soles</p>
+          </div>
+          <div class="acc">
+            <span class="btn btn-borde"><i data-lucide="file-spreadsheet"></i>Importar Excel</span>
+            <span class="btn btn-verde"><i data-lucide="plus"></i>Nuevo producto</span>
+          </div>
+        </div>
+
+        <div class="filtros">
+          <div class="tabs">
+            <span class="tab on">Todos <em>10</em></span>
+            <span class="tab">Cocina eléctrica <em>5</em></span>
+            <span class="tab">Menaje <em>3</em></span>
+            <span class="tab">Hogar <em>2</em></span>
+          </div>
+          <div class="der">
+            <span class="orden"><i data-lucide="arrow-down-wide-narrow"></i>Ordenar: <b>Más vendidos</b><i class="cv" data-lucide="chevron-down"></i></span>
+            <span class="seg vista"><span class="on"><i data-lucide="layout-grid"></i></span><span><i data-lucide="list"></i></span></span>
+          </div>
+        </div>
+
+        <div class="grilla">
+          <!-- 1 · Freidora de aire -->
+          <article class="pc">
+            <div class="ft">
+              <img src="../assets/fotos/catalogo-freidora-aire.webp" data-asset alt="Freidora de aire 5 L">
+              <span class="bdg bdg-top"><i data-lucide="star"></i>Más vendido</span>
+              <span class="edit"><i data-lucide="pencil"></i></span>
+            </div>
+            <div class="cu">
+              <div class="nm">Freidora de aire</div>
+              <div class="es">5 L · Cocina eléctrica</div>
+              <div class="pr"><b>S/ 279</b><span><i data-lucide="trending-up"></i>62 vendidos</span></div>
+              <div class="dt">
+                <div><small>Garantía</small><b>12 meses</b></div>
+                <div><small>Stock</small><b>38 u.</b></div>
+                <div class="w"><small>Delivery</small><b>24 h · S/ 10</b></div>
+              </div>
+            </div>
+            <div class="tg">
+              <div><span>Activo</span><span class="toggle sm on"></span></div>
+              <div class="k"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="toggle sm ia on"></span></div>
+            </div>
+          </article>
+
+          <!-- 2 · Olla arrocera -->
+          <article class="pc">
+            <div class="ft">
+              <img src="../assets/fotos/catalogo-olla-arrocera.webp" data-asset alt="Olla arrocera 1.8 L">
+              <span class="edit"><i data-lucide="pencil"></i></span>
+            </div>
+            <div class="cu">
+              <div class="nm">Olla arrocera</div>
+              <div class="es">1.8 L · Cocina eléctrica</div>
+              <div class="pr"><b>S/ 129</b><span><i data-lucide="trending-up"></i>30 vendidos</span></div>
+              <div class="dt">
+                <div><small>Garantía</small><b>12 meses</b></div>
+                <div><small>Stock</small><b>24 u.</b></div>
+                <div class="w"><small>Delivery</small><b>24 h · S/ 10</b></div>
+              </div>
+            </div>
+            <div class="tg">
+              <div><span>Activo</span><span class="toggle sm on"></span></div>
+              <div class="k"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="toggle sm ia on"></span></div>
+            </div>
+          </article>
+
+          <!-- 3 · Batería de ollas -->
+          <article class="pc">
+            <div class="ft">
+              <img src="../assets/fotos/catalogo-bateria-ollas.webp" data-asset alt="Batería de ollas 9 piezas">
+              <span class="edit"><i data-lucide="pencil"></i></span>
+            </div>
+            <div class="cu">
+              <div class="nm">Batería de ollas</div>
+              <div class="es">9 piezas · Menaje</div>
+              <div class="pr"><b>S/ 349</b><span><i data-lucide="trending-up"></i>24 vendidos</span></div>
+              <div class="dt">
+                <div><small>Garantía</small><b>2 años</b></div>
+                <div><small>Stock</small><b>15 u.</b></div>
+                <div class="w"><small>Delivery</small><b>24 h · gratis</b></div>
+              </div>
+            </div>
+            <div class="tg">
+              <div><span>Activo</span><span class="toggle sm on"></span></div>
+              <div class="k"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="toggle sm ia on"></span></div>
+            </div>
+          </article>
+
+          <!-- 4 · Aspiradora -->
+          <article class="pc">
+            <div class="ft">
+              <img src="../assets/fotos/catalogo-aspiradora.webp" data-asset alt="Aspiradora sin bolsa 2000 W">
+              <span class="edit"><i data-lucide="pencil"></i></span>
+            </div>
+            <div class="cu">
+              <div class="nm">Aspiradora sin bolsa</div>
+              <div class="es">2000 W · Hogar</div>
+              <div class="pr"><b>S/ 459</b><span><i data-lucide="trending-up"></i>21 vendidos</span></div>
+              <div class="dt">
+                <div><small>Garantía</small><b>12 meses</b></div>
+                <div><small>Stock</small><b>12 u.</b></div>
+                <div class="w"><small>Delivery</small><b>24 h · gratis</b></div>
+              </div>
+            </div>
+            <div class="tg">
+              <div><span>Activo</span><span class="toggle sm on"></span></div>
+              <div class="k"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="toggle sm ia on"></span></div>
+            </div>
+          </article>
+
+          <!-- 5 · Licuadora -->
+          <article class="pc">
+            <div class="ft">
+              <img src="../assets/fotos/catalogo-licuadora.webp" data-asset alt="Licuadora 1.5 L 700 W">
+              <span class="edit"><i data-lucide="pencil"></i></span>
+            </div>
+            <div class="cu">
+              <div class="nm">Licuadora 1.5 L</div>
+              <div class="es">700 W · Cocina eléctrica</div>
+              <div class="pr"><b>S/ 189</b><span><i data-lucide="trending-up"></i>18 vendidos</span></div>
+              <div class="dt">
+                <div><small>Garantía</small><b>12 meses</b></div>
+                <div><small>Stock</small><b>19 u.</b></div>
+                <div class="w"><small>Delivery</small><b>24 h · S/ 10</b></div>
+              </div>
+            </div>
+            <div class="tg">
+              <div><span>Activo</span><span class="toggle sm on"></span></div>
+              <div class="k"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="toggle sm ia on"></span></div>
+            </div>
+          </article>
+
+          <!-- 6 · Hervidor eléctrico -->
+          <article class="pc">
+            <div class="ft">
+              <img src="../assets/fotos/catalogo-hervidor.webp" data-asset alt="Hervidor eléctrico 1.7 L">
+              <span class="bdg bdg-nuevo">Nuevo</span>
+              <span class="edit"><i data-lucide="pencil"></i></span>
+            </div>
+            <div class="cu">
+              <div class="nm">Hervidor eléctrico</div>
+              <div class="es">1.7 L · Cocina eléctrica</div>
+              <div class="pr"><b>S/ 99</b><span><i data-lucide="trending-up"></i>16 vendidos</span></div>
+              <div class="dt">
+                <div><small>Garantía</small><b>6 meses</b></div>
+                <div><small>Stock</small><b>30 u.</b></div>
+                <div class="w"><small>Delivery</small><b>24 h · S/ 10</b></div>
+              </div>
+            </div>
+            <div class="tg">
+              <div><span>Activo</span><span class="toggle sm on"></span></div>
+              <div class="k"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="toggle sm ia on"></span></div>
+            </div>
+          </article>
+
+          <!-- 7 · Termo -->
+          <article class="pc">
+            <div class="ft">
+              <img src="../assets/fotos/catalogo-termo.webp" data-asset alt="Termo acero 1 L verde">
+              <span class="edit"><i data-lucide="pencil"></i></span>
+            </div>
+            <div class="cu">
+              <div class="nm">Termo acero</div>
+              <div class="es">1 L · verde · Menaje</div>
+              <div class="pr"><b>S/ 59</b><span><i data-lucide="trending-up"></i>15 vendidos</span></div>
+              <div class="dt">
+                <div><small>Garantía</small><b>6 meses</b></div>
+                <div><small>Stock</small><b>46 u.</b></div>
+                <div class="w"><small>Delivery</small><b>24 h · S/ 10</b></div>
+              </div>
+            </div>
+            <div class="tg">
+              <div><span>Activo</span><span class="toggle sm on"></span></div>
+              <div class="k"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="toggle sm ia on"></span></div>
+            </div>
+          </article>
+
+          <!-- 8 · Batidora de pedestal -->
+          <article class="pc">
+            <div class="ft">
+              <img src="../assets/fotos/catalogo-batidora.webp" data-asset alt="Batidora de pedestal 5 L">
+              <span class="bdg bdg-nuevo">Nuevo</span>
+              <span class="edit"><i data-lucide="pencil"></i></span>
+            </div>
+            <div class="cu">
+              <div class="nm">Batidora de pedestal</div>
+              <div class="es">5 L · Cocina eléctrica</div>
+              <div class="pr"><b>S/ 399</b><span><i data-lucide="trending-up"></i>14 vendidos</span></div>
+              <div class="dt">
+                <div><small>Garantía</small><b>12 meses</b></div>
+                <div class="poco"><small>Stock</small><b>Quedan 4</b></div>
+                <div class="w"><small>Delivery</small><b>24 h · gratis</b></div>
+              </div>
+            </div>
+            <div class="tg">
+              <div><span>Activo</span><span class="toggle sm on"></span></div>
+              <div class="k"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="toggle sm ia on"></span></div>
+            </div>
+          </article>
+
+          <!-- 9 · Sartén -->
+          <article class="pc">
+            <div class="ft">
+              <img src="../assets/fotos/catalogo-sarten.webp" data-asset alt="Sartén antiadherente 28 cm">
+              <span class="edit"><i data-lucide="pencil"></i></span>
+            </div>
+            <div class="cu">
+              <div class="nm">Sartén antiadherente</div>
+              <div class="es">28 cm · Menaje</div>
+              <div class="pr"><b>S/ 79</b><span><i data-lucide="trending-up"></i>14 vendidos</span></div>
+              <div class="dt">
+                <div><small>Garantía</small><b>6 meses</b></div>
+                <div><small>Stock</small><b>27 u.</b></div>
+                <div class="w"><small>Delivery</small><b>24 h · S/ 10</b></div>
+              </div>
+            </div>
+            <div class="tg">
+              <div><span>Activo</span><span class="toggle sm on"></span></div>
+              <div class="k"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="toggle sm ia on"></span></div>
+            </div>
+          </article>
+
+          <!-- 10 · Ventilador de torre (en pausa) -->
+          <article class="pc pausa">
+            <div class="ft">
+              <img src="../assets/fotos/catalogo-ventilador-torre.webp" data-asset alt="Ventilador de torre">
+              <span class="bdg bdg-sin"><i class="pt"></i>Sin stock</span>
+              <span class="edit"><i data-lucide="pencil"></i></span>
+            </div>
+            <div class="cu">
+              <div class="nm">Ventilador de torre</div>
+              <div class="es">Hogar</div>
+              <div class="pr"><b>S/ 219</b><span><i data-lucide="trending-up"></i>4 vendidos</span></div>
+              <div class="dt">
+                <div><small>Garantía</small><b>12 meses</b></div>
+                <div class="cero"><small>Stock</small><b>0 u.</b></div>
+                <div class="w aviso"><i data-lucide="triangle-alert"></i><b>Vuelve en noviembre</b></div>
+              </div>
+            </div>
+            <div class="tg">
+              <div class="est-pausa"><span>En pausa</span><span class="toggle sm"></span></div>
+              <div class="k"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="toggle sm ia"></span></div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<script>
+  // Nota de Kinti · IA encima de la tarjeta ilustrada estándar del submenú (se inserta tras dibujar el marco).
+  // Ambas van en .pie (margin-top:auto) para que la tarjeta quede al fondo, igual que en las demás vistas, sin tocar .cfg-card.
+  document.addEventListener('DOMContentLoaded', () => {
+    const card = document.querySelector('#cfgmenu .cfg-card');
+    if (!card) return;
+    const pie = document.createElement('div');
+    pie.className = 'pie';
+    pie.innerHTML = `
+      <div class="nota">
+        <span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" alt="">Kinti · IA</span>
+        <div>Lee cada ficha (<em>precio, stock, garantía y delivery</em>) para responder en el chat. Si apagas su interruptor violeta en un producto, no lo ofrece.</div>
+      </div>`;
+    card.before(pie);
+    pie.appendChild(card);
+  });
+</script>
+</body></html>

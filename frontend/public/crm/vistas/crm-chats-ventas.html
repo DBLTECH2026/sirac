@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>SIRAC · Mis chats</title>
+<meta name="viewport" content="width=1440">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="../js/tw-config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../css/sirac.css">
+<script src="../js/shell.js"></script>
+<style>
+  /* Marco 1440 × 900 = body.marco (sirac.css). Chats es la única vista a sangre: 3 columnas sin cabecera estándar */
+  .main.chats { padding: 0; display: flex; overflow: hidden; }
+
+  /* Botón de ícono redondo */
+  .ib { width: 36px; height: 36px; border-radius: 999px; border: 1px solid var(--linea); background: #fff; display: grid; place-items: center; color: var(--noche); flex: 0 0 auto; }
+  .ib svg { width: 17px; height: 17px; }
+  .ib.sm { width: 30px; height: 30px; } .ib.sm svg { width: 15px; height: 15px; }
+  .ib.verde { background: var(--verde); border-color: var(--verde); }
+
+  /* Chips compactos de la lista */
+  .cs { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .cs svg { width: 12px; height: 12px; }
+  .cs .pt { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .cs.ctl { background: var(--verde); color: var(--noche); font-weight: 700; }
+  .cs.cot { background: var(--celeste-claro); color: var(--celeste-texto); } .cs.cot .pt { background: var(--celeste); }
+  .cs.ia { background: var(--violeta-claro); color: var(--violeta-texto); } .cs.ia .pt { background: var(--violeta); }
+  .cs.venta { background: var(--verde-claro); color: var(--verde-texto); } .cs.venta .pt { background: var(--verde); }
+  .cs.nuevo { background: #EDF1F6; color: #4A5C74; } .cs.nuevo .pt { background: var(--t2); }
+  .cs.aviso { background: var(--aviso-claro); color: var(--aviso); }
+  .r3 .kd { font-size: 11.5px; font-weight: 600; color: var(--violeta-texto); white-space: nowrap; }
+
+  /* ---------- Columna 1: lista de chats ---------- */
+  .ls { width: 360px; flex: 0 0 360px; background: #fff; border-right: 1px solid var(--linea); display: flex; flex-direction: column; padding: 18px 14px 14px; }
+  .ls-head { display: flex; justify-content: space-between; align-items: flex-start; padding: 0 6px; }
+  .ls-tit { font-family: Sora; font-weight: 800; font-size: 26px; letter-spacing: -.03em; line-height: 1; }
+  .ls-sub { font-size: 12.5px; color: var(--t2); margin-top: 7px; }
+  .ls-sub b { color: var(--verde-texto); }
+  .ls-acc { display: flex; gap: 8px; }
+  .ls-tabs { display: flex; gap: 2px; margin: 16px 6px 0; background: var(--niebla); border-radius: 999px; padding: 3px; }
+  .ls-tabs span { flex: 1 1 auto; justify-content: center; white-space: nowrap; height: 30px; padding: 0 8px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: #33445C; }
+  .ls-tabs span.on { background: var(--noche); border-color: var(--noche); color: #fff; }
+  .ls-tabs em { font-style: normal; min-width: 20px; height: 18px; padding: 0 6px; border-radius: 999px; background: #fff; color: var(--noche); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .ls-tabs .on em { background: var(--verde); color: var(--noche); }
+  .ls-fil { display: flex; gap: 6px; margin: 10px 6px 2px; }
+  .sel { white-space: nowrap; height: 34px; padding: 0 9px; border-radius: 10px; border: 1px solid var(--linea); display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 500; color: #33445C; flex: 1; min-width: 0; }
+  .sel svg { width: 15px; height: 15px; color: var(--t2); flex: 0 0 auto; }
+  .sel svg:last-child { margin-left: auto; }
+  .ls-fil .ib { border-radius: 10px; width: 34px; height: 34px; }
+  .grp { display: flex; align-items: center; gap: 8px; margin: 12px 6px 4px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--t2); }
+  .grp em { font-style: normal; min-width: 20px; height: 18px; padding: 0 6px; border-radius: 999px; background: #EDF1F6; color: #4A5C74; font-size: 11px; letter-spacing: 0; display: grid; place-items: center; }
+  .grp.v { color: var(--verde-texto); } .grp.v em { background: var(--verde); color: var(--noche); }
+  .grp.ia { color: var(--violeta-texto); } .grp.ia em { background: var(--violeta-claro); color: var(--violeta-texto); }
+  .grp .chip-kinti { text-transform: none; letter-spacing: 0; }
+  .row { display: flex; gap: 10px; padding: 9px 10px; border-radius: 14px; }
+  .row.act { background: var(--niebla); box-shadow: inset 3px 0 0 var(--verde); }
+  .avc { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13.5px; flex: 0 0 auto; position: relative; }
+  .avc .org { position: absolute; right: -3px; bottom: -3px; width: 17px; height: 17px; border-radius: 50%; background: #fff; border: 1px solid var(--linea); display: grid; place-items: center; color: var(--noche); }
+  .avc .org svg { width: 10px; height: 10px; stroke-width: 2.2; }
+  .rc { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .r1 { display: flex; align-items: baseline; gap: 6px; }
+  .r1 b { font-size: 14px; font-weight: 700; }
+  .r1 .dist { font-size: 11.5px; color: var(--t2); }
+  .r1 .h { margin-left: auto; font-size: 11.5px; color: var(--t2); font-variant-numeric: tabular-nums; }
+  .r1 .h.urg { color: var(--aviso); font-weight: 700; }
+  .r2 { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #4A5C74; white-space: nowrap; overflow: hidden; }
+  .r2 .tx { overflow: hidden; text-overflow: ellipsis; }
+  .r2 .k { color: var(--violeta-texto); font-weight: 600; }
+  .r2 .tu { color: var(--noche); font-weight: 600; }
+  .r2 .nl { margin-left: auto; min-width: 18px; height: 18px; border-radius: 999px; background: var(--verde); color: var(--noche); font-size: 10.5px; font-weight: 700; display: grid; place-items: center; flex: 0 0 auto; }
+  .r2 svg.vist { width: 14px; height: 14px; color: var(--celeste); margin-left: auto; flex: 0 0 auto; }
+  .r3 { display: flex; align-items: center; gap: 5px; margin-top: 1px; }
+  .r3 .pr { font-size: 11.5px; color: var(--t2); white-space: nowrap; }
+  .r3 .m { margin-left: auto; font-family: Sora; font-weight: 700; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+  .meta-mes { margin-top: auto; background: var(--niebla); border-radius: 16px; padding: 12px 14px; }
+  .meta-mes .a { display: flex; justify-content: space-between; align-items: center; }
+  .meta-mes .k { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--t2); }
+  .meta-mes .pct { font-size: 11.5px; font-weight: 700; background: var(--verde); color: var(--noche); border-radius: 999px; padding: 1px 8px; }
+  .meta-mes .b { display: flex; align-items: baseline; gap: 6px; margin: 4px 0 8px; }
+  .meta-mes .v { font-family: Sora; font-weight: 700; font-size: 20px; letter-spacing: -.02em; }
+  .meta-mes .de { font-size: 12.5px; color: var(--t2); }
+  .meta-mes .f { margin-left: auto; font-size: 12px; color: var(--t2); }
+  .meta-mes .f b { color: var(--noche); }
+  .meta-mes .barra { height: 7px; background: #DCE5EF; }
+
+  /* ---------- Columna 2: conversación ---------- */
+  .cv { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--niebla); }
+  .cv-head { height: 74px; flex: 0 0 74px; background: #fff; border-bottom: 1px solid var(--linea); display: flex; align-items: center; gap: 12px; padding: 0 20px; }
+  .cv-head .n { display: flex; align-items: center; gap: 8px; font-family: Sora; font-weight: 700; font-size: 18px; letter-spacing: -.02em; }
+  .cv-head .s { display: flex; align-items: center; gap: 5px; white-space: nowrap; font-size: 12.5px; color: var(--t2); margin-top: 3px; }
+  .cv-head .s svg { width: 14px; height: 14px; }
+  .cv-head .s b { color: var(--noche); font-weight: 600; }
+  .cv-head .acc { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .ctrl { flex: 0 0 auto; display: flex; align-items: center; gap: 12px; padding: 9px 20px; background: var(--verde-claro); border-bottom: 1px solid #BFE9D0; }
+  .ctrl .pz { width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 1.5px solid var(--verde); overflow: hidden; flex: 0 0 auto; }
+  .ctrl .pz img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ctrl .tx { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .ctrl .tx b { font-size: 14px; color: var(--verde-texto); display: flex; align-items: center; gap: 6px; }
+  .ctrl .tx b svg { width: 15px; height: 15px; }
+  .ctrl .tx .st { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #33445C; }
+  .ctrl .btn { margin-left: auto; }
+  .msgs { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; padding: 12px 20px 14px; }
+  .dia { align-self: center; font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--t2); background: #E2E9F1; border-radius: 999px; padding: 4px 12px; }
+  .burbuja { max-width: 90%; font-size: 13.5px; line-height: 1.45; padding: 9px 13px; }
+  .burbuja .meta { margin-top: 2px; }
+  .burbuja.cli { align-self: flex-start; }
+  .burbuja.corta { display: flex; align-items: flex-end; gap: 14px; }
+  .burbuja.corta .meta { margin-top: 0; }
+  .lbl { display: flex; align-items: center; justify-content: flex-end; gap: 6px; font-size: 12px; font-weight: 700; margin: 2px 2px -4px; }
+  .lbl.ia { color: var(--violeta-texto); } .lbl.hum { color: var(--verde-texto); }
+  .lbl .t { font-weight: 500; color: var(--t2); }
+  .lbl .ha { width: 20px; height: 20px; border-radius: 50%; background: var(--verde); color: var(--noche); font-size: 9px; font-weight: 800; display: grid; place-items: center; }
+  .evt { align-self: center; display: inline-flex; align-items: center; gap: 6px; height: 26px; font-size: 12px; font-weight: 600; padding: 0 12px; border-radius: 999px; }
+  .evt svg { width: 14px; height: 14px; }
+  .evt.ia { background: var(--violeta-claro); color: var(--violeta-texto); padding-left: 1px; }
+  /* chip sobre fondo del mismo violeta: no duplicar el aire de su borde derecho */
+  .evt.ia .chip-kinti, .sug .chip-kinti { margin-right: -8px; }
+  .evt.hum { background: var(--verde-claro); color: var(--verde-texto); }
+  .evt .t { font-weight: 500; color: var(--t2); }
+  .adj { display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 12px; padding: 7px 10px 7px 7px; margin-top: 8px; }
+  .adj img { width: 44px; height: 44px; border-radius: 9px; object-fit: cover; flex: 0 0 auto; }
+  .adj .d b { display: block; font-size: 13px; }
+  .adj .d span { font-size: 11.5px; color: var(--t2); }
+  .adj .p { margin-left: auto; font-family: Sora; font-weight: 700; font-size: 14px; }
+  .pie { flex: 0 0 auto; background: #fff; border-top: 1px solid var(--linea); padding: 12px 20px 14px; display: flex; flex-direction: column; gap: 9px; }
+  .sug { background: var(--violeta-claro); border: 1px solid #D5CBFE; border-radius: 14px; padding: 8px 10px 9px 7px; }
+  .sug .k { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--violeta-texto); }
+  .sug .k b { font-weight: 700; }
+  .sug .k .c { font-weight: 500; color: var(--t2); white-space: nowrap; }
+  .sug .k .ins { margin-left: auto; height: 28px; font-size: 12px; }
+  .sug .k .ins svg { width: 14px; height: 14px; }
+  .sug .q { font-size: 13px; line-height: 1.4; color: var(--noche); margin: 4px 0 0 3px; }
+  .sug .x { width: 16px; height: 16px; color: var(--t2); flex: 0 0 auto; }
+  .rap { display: flex; align-items: center; gap: 6px; }
+  .rap .k { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--t2); margin-right: 2px; }
+  .rap .k svg { width: 13px; height: 13px; }
+  .rap span.p { height: 28px; padding: 0 11px; border-radius: 999px; border: 1px solid var(--linea); background: #fff; font-size: 12.5px; font-weight: 600; color: #33445C; display: inline-flex; align-items: center; white-space: nowrap; }
+  .comp { border: 1.5px solid var(--borde); border-radius: 16px; padding: 10px 10px 10px 14px; }
+  .comp .a { display: flex; align-items: center; justify-content: space-between; }
+  .comp .ph { font-size: 13.5px; color: var(--t3); }
+  .seg2 { display: inline-flex; background: var(--niebla); border-radius: 999px; padding: 2px; }
+  .seg2 span { height: 24px; padding: 0 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600; color: var(--t2); display: inline-flex; align-items: center; }
+  .seg2 span.on { background: var(--noche); color: #fff; }
+  .comp .b { display: flex; align-items: center; gap: 12px; margin-top: 8px; color: var(--t2); }
+  .comp .b > svg { width: 18px; height: 18px; }
+  .comp .b .mb { margin-left: auto; }
+  .mb { height: 32px; padding: 0 11px; border-radius: 999px; border: 1px solid var(--linea); display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--noche); }
+  .mb svg { width: 15px; height: 15px; }
+  .enviar { width: 40px; height: 40px; border-radius: 50%; background: var(--verde); color: var(--noche); display: grid; place-items: center; flex: 0 0 auto; }
+  .enviar svg { width: 18px; height: 18px; }
+
+  /* ---------- Columna 3: ficha del cliente ---------- */
+  .fc { width: 316px; flex: 0 0 316px; background: #fff; border-left: 1px solid var(--linea); padding: 18px 18px 18px; display: flex; flex-direction: column; }
+  .fc .k { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--t2); }
+  .fc-h { display: flex; align-items: center; gap: 6px; }
+  .fc-h .k { margin-right: auto; }
+  .fc-p { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+  .fc-p .avc { width: 52px; height: 52px; font-size: 17px; }
+  .fc-p .n { font-family: Sora; font-weight: 700; font-size: 17px; letter-spacing: -.02em; }
+  .fc-p .s { font-size: 12.5px; color: var(--t2); margin-top: 1px; }
+  .fc-li { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-top: 8px; color: var(--noche); }
+  .fc-li svg { width: 15px; height: 15px; color: var(--t2); }
+  .fc-li span { color: var(--t2); }
+  .fc-et { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+  .fc-et .chip svg { width: 13px; height: 13px; }
+  .pasos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 9px; }
+  .pasos i { height: 5px; border-radius: 999px; background: #E6EDF5; }
+  .pasos-t { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--t2); margin-top: 6px; }
+  .pasos-t b { color: var(--noche); }
+  .prodc { display: flex; align-items: center; gap: 10px; background: var(--niebla); border-radius: 14px; padding: 8px 10px 8px 8px; margin-top: 8px; }
+  .prodc img { width: 46px; height: 46px; border-radius: 10px; object-fit: cover; flex: 0 0 auto; }
+  .prodc .d { min-width: 0; }
+  .prodc .d b { display: block; font-size: 13px; line-height: 1.25; }
+  .prodc .d span { font-size: 11.5px; color: var(--t2); }
+  .prodc .d span .p { display: inline; font-family: Sora; font-weight: 700; font-size: 13px; color: var(--noche); }
+  .datos { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .datos div { background: var(--niebla); border-radius: 12px; padding: 7px 10px; }
+  .datos .l { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--t2); }
+  .datos .l svg { width: 12px; height: 12px; }
+  .datos b { display: block; font-size: 13px; margin-top: 1px; }
+  .res { background: var(--noche); color: #fff; border-radius: 16px; padding: 12px 14px; margin-top: 12px; }
+  .res .a { display: flex; align-items: center; gap: 8px; }
+  .res .kk { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #fff; }
+  .res .t { margin-left: auto; font-size: 11px; color: var(--t3); }
+  .res p { font-size: 12.5px; line-height: 1.5; color: #C9D6E6; margin: 8px 0 0; }
+  .res p b { color: var(--verde); }
+  .lst { border: 1px solid var(--linea); border-radius: 14px; margin-top: 10px; }
+  .lst > div { display: flex; align-items: center; gap: 10px; padding: 8px 10px; }
+  .lst > div + div { border-top: 1px solid var(--linea); }
+  .lst .ic { width: 28px; height: 28px; border-radius: 9px; background: var(--niebla); display: grid; place-items: center; flex: 0 0 auto; }
+  .lst .ic svg { width: 15px; height: 15px; }
+  .lst .l { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--t2); }
+  .lst .v { font-size: 12.5px; font-weight: 500; }
+  .lst .ch { margin-left: auto; width: 15px; height: 15px; color: var(--t3); flex: 0 0 auto; }
+  .etq { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .etq span { height: 24px; padding: 0 10px; border-radius: 999px; background: var(--niebla); font-size: 12px; font-weight: 600; color: #33445C; display: inline-flex; align-items: center; gap: 5px; }
+  .etq span svg { width: 12px; height: 12px; }
+  .fc-btns { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+  .fc-btns .btn { justify-content: center; height: 42px; width: 100%; }
+</style>
+</head>
+<body class="marco" data-rol="ventas" data-activo="chats">
+<div class="app">
+  <aside class="sb" id="sb"></aside>
+  <main class="main chats">
+
+    <!-- ===== 1 · Lista «Mis chats» ===== -->
+    <section class="ls">
+      <div class="ls-head">
+        <div>
+          <div class="ls-tit">Mis chats</div>
+          <div class="ls-sub">6 abiertos · <b>3 por responder</b></div>
+        </div>
+        <div class="ls-acc"><span class="ib"><i data-lucide="search"></i></span><span class="ib verde"><i data-lucide="plus"></i></span></div>
+      </div>
+      <div class="ls-tabs">
+        <span class="on">Por responder <em>3</em></span><span>Abiertos <em>6</em></span><span>Cerrados</span>
+      </div>
+      <div class="ls-fil">
+        <span class="sel" style="flex:1.4"><i data-lucide="smartphone"></i>Ventas Diego<i data-lucide="chevron-down"></i></span>
+        <span class="sel"><i data-lucide="filter"></i>Etapa<i data-lucide="chevron-down"></i></span>
+        <span class="ib"><i data-lucide="sliders-horizontal"></i></span>
+      </div>
+
+      <div class="grp v">Por responder <em>3</em></div>
+      <div class="row act">
+        <span class="avc" style="background:var(--celeste-claro);color:var(--celeste-texto)">AS<span class="org"><i data-lucide="instagram"></i></span></span>
+        <div class="rc">
+          <div class="r1"><b>Andrea Salazar</b><span class="dist">Miraflores</span><span class="h">10:58</span></div>
+          <div class="r2"><span class="tx">¡Perfecto! ¿Aceptan Yape o solo tarjeta?</span></div>
+          <div class="r3"><span class="cs ctl"><i data-lucide="hand"></i>Tú · control</span><span class="cs cot"><i class="pt"></i>Cotización</span><span class="m">S/&nbsp;399</span></div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="avc" style="background:var(--noche3);color:#fff">SV<span class="org"><i data-lucide="instagram"></i></span></span>
+        <div class="rc">
+          <div class="r1"><b>Sofía Vargas</b><span class="dist">La Molina</span><span class="h">10:51</span></div>
+          <div class="r2"><span class="tx">¿Vienen en caja? Es para un regalo</span><span class="nl">2</span></div>
+          <div class="r3"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="kd">te la derivó</span><span class="m">S/&nbsp;428</span></div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="avc" style="background:#E6EDF5;color:var(--noche)">RH<span class="org"><i data-lucide="megaphone"></i></span></span>
+        <div class="rc">
+          <div class="r1"><b>Rosa Huamaní</b><span class="dist">Comas</span><span class="h urg">10:46</span></div>
+          <div class="r2"><span class="tx">¿El link acepta Yape?</span><span class="nl">1</span></div>
+          <div class="r3"><span class="cs aviso"><i data-lucide="timer"></i>12 min</span><span class="cs ia"><i class="pt"></i>Calificado por IA</span><span class="m">S/&nbsp;279</span></div>
+        </div>
+      </div>
+
+      <div class="grp">Esperando al cliente <em>1</em></div>
+      <div class="row">
+        <span class="avc" style="background:var(--verde-claro);color:var(--verde-texto)">RB<span class="org"><i data-lucide="search"></i></span></span>
+        <div class="rc">
+          <div class="r1"><b>Raúl Benites</b><span class="dist">Chorrillos</span><span class="h">10:20</span></div>
+          <div class="r2"><span class="tx"><span class="tu">Tú:</span> Tu aspiradora sale hoy</span><i data-lucide="check-check" class="vist"></i></div>
+          <div class="r3"><span class="cs venta"><i class="pt"></i>Venta cerrada</span><span class="pr">Aspiradora</span><span class="m">S/&nbsp;459</span></div>
+        </div>
+      </div>
+
+      <div class="grp ia"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>atendiendo · en reparto <em>2</em></div>
+      <div class="row">
+        <span class="avc" style="background:#E6EDF5;color:var(--noche)">MR<span class="org"><i data-lucide="megaphone"></i></span></span>
+        <div class="rc">
+          <div class="r1"><b>Martín Ríos</b><span class="dist">SJL</span><span class="h">10:54</span></div>
+          <div class="r2"><span class="tx"><span class="k">Kinti · IA:</span> Te llegan juntos en 24 h a SJL</span></div>
+          <div class="r3"><span class="cs nuevo"><i class="pt"></i>Nuevo</span><span class="pr">Freidora + hervidor</span><span class="m">S/&nbsp;378</span></div>
+        </div>
+      </div>
+      <div class="row">
+        <span class="avc" style="background:var(--noche3);color:#fff">EQ<span class="org"><i data-lucide="megaphone"></i></span></span>
+        <div class="rc">
+          <div class="r1"><b>Elena Quispe</b><span class="dist">VES</span><span class="h">10:49</span></div>
+          <div class="r2"><span class="tx"><span class="k">Kinti · IA:</span> Los 3 termos te salen S/&nbsp;177</span></div>
+          <div class="r3"><span class="cs nuevo"><i class="pt"></i>Nuevo</span><span class="pr">Termo ×3</span><span class="m">S/&nbsp;177</span></div>
+        </div>
+      </div>
+
+      <div class="meta-mes">
+        <div class="a"><span class="k">Meta de octubre</span><span class="pct">74 %</span></div>
+        <div class="b"><span class="v tnum">S/&nbsp;18,640</span><span class="de">de S/&nbsp;25,000</span><span class="f">faltan <b>S/&nbsp;6,360</b></span></div>
+        <div class="barra"><i style="width:74%"></i></div>
+      </div>
+    </section>
+
+    <!-- ===== 2 · Conversación con Andrea ===== -->
+    <section class="cv">
+      <div class="cv-head">
+        <span class="avc" style="width:44px;height:44px;font-size:15px;background:var(--celeste-claro);color:var(--celeste-texto)">AS</span>
+        <div>
+          <div class="n">Andrea Salazar <span class="chip chip-cot"><i class="pt"></i>Cotización</span></div>
+          <div class="s"><i data-lucide="message-circle"></i><span>vía <b>Ventas Diego</b> · llegó por <b>Instagram</b></span></div>
+        </div>
+        <div class="acc"><span class="btn btn-borde btn-sm"><i data-lucide="check"></i>Resolver</span><span class="ib"><i data-lucide="ellipsis-vertical"></i></span></div>
+      </div>
+
+      <div class="ctrl">
+        <span class="pz"><img src="../assets/ilustraciones/agente-pausado.webp" data-asset alt=""></span>
+        <div class="tx">
+          <b><i data-lucide="hand"></i>Tú tienes el control</b>
+          <div class="st"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>en pausa desde 10:42</div>
+        </div>
+        <span class="btn btn-verde btn-sm"><i data-lucide="rotate-ccw"></i>Devolver a Kinti</span>
+      </div>
+
+      <div class="msgs">
+        <div class="dia">Hoy · sáb 24 oct</div>
+        <div class="burbuja cli corta">Hola 👋 ¿Cuánto está la batidora? Es para mis tortas.<div class="meta">10:31</div></div>
+        <div class="lbl ia"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="t">10:31 · respondió en 6 s</span></div>
+        <div class="burbuja ia">Hola, soy Kinti, asistente virtual de Kusi Hogar. Te respondo al toque y, si quieres, te paso con una persona del equipo. La batidora de pedestal 5 L está a S/&nbsp;399, con delivery gratis a Miraflores.</div>
+        <div class="evt ia"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>te derivó el chat · motivo: quiere comprar <span class="t">10:37</span></div>
+        <div class="evt hum"><i data-lucide="hand"></i>Tomaste el control · <span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>en pausa <span class="t">10:42</span></div>
+        <div class="lbl hum"><span class="ha">DQ</span>Tú · Diego <span class="t">10:44</span></div>
+        <div class="burbuja hum">Hola, Andrea, soy Diego de Kusi Hogar. Te la separo y te llega mañana, sin costo de envío.
+          <div class="adj"><img src="../assets/fotos/catalogo-batidora.webp" data-asset alt=""><div class="d"><b>Batidora de pedestal 5 L</b><span>Cocina eléctrica · delivery gratis</span></div><span class="p">S/&nbsp;399</span></div>
+        </div>
+        <div class="burbuja cli corta">¡Perfecto! ¿Aceptan Yape o solo tarjeta?<div class="meta">10:58</div></div>
+      </div>
+
+      <div class="pie">
+        <div class="sug">
+          <div class="k"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><b>sugiere</b><span class="c">· con tu catálogo y tus reglas</span><span class="btn btn-noche btn-sm ins"><i data-lucide="corner-down-left"></i>Insertar</span><i data-lucide="x" class="x"></i></div>
+          <div class="q">«¡Sí, Andrea! Aceptamos Yape y tarjeta. Te envío el link de pago por S/&nbsp;399 y la recibes mañana en Miraflores.»</div>
+        </div>
+        <div class="rap">
+          <span class="k"><i data-lucide="zap"></i>Rápidas</span>
+          <span class="p">Saludo</span><span class="p">Precios</span><span class="p">Delivery</span><span class="p">Link de pago</span>
+        </div>
+        <div class="comp">
+          <div class="a"><span class="ph">Escribe un mensaje a Andrea…</span><span class="seg2"><span class="on">Responder</span><span>Nota interna</span></span></div>
+          <div class="b">
+            <i data-lucide="paperclip"></i><i data-lucide="image"></i><i data-lucide="smile"></i><i data-lucide="mic"></i>
+            <span class="mb"><i data-lucide="package"></i>Enviar producto</span>
+            <span class="mb" style="margin-left:0"><i data-lucide="link"></i>Link de pago</span>
+            <span class="enviar"><i data-lucide="send"></i></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 3 · Ficha del cliente ===== -->
+    <aside class="fc">
+      <div class="fc-h"><span class="k">Ficha del cliente</span><span class="ib sm"><i data-lucide="pencil"></i></span><span class="ib sm"><i data-lucide="x"></i></span></div>
+      <div class="fc-p">
+        <span class="avc" style="background:var(--celeste-claro);color:var(--celeste-texto)">AS</span>
+        <div><div class="n">Andrea Salazar</div><div class="s">Miraflores, Lima</div></div>
+      </div>
+      <div class="fc-li"><i data-lucide="phone"></i>+51 976 412 380</div>
+      <div class="fc-li"><i data-lucide="instagram"></i>Instagram <span>· orgánico, sin campaña</span></div>
+
+      <div class="fc-et"><span class="k">Etapa</span><span class="chip chip-cot"><i class="pt"></i>Cotización<i data-lucide="chevron-down"></i></span></div>
+      <div class="pasos"><i style="background:var(--t2)"></i><i style="background:var(--violeta)"></i><i style="background:var(--celeste)"></i><i></i></div>
+      <div class="pasos-t"><span>Paso 3 de 4</span><span>Siguiente: <b>Venta cerrada</b></span></div>
+
+      <div class="k" style="margin-top:14px">Producto de interés</div>
+      <div class="prodc"><img src="../assets/fotos/catalogo-batidora.webp" data-asset alt=""><div class="d"><b>Batidora de pedestal 5 L</b><span>Cocina eléctrica · 1 und. · <b class="p">S/&nbsp;399</b></span></div></div>
+      <div class="datos">
+        <div><span class="l"><i data-lucide="truck"></i>Entrega</span><b>Mañana · 24 h</b></div>
+        <div><span class="l"><i data-lucide="map-pin"></i>Delivery</span><b>Gratis</b></div>
+        <div><span class="l"><i data-lucide="wallet"></i>Pago</span><b>Yape (consulta)</b></div>
+        <div><span class="l"><i data-lucide="cake-slice"></i>Uso</span><b>Repostería</b></div>
+      </div>
+
+      <div class="res">
+        <div class="a"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="kk">Resumen</span><span class="t">10:58</span></div>
+        <p>Hace tortas por pedido y quiere la batidora para masa. Delivery gratis a Miraflores. Aceptó el precio y pregunta por Yape: <b>lista para pagar hoy.</b></p>
+      </div>
+
+      <div class="lst">
+        <div><span class="ic"><i data-lucide="sticky-note"></i></span><div><div class="l">Nota</div><div class="v">Repostera: posible recompra</div></div><i data-lucide="chevron-right" class="ch"></i></div>
+        <div><span class="ic"><i data-lucide="alarm-clock"></i></span><div><div class="l">Recordatorio</div><div class="v">Hoy 18:00 · confirmar el pago</div></div><i data-lucide="chevron-right" class="ch"></i></div>
+      </div>
+
+      <div class="k" style="margin-top:12px">Etiquetas</div>
+      <div class="etq"><span>Repostería</span><span><i data-lucide="instagram"></i>Instagram</span><span>Lima</span></div>
+
+      <div class="fc-btns">
+        <span class="btn btn-verde"><i data-lucide="shopping-bag"></i>Crear venta</span>
+        <span class="btn btn-borde"><i data-lucide="link"></i>Enviar link de pago</span>
+      </div>
+    </aside>
+
+  </main>
+</div>
+</body></html>

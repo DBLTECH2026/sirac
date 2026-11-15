@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>SIRAC · Mi dashboard (ventas)</title>
+<meta name="viewport" content="width=1440">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="../js/tw-config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../css/sirac.css">
+<script src="../js/shell.js"></script>
+<style>
+  /* Marco 1440 x 900 y cabecera: body.marco y .main/.top vienen de sirac.css (v0.3); aquí solo la rejilla que llena el alto */
+  .main { display: flex; flex-direction: column; }
+  .dash { flex: 1; min-height: 0; display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 16px; }
+  .col { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+  .card { padding: 18px 20px; }
+  .card-hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .card-hd h3 { font-family: Sora, sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+  .kick { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--verde); }
+
+  /* Meta del mes */
+  .meta { padding: 20px 22px; flex: 0 0 auto; height: 304px; display: flex; flex-direction: column; }
+  .meta .uno { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; background: var(--noche2); color: #fff; font-size: 11.5px; font-weight: 600; }
+  .meta .uno svg { width: 14px; height: 14px; color: var(--verde); }
+  .orb { position: relative; width: 132px; height: 123px; flex: 0 0 132px; }
+  .orb svg { display: block; }
+  .orb .c { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .orb .p { font-family: Sora, sans-serif; font-weight: 700; font-size: 28px; letter-spacing: -0.03em; line-height: 1; }
+  .orb .p small { font-size: 17px; font-weight: 700; margin-left: 2px; }
+  .orb .q { font-size: 11px; color: var(--t3); margin-top: 4px; }
+  .monto { font-family: Sora, sans-serif; font-weight: 700; font-size: 27px; letter-spacing: -0.03em; line-height: 1.05; }
+  .falta { display: inline-flex; align-items: center; height: 26px; padding: 0 11px; border-radius: 999px; background: var(--verde); color: var(--noche); font-size: 12.5px; font-weight: 700; margin-top: 10px; }
+  .pordia { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #C9D6E6; margin-top: 9px; }
+  .pordia svg { width: 14px; height: 14px; color: var(--verde); }
+  .mini { width: 92px; border: 1px solid var(--noche3); border-radius: 14px; padding: 9px 11px; }
+  .mini .k { font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--t3); }
+  .mini .v { font-family: Sora, sans-serif; font-weight: 700; font-size: 19px; letter-spacing: -0.02em; margin-top: 3px; line-height: 1.1; }
+  .mini .s { font-size: 10.5px; color: var(--t3); margin-top: 2px; }
+  .meta .luna { position: absolute; right: -30px; bottom: -34px; width: 150px; height: 150px; border-radius: 50%; background: var(--niebla); overflow: hidden; }
+  .meta .luna img.ilus { position: absolute; left: 14px; top: 14px; width: 104px; height: 104px; object-fit: contain; border-radius: 0; }
+  /* PNG transparente ya cargado: sin el fondo rayado de marcador (sirac.css) */
+  .meta img.ilus { background: transparent; }
+
+  /* Embudo */
+  .emb-fila { display: grid; grid-template-columns: 118px minmax(0, 1fr) 36px; align-items: center; gap: 10px; font-size: 13px; height: 23px; }
+  .emb-fila .b { height: 8px; border-radius: 999px; background: #E6EDF5; overflow: hidden; }
+  .emb-fila .b i { display: block; height: 100%; border-radius: 999px; }
+  .emb-fila .n { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  /* Ranking */
+  .rk { display: grid; grid-template-columns: 22px 30px 74px minmax(0, 1fr) 74px; align-items: center; gap: 9px; height: 36px; padding: 0 10px; border-radius: 12px; font-size: 13px; }
+  .rk.yo { background: var(--verde-claro); }
+  .rk .pos { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; background: var(--niebla); color: var(--t2); }
+  .rk.yo .pos { background: var(--verde); color: var(--noche); }
+  .rk .b { height: 7px; border-radius: 999px; background: #E6EDF5; overflow: hidden; }
+  .rk.yo .b { background: #fff; }
+  .rk .b i { display: block; height: 100%; border-radius: 999px; background: var(--borde); }
+  .rk.yo .b i { background: var(--verde); }
+  .rk .m { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  /* Mini KPI */
+  .kp { padding: 15px 16px 14px; }
+  .kp .l { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; color: var(--t2); }
+  .kp .l svg { width: 15px; height: 15px; }
+  .kp .v { font-family: Sora, sans-serif; font-weight: 700; font-size: 26px; letter-spacing: -0.03em; line-height: 1; margin-top: 10px; display: flex; align-items: center; gap: 8px; }
+  .kp .s { font-size: 11.5px; color: var(--t2); margin-top: 8px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+
+  /* Pendientes */
+  .pd { display: grid; grid-template-columns: 22px 34px minmax(0, 1fr) 230px 56px 81px; align-items: center; gap: 12px; height: 58px; border-top: 1px solid #EDF2F7; }
+  .pd:first-of-type { border-top: 0; }
+  .chk { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--borde); display: grid; place-items: center; }
+  .chk.ok { background: var(--verde); border-color: var(--verde); color: var(--noche); }
+  .chk.ok svg { width: 13px; height: 13px; stroke-width: 3; }
+  .av-cli { background: var(--niebla); color: var(--noche); border: 1px solid var(--linea); font-size: 12px; }
+  .pd .nom { display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+  .pd .tar { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #3F5168; margin-top: 3px; white-space: nowrap; }
+  .pd .tar svg { width: 14px; height: 14px; color: var(--t2); }
+  .pill { display: flex; align-items: center; gap: 9px; height: 44px; padding: 0 10px 0 6px; border-radius: 12px; background: #F4F7FB; border: 1px solid #E6EDF5; }
+  .pill img { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; flex: 0 0 32px; }
+  .pill .a { font-size: 12px; font-weight: 600; white-space: nowrap; line-height: 1.25; }
+  .pill .b { font-size: 11px; color: var(--t2); white-space: nowrap; line-height: 1.3; }
+  .pill .b b { color: var(--noche); font-weight: 700; }
+  .hora { text-align: right; line-height: 1.25; }
+  .hora b { font-size: 13px; font-variant-numeric: tabular-nums; }
+  .hora div { font-size: 11px; color: var(--t2); white-space: nowrap; }
+  .prio { justify-self: end; height: 24px; font-size: 11.5px; padding: 0 9px; }
+  .prio svg { width: 12px; height: 12px; }
+  .p-urg { background: var(--error-claro); color: var(--error); }
+  .p-alta { background: var(--aviso-claro); color: var(--aviso); }
+  .p-norm { background: #EDF1F6; color: #4A5C74; }
+  .hecho .nom span.n, .hecho .tar span { color: var(--t3); }
+  .hecho .tar span { text-decoration: line-through; }
+  .hecho .pill { opacity: .55; }
+  .chip.sm { height: 22px; font-size: 11px; padding: 0 9px; }
+
+  /* Kinti · IA (chip compartido .chip-kinti de sirac.css) */
+  .res { border: 1px solid var(--linea); border-radius: 16px; padding: 12px 13px 12px; display: flex; flex-direction: column; min-width: 0; }
+  .res .cab { display: flex; align-items: center; gap: 9px; }
+  .res .cab .n { font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .res .cab .d { font-size: 11px; color: var(--t2); white-space: nowrap; }
+  .res .cab .mt { margin-left: auto; font-size: 13px; font-weight: 700; }
+  .res .bur { margin-top: 10px; background: var(--violeta-claro); border-radius: 4px 14px 14px 14px; padding: 9px 11px 10px; font-size: 12.5px; line-height: 1.45; color: #1C2A40; flex: 1; }
+  .res .bur .q { display: flex; margin: 0 0 4px -3px; }
+  .res .pie { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 10px; }
+  .res .listo { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--violeta-texto); white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .res .listo svg { width: 14px; height: 14px; }
+  .res .btn-sm { height: 30px; padding: 0 11px; font-size: 12px; flex: 0 0 auto; }
+  .res .btn-sm svg { width: 14px; height: 14px; }
+</style>
+</head>
+<body class="marco" data-rol="ventas" data-activo="dashboard">
+<div class="app">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="top" id="top" data-sobre="Mi mes · Octubre 2026" data-titulo="Hola, Diego" data-sub="Te faltan S/ 6,360 para tu meta. Vas 1.º del equipo.">
+      <span class="seg"><span>Hoy</span><span>7 días</span><span class="on">Este mes</span></span>
+    </div>
+
+    <div class="dash">
+      <!-- ============ COLUMNA IZQUIERDA ============ -->
+      <div class="col">
+
+        <!-- Meta del mes -->
+        <section class="card-osc meta">
+          <div class="luna"><img class="ilus" src="../assets/ilustraciones/crm-vendedora-meta-cumplida.webp" data-asset alt=""></div>
+          <div style="position:relative;display:flex;align-items:flex-start;justify-content:space-between">
+            <div>
+              <div class="kick">Meta del mes</div>
+              <div class="muted" style="font-size:12.5px;margin-top:4px">quedan 7 días</div>
+            </div>
+            <span class="uno"><i data-lucide="trophy"></i>1.º del equipo</span>
+          </div>
+
+          <div style="position:relative;display:flex;align-items:center;gap:14px;margin-top:10px">
+            <div class="orb">
+              <!-- Anillo de progreso = órbita del logo (elipse inclinada con un punto en cada extremo) -->
+              <svg viewBox="0 0 150 140" width="132" height="123" aria-hidden="true">
+                <g transform="rotate(-28 75 70)">
+                  <ellipse cx="75" cy="70" rx="66" ry="50" fill="none" stroke="#1E2E4E" stroke-width="9"/>
+                  <path d="M9 70 A66 50 0 1 1 141 70 A66 50 0 1 1 9 70" fill="none" stroke="#0EB155" stroke-width="9" stroke-linecap="round" pathLength="100" stroke-dasharray="74 100"/>
+                  <circle cx="9" cy="70" r="7.5" fill="#0EB155" stroke="#0A1424" stroke-width="3"/>
+                  <circle cx="78.66" cy="119.92" r="9" fill="#0EB155" stroke="#0A1424" stroke-width="3"/>
+                </g>
+              </svg>
+              <div class="c"><div class="p tnum">74<small>%</small></div><div class="q">de tu meta</div></div>
+            </div>
+            <div style="min-width:0">
+              <div class="monto tnum">S/ 18,640</div>
+              <div class="muted" style="font-size:12.5px;margin-top:4px">de S/ 25,000 en ventas</div>
+              <span class="falta tnum">Te faltan S/ 6,360</span>
+              <div class="pordia"><i data-lucide="zap"></i><span><b style="color:#fff">S/ 909</b> por día</span></div>
+            </div>
+          </div>
+
+          <div style="position:relative;display:flex;gap:10px;margin-top:auto">
+            <div class="mini"><div class="k">Ventas</div><div class="v tnum">64</div><div class="s">cerradas</div></div>
+            <div class="mini"><div class="k">Ticket</div><div class="v tnum">S/ 291</div><div class="s">promedio</div></div>
+          </div>
+        </section>
+
+        <!-- Mi embudo -->
+        <section class="card" style="flex:1 1 0;min-height:0;display:flex;flex-direction:column;padding:16px 20px 14px">
+          <div class="card-hd">
+            <h3>Mi embudo</h3>
+            <span class="chip chip-nuevo sm tnum">330 chats · octubre</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:3px;margin-top:10px">
+            <div class="emb-fila"><span>Nuevo</span><span class="b"><i style="width:100%;background:#6E819A"></i></span><span class="n">330</span></div>
+            <div class="emb-fila"><span>Calificado por IA</span><span class="b"><i style="width:43%;background:#7C5CFC"></i></span><span class="n">142</span></div>
+            <div class="emb-fila"><span>Cotización</span><span class="b"><i style="width:30%;background:#16B6D8"></i></span><span class="n">98</span></div>
+            <div class="emb-fila"><span>Venta cerrada</span><span class="b"><i style="width:19%;background:#0EB155"></i></span><span class="n">64</span></div>
+          </div>
+          <div class="sep" style="margin-top:auto"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding-top:10px" class="muted">
+            <span>Cierras <b style="color:#0A1424">19.4 %</b> de tus chats</span>
+            <span>equipo 16.5 %</span>
+          </div>
+        </section>
+
+        <!-- Ranking del equipo -->
+        <section class="card" style="flex:0 0 auto;display:flex;flex-direction:column;padding:16px 14px 14px">
+          <div class="card-hd" style="padding:0 6px">
+            <h3>Ranking del equipo</h3>
+            <i data-lucide="trophy" style="width:18px;height:18px;color:#0EB155"></i>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:3px;margin-top:8px">
+            <div class="rk yo"><span class="pos">1</span><span class="av av-sm" style="background:#0EB155;color:#0A1424">DQ</span><span><b>Tú</b> <span class="muted" style="font-size:11.5px">Diego</span></span><span class="b"><i style="width:100%"></i></span><span class="m">S/ 18,640</span></div>
+            <div class="rk"><span class="pos">2</span><span class="av av-sm" style="background:#16B6D8;color:#0A1424">MR</span><span style="font-weight:600">Milagros</span><span class="b"><i style="width:87%"></i></span><span class="m">S/ 16,210</span></div>
+            <div class="rk"><span class="pos">3</span><span class="av av-sm" style="background:#1E2E4E">KH</span><span style="font-weight:600">Kevin</span><span class="b"><i style="width:64%"></i></span><span class="m">S/ 11,930</span></div>
+          </div>
+          <div class="sep" style="margin:8px 6px 0"></div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;padding:10px 6px 0" class="muted">
+            <i data-lucide="trending-up" style="width:14px;height:14px;color:#0EB155"></i>
+            <span>Le llevas <b style="color:#0A1424">S/ 2,430</b> a Milagros</span>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============ COLUMNA DERECHA ============ -->
+      <div class="col">
+
+        <!-- Mini KPIs -->
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;flex:0 0 auto">
+          <div class="card kp">
+            <div class="l"><i data-lucide="wallet"></i>Comisión estimada</div>
+            <div class="v tnum">S/ 932</div>
+            <div class="s">5 % de tus ventas del mes</div>
+          </div>
+          <div class="card kp">
+            <div class="l"><i data-lucide="message-circle"></i>Chats hoy</div>
+            <div class="v tnum">18 <span class="chip chip-nuevo sm" style="font-family:Inter,sans-serif;letter-spacing:0">6 abiertos</span></div>
+            <div class="s"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>derivó 7</div>
+          </div>
+          <div class="card kp">
+            <div class="l"><i data-lucide="reply"></i>Por responder</div>
+            <div class="v tnum">3 <span class="chip p-urg sm"><i data-lucide="flame" style="width:12px;height:12px"></i>Urgente</span></div>
+            <div class="s" style="color:#C3122F;font-weight:600">Más antiguo: hace 12 min</div>
+          </div>
+          <div class="card kp">
+            <div class="l"><i data-lucide="percent"></i>Conversión</div>
+            <div class="v tnum">19.4 %</div>
+            <div class="s"><span class="delta">+2.9 pts</span>vs equipo</div>
+          </div>
+        </div>
+
+        <!-- Pendientes de hoy -->
+        <section class="card" style="flex:0 0 auto;padding:16px 20px 6px">
+          <div class="card-hd">
+            <div style="display:flex;align-items:baseline;gap:10px"><h3>Pendientes de hoy</h3><span class="muted" style="font-size:12.5px">sábado 24 de octubre</span></div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:12.5px" class="muted">
+              <span><b style="color:#0A1424">1</b> de 4 hechos</span>
+              <span class="barra" style="width:96px;height:6px"><i style="width:25%"></i></span>
+            </div>
+          </div>
+          <div style="margin-top:6px">
+            <div class="pd">
+              <span class="chk"></span>
+              <span class="av av-cli">RH</span>
+              <div style="min-width:0">
+                <div class="nom"><span class="n">Rosa Huamaní</span><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span></div>
+                <div class="tar"><i data-lucide="credit-card"></i><span>Confirmar pago del link (S/ 289)</span></div>
+              </div>
+              <div class="pill"><img src="../assets/fotos/catalogo-freidora-aire.webp" data-asset alt=""><div><div class="a">Freidora de aire 5 L</div><div class="b"><b>S/ 279</b> · Meta · Freidoras octubre</div></div></div>
+              <div class="hora"><b>10:30</b><div style="color:#C3122F;font-weight:600">en 15 min</div></div>
+              <span class="chip prio p-urg"><i data-lucide="flame"></i>Urgente</span>
+            </div>
+            <div class="pd">
+              <span class="chk"></span>
+              <span class="av av-cli">AS</span>
+              <div style="min-width:0">
+                <div class="nom"><span class="n">Andrea Salazar</span><span class="chip chip-cot sm"><i class="pt"></i>Cotización</span></div>
+                <div class="tar"><i data-lucide="phone"></i><span>Llamar para cerrar la venta</span></div>
+              </div>
+              <div class="pill"><img src="../assets/fotos/catalogo-batidora.webp" data-asset alt=""><div><div class="a">Batidora de pedestal 5 L</div><div class="b"><b>S/ 399</b> · Instagram</div></div></div>
+              <div class="hora"><b>12:00</b><div>en 1 h 45</div></div>
+              <span class="chip prio p-alta">Alta</span>
+            </div>
+            <div class="pd">
+              <span class="chk"></span>
+              <span class="av av-cli">SV</span>
+              <div style="min-width:0">
+                <div class="nom"><span class="n">Sofía Vargas</span><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span></div>
+                <div class="tar"><i data-lucide="file-text"></i><span>Enviar cotización del combo</span></div>
+              </div>
+              <div class="pill"><img src="../assets/fotos/catalogo-bateria-ollas.webp" data-asset alt=""><div><div class="a">Batería de ollas + sartén</div><div class="b"><b>S/ 428</b> · Instagram</div></div></div>
+              <div class="hora"><b>15:00</b><div>esta tarde</div></div>
+              <span class="chip prio p-norm">Normal</span>
+            </div>
+            <div class="pd hecho">
+              <span class="chk ok"><i data-lucide="check"></i></span>
+              <span class="av av-cli">RB</span>
+              <div style="min-width:0">
+                <div class="nom"><span class="n">Raúl Benites</span><span class="chip chip-venta sm"><i class="pt"></i>Venta cerrada</span></div>
+                <div class="tar"><i data-lucide="truck"></i><span>Confirmar entrega en Chorrillos</span></div>
+              </div>
+              <div class="pill"><img src="../assets/fotos/catalogo-aspiradora.webp" data-asset alt=""><div><div class="a">Aspiradora sin bolsa 2000 W</div><div class="b"><b>S/ 459</b> · Google Ads</div></div></div>
+              <div class="hora"><b>09:10</b><div>hecho</div></div>
+              <span class="chip prio chip-venta"><i data-lucide="check"></i>Hecho</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Listo para ti: lo que Kinti · IA resumió -->
+        <section class="card" style="flex:1 1 0;min-height:0;display:flex;flex-direction:column;padding:16px 20px 18px">
+          <div class="card-hd">
+            <div style="display:flex;align-items:center;gap:10px">
+              <h3>Listo para ti</h3>
+              <span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>
+              <span class="muted" style="font-size:12.5px;margin-left:-4px">resumió 3 chats esta mañana</span>
+            </div>
+            <span style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:700">Ver mis chats<i data-lucide="arrow-right" style="width:15px;height:15px"></i></span>
+          </div>
+          <div style="flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px">
+            <div class="res">
+              <div class="cab"><span class="av av-sm av-cli">RH</span><div style="min-width:0"><div class="n">Rosa Huamaní</div><div class="d">Comas · hoy 09:52</div></div><span class="mt tnum">S/ 279</span></div>
+              <div class="bur"><div class="q"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span></div>Quiere pagar hoy mismo con Yape. Le confirmé 12 meses de garantía y delivery a Comas en 24&nbsp;h: S/&nbsp;289 en total.</div>
+              <div class="pie"><span class="listo"><i data-lucide="link"></i>Link enviado</span><span class="btn btn-verde btn-sm">Abrir chat</span></div>
+            </div>
+            <div class="res">
+              <div class="cab"><span class="av av-sm av-cli">SV</span><div style="min-width:0"><div class="n">Sofía Vargas</div><div class="d">La Molina · hoy 07:52</div></div><span class="mt tnum">S/ 428</span></div>
+              <div class="bur"><div class="q"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span></div>Busca batería + sartén para regalo. Armé el combo en S/&nbsp;428 con delivery gratis. Pregunta si llega el lunes.</div>
+              <div class="pie"><span class="listo"><i data-lucide="file-text"></i>Cotización lista</span><span class="btn btn-verde btn-sm">Abrir chat</span></div>
+            </div>
+            <div class="res">
+              <div class="cab"><span class="av av-sm av-cli">AS</span><div style="min-width:0"><div class="n">Andrea Salazar</div><div class="d">Miraflores · hoy 08:31</div></div><span class="mt tnum">S/ 399</span></div>
+              <div class="bur"><div class="q"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span></div>Volvió por la batidora. Le confirmé que trae 3 accesorios y 12 meses de garantía. Quiere cerrar contigo hoy.</div>
+              <div class="pie"><span class="listo"><i data-lucide="flag"></i>Lista para cerrar</span><span class="btn btn-verde btn-sm">Abrir chat</span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</body></html>

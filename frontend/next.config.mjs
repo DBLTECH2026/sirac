@@ -5,7 +5,11 @@ const nextConfig = {
   output: "standalone",
   poweredByHeader: false,
   async rewrites() {
-    return process.env.NODE_ENV === "development" ? [{ source: "/api/:ruta*", destination: `${BACKEND}/api/:ruta*` }] : [];
+    // /crm muestra el índice del prototipo navegable del CRM (archivos estáticos en public/crm)
+    const crm = [{ source: "/crm", destination: "/crm/index.html" }];
+    return process.env.NODE_ENV === "development"
+      ? [...crm, { source: "/api/:ruta*", destination: `${BACKEND}/api/:ruta*` }]
+      : crm;
   },
 };
 

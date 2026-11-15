@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>SIRAC · Configuración · Sistema</title>
+<meta name="viewport" content="width=1440">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="../js/tw-config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../css/sirac.css">
+<script src="../js/shell.js"></script>
+<style>
+  /* v0.3: el marco 1440×900 lo da body.marco; el padding de .main, la cabecera (.top) y la tarjeta
+     ilustrada del submenú (.cfg-menu/.cfg-card) vienen de sirac.css. Aquí solo se reparte el alto:
+     el bloque de Configuración llena lo que deja la cabecera. */
+  .main.main-cfg { display: flex; flex-direction: column; }
+  .cfg { flex: 1; min-height: 0; }
+
+  /* Sección Sistema */
+  .sis { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+  .sis-cab { display: flex; align-items: center; justify-content: space-between; height: 42px; flex: 0 0 auto; }
+  .sis-cab h2 { font-size: 22px; font-weight: 700; margin: 0; line-height: 1.15; }
+  .sis-cab .s { font-size: 13px; color: var(--t2); margin-top: 3px; }
+  .fila1 { display: grid; grid-template-columns: minmax(0, 1fr) 302px; gap: 14px; height: 258px; flex: 0 0 auto; }
+  .fila2 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; height: 166px; flex: 0 0 auto; }
+  .kick { font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--celeste-texto); }
+  .cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .cab h3 { font-size: 15px; white-space: nowrap; }
+  .ttl { display: inline-flex; align-items: center; gap: 8px; }
+  .sq { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex: 0 0 auto; }
+
+  /* Espacio usado */
+  .esp { padding: 17px 20px 16px; display: flex; flex-direction: column; min-width: 0; }
+  .esp .cifras { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 4px; }
+  .esp .big { font-family: Sora; font-weight: 700; font-size: 40px; letter-spacing: -0.03em; line-height: 1; }
+  .esp .big small { font-family: Inter; font-size: 14px; font-weight: 500; color: var(--t2); letter-spacing: 0; margin-left: 8px; }
+  .esp .pct { text-align: right; }
+  .esp .pct b { display: block; font-family: Sora; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
+  .esp .pct span { font-size: 12px; color: var(--t2); }
+  .seg-barra { display: flex; gap: 2px; height: 22px; margin-top: 14px; }
+  .seg-barra i { display: block; height: 100%; }
+  .seg-barra i:first-child { border-radius: 6px 0 0 6px; }
+  .seg-barra i:last-child { border-radius: 0 6px 6px 0; background: #E6EDF5; }
+  /* escala: cada marca cae sobre su valor real (0–10 GB) */
+  .ticks { position: relative; height: 13px; line-height: 13px; font-size: 10px; color: var(--t3); margin-top: 5px; font-variant-numeric: tabular-nums; }
+  .ticks span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+  .ticks span:first-child { left: 0; transform: none; }
+  .ticks span:last-child { left: auto; right: 0; transform: none; }
+  .ley { display: grid; grid-auto-flow: column; grid-template-rows: auto auto; column-gap: 20px; row-gap: 7px; margin-top: 11px; font-size: 12px; color: #33445C; justify-content: start; }
+  .ley span { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+  .ley b { color: var(--noche); font-weight: 700; margin-left: 2px; }
+  .ritmo { margin-top: auto; display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border-radius: 10px; background: var(--niebla); font-size: 12px; color: #33445C; white-space: nowrap; }
+  .ritmo svg { width: 16px; height: 16px; color: var(--celeste-texto); flex: 0 0 auto; }
+  .ritmo b { color: var(--noche); }
+  .ritmo .m { color: var(--t2); }
+  .ritmo a { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font-weight: 700; color: var(--noche); }
+  .ritmo a svg { color: var(--noche); width: 15px; height: 15px; }
+
+  /* Estado del sistema */
+  .est { padding: 14px 16px 8px; display: flex; flex-direction: column; min-width: 0; }
+  .est .cab h3 { font-family: Sora; font-size: 16px; font-weight: 700; }
+  .est .hora { font-size: 11.5px; color: var(--t3); }
+  .est ul { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; flex: 1; justify-content: space-between; }
+  .est li { display: flex; align-items: center; gap: 10px; padding: 4px 0; border-top: 1px solid var(--noche3); }
+  .est li:first-child { border-top: 0; }
+  .est .ico { width: 30px; height: 30px; border-radius: 50%; background: var(--noche2); display: grid; place-items: center; flex: 0 0 auto; color: #fff; }
+  .est .ico svg { width: 16px; height: 16px; }
+  .est .n .chip-kinti { vertical-align: middle; }
+  .est .tx { min-width: 0; flex: 1; }
+  .est .n { font-size: 13px; font-weight: 700; line-height: 16px; white-space: nowrap; }
+  .est .d { font-size: 11.5px; color: var(--t3); line-height: 15px; white-space: nowrap; }
+  .est .d b { color: #fff; font-weight: 600; }
+  .ch { display: inline-flex; align-items: center; gap: 5px; height: 19px; padding: 0 7px; border-radius: 999px; font-size: 9.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; flex: 0 0 auto; }
+  .ch::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .ch.ok { background: var(--verde); color: var(--noche); }
+  .ch.ia { background: var(--violeta); color: #fff; }
+
+  /* Fila 2 */
+  .f2 { padding: 14px 14px 12px; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+  .f2 .cab .v { font-family: Sora; font-weight: 700; font-size: 15px; }
+  .f2 .cab .m { font-size: 11.5px; color: var(--t2); font-weight: 600; }
+  .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-top: auto; }
+  .tile { background: #F5F8FB; border: 1px solid #E6EDF5; border-radius: 12px; padding: 8px 8px 9px; min-width: 0; }
+  .tile .tp { display: flex; align-items: center; justify-content: space-between; }
+  .tile .tp span { width: 24px; height: 24px; border-radius: 7px; background: var(--celeste-claro); color: var(--celeste-texto); display: grid; place-items: center; }
+  .tile .tp svg { width: 14px; height: 14px; }
+  .tile .tp b { font-size: 11px; color: #33445C; }
+  .tile .v { font-family: Sora; font-weight: 700; font-size: 15px; letter-spacing: -0.02em; margin-top: 7px; line-height: 1.1; white-space: nowrap; }
+  .tile .l { font-size: 12px; font-weight: 700; margin-top: 1px; }
+  .tile .c { font-size: 10.5px; color: var(--t2); white-space: nowrap; }
+  .tile .barra { height: 4px; margin-top: 6px; }
+  .tile .barra i { background: var(--celeste); }
+
+  .nums { display: flex; flex-direction: column; gap: 6px; margin-top: auto; }
+  .num { display: flex; align-items: center; gap: 9px; }
+  .num .av { width: 24px; height: 24px; font-size: 9.5px; }
+  .num .av svg { width: 14px; height: 14px; }
+  .num .mid { flex: 1; min-width: 0; }
+  .num .n { font-size: 12.5px; font-weight: 600; line-height: 15px; display: flex; justify-content: space-between; white-space: nowrap; }
+  .num .n b { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .num .barra { height: 5px; margin-top: 3px; }
+  .num .barra i { background: var(--celeste); }
+
+  .crec .s { font-size: 11.5px; color: var(--t2); margin-top: 2px; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; background: var(--celeste-claro); color: var(--celeste-texto); font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+  .badge svg { width: 13px; height: 13px; stroke-width: 2.4; }
+  .graf { display: block; width: 100%; height: 96px; margin-top: auto; overflow: visible; }
+  .graf text { font-family: Inter, sans-serif; }
+
+  /* Tabla de archivos */
+  .arch { flex: 1; min-height: 0; padding: 13px 18px 4px; display: flex; flex-direction: column; overflow: hidden; }
+  .arch .s { font-size: 12px; color: var(--t2); margin-top: 2px; }
+  .limpiar { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 6px 0 14px; border-radius: 999px; background: var(--verde); color: var(--noche); font-weight: 700; font-size: 13px; white-space: nowrap; }
+  .limpiar svg { width: 16px; height: 16px; }
+  .limpiar .lib { height: 24px; padding: 0 10px; border-radius: 999px; background: var(--noche); color: #fff; font-size: 11.5px; display: inline-flex; align-items: center; }
+  .tabla { margin-top: 6px; font-size: 13px; table-layout: fixed; }
+  .tabla th { padding: 6px 8px; font-size: 10.5px; }
+  .tabla td { padding: 0 8px; height: 32px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tabla tr:last-child td { border-bottom: 0; }
+  .fa { display: flex; align-items: center; gap: 10px; font-weight: 600; min-width: 0; }
+  .fa .ti { width: 24px; height: 24px; border-radius: 7px; background: var(--celeste-claro); color: var(--celeste-texto); display: grid; place-items: center; flex: 0 0 auto; }
+  .fa .ti svg { width: 14px; height: 14px; }
+  .fa .nm { overflow: hidden; text-overflow: ellipsis; }
+  .viejo { display: inline-flex; align-items: center; height: 18px; padding: 0 7px; border-radius: 999px; background: var(--aviso-claro); color: var(--aviso); font-size: 10.5px; font-weight: 700; flex: 0 0 auto; }
+  .cli { display: flex; align-items: center; gap: 8px; }
+  .cli .av { width: 22px; height: 22px; font-size: 9px; }
+  /* clientes: círculo neutro con iniciales, como en Chats y Dashboard */
+  .av.cl { background: #E3EAF2; color: var(--noche2); }
+  .tabla th.th-tam { text-align: right; }
+  .tabla .mut { color: var(--t2); }
+  .tabla .tam { font-family: Sora; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+  .tabla .fec { color: var(--t2); font-variant-numeric: tabular-nums; }
+  .tabla .fec.old { color: var(--aviso); font-weight: 700; }
+  .acc { display: flex; gap: 12px; justify-content: flex-end; color: var(--t2); }
+  .acc svg { width: 16px; height: 16px; }
+</style>
+</head>
+<body class="marco" data-rol="admin" data-activo="configuracion" data-sub="sistema">
+<div class="app">
+  <aside class="sb" id="sb"></aside>
+  <main class="main main-cfg">
+    <div class="top" id="top" data-sobre="Ajustes del CRM" data-titulo="Configuración"></div>
+
+    <div class="cfg">
+      <nav class="cfg-menu" id="cfgmenu" data-k="Plan demo" data-t="Prueba hasta el 30 de noviembre" data-d="1.84 de 10 GB usados · respaldos al día" data-img="assets/ilustraciones/crm-respaldo-sistema.webp" data-barra="18.4"></nav>
+
+      <section class="sis">
+        <!-- Cabecera de la sección -->
+        <div class="sis-cab">
+          <div><h2 class="sora">Sistema</h2><div class="s">Espacio, respaldos y estado de las conexiones</div></div>
+          <div style="display:flex;gap:10px">
+            <span class="btn btn-borde"><i data-lucide="download"></i>Descargar respaldo</span>
+            <span class="btn btn-verde"><i data-lucide="plus"></i>Ampliar espacio</span>
+          </div>
+        </div>
+
+        <!-- Fila 1: espacio + estado -->
+        <div class="fila1">
+          <div class="card esp">
+            <div class="kick">Espacio usado · Plan demo</div>
+            <div class="cifras">
+              <div class="big tnum">1.84 GB<small>de 10 GB usados</small></div>
+              <div class="pct"><b class="tnum">18.4 %</b><span>8.16 GB libres</span></div>
+            </div>
+            <div class="seg-barra" title="1.84 GB de 10 GB">
+              <i style="width:12%;background:#16B6D8" title="Multimedia de chats · 1.2 GB"></i>
+              <i style="width:1.8%;background:#9FB3CC" title="Documentos de entrenamiento · 0.18 GB"></i>
+              <i style="width:2.1%;background:#0B6E85" title="Catálogo · 0.21 GB"></i>
+              <i style="width:2.5%;background:#0A1424" title="Respaldos · 0.25 GB"></i>
+              <i style="flex:1" title="Libre · 8.16 GB"></i>
+            </div>
+            <div class="ticks"><span>0</span><span style="left:20%">2</span><span style="left:40%">4</span><span style="left:60%">6</span><span style="left:80%">8</span><span>10 GB</span></div>
+            <div class="ley">
+              <span><i class="sq" style="background:#16B6D8"></i>Multimedia de chats<b class="tnum">1.2 GB</b></span>
+              <span><i class="sq" style="background:#9FB3CC"></i>Documentos de entrenamiento<b class="tnum">0.18 GB</b></span>
+              <span><i class="sq" style="background:#0B6E85"></i>Catálogo<b class="tnum">0.21 GB</b></span>
+              <span><i class="sq" style="background:#0A1424"></i>Respaldos<b class="tnum">0.25 GB</b></span>
+              <span><i class="sq" style="background:#E6EDF5;border:1px solid #C8D8E8"></i>Libre<b class="tnum">8.16 GB</b></span>
+            </div>
+            <div class="ritmo"><i data-lucide="calendar-clock"></i><span>A este ritmo (<b>+0.37 GB/mes</b>) te alcanza para <b>~22 meses</b></span><span class="m">· ago. 2028</span><a>Ver plan<i data-lucide="arrow-right"></i></a></div>
+          </div>
+
+          <div class="card-osc est">
+            <div class="cab"><h3>Estado del sistema</h3><span class="hora">Hoy · 11:40</span></div>
+            <ul>
+              <li>
+                <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 20.4l1.3-4.2A8.4 8.4 0 1 1 8 19.3z"/><path d="M9.2 8.6c.2 3.2 2.9 5.9 6.1 6.1l1-1.5-1.9-1.2-.9.8a4.4 4.4 0 0 1-2.4-2.4l.8-.9-1.2-1.9z"/></svg></span>
+                <div class="tx"><div class="n">WhatsApp</div><div class="d">sesiones conectadas</div></div>
+                <span class="ch ok">4 de 4</span>
+              </li>
+              <li>
+                <span class="ico"><i data-lucide="sparkles"></i></span>
+                <div class="tx"><div class="n"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span></div><div class="d">responde en <b>8 s</b></div></div>
+                <span class="ch ia">Operativo</span>
+              </li>
+              <li>
+                <span class="ico"><i data-lucide="infinity"></i></span>
+                <div class="tx"><div class="n">Meta Conversions API</div><div class="d"><b>212</b> ventas enviadas en oct.</div></div>
+                <span class="ch ok">Activa</span>
+              </li>
+              <li>
+                <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 12.2H12"/><path d="M19.5 12.2a7.6 7.6 0 1 1-2.2-5.6"/></svg></span>
+                <div class="tx"><div class="n">Google Ads</div><div class="d">conversiones · hace 15 min</div></div>
+                <span class="ch ok">Activa</span>
+              </li>
+              <li>
+                <span class="ico"><i data-lucide="database-backup"></i></span>
+                <div class="tx"><div class="n">Respaldo diario</div><div class="d">03:00 · último: hoy</div></div>
+                <span class="ch ok">Al día</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Fila 2 -->
+        <div class="fila2">
+          <div class="card f2">
+            <div class="cab"><h3 class="ttl"><i class="sq" style="background:#16B6D8"></i>Multimedia de chats</h3><span class="v tnum">1.2 GB</span></div>
+            <div class="tiles">
+              <div class="tile"><div class="tp"><span><i data-lucide="image"></i></span><b>35 %</b></div><div class="v tnum">0.42 GB</div><div class="l">Fotos</div><div class="c">3,860 fotos</div><div class="barra"><i style="width:35%"></i></div></div>
+              <div class="tile"><div class="tp"><span><i data-lucide="mic"></i></span><b>18 %</b></div><div class="v tnum">0.22 GB</div><div class="l">Audios</div><div class="c">5,120 notas</div><div class="barra"><i style="width:18%"></i></div></div>
+              <div class="tile"><div class="tp"><span><i data-lucide="video"></i></span><b>47 %</b></div><div class="v tnum">0.56 GB</div><div class="l">Videos</div><div class="c">214 videos</div><div class="barra"><i style="width:47%"></i></div></div>
+            </div>
+          </div>
+
+          <div class="card f2">
+            <div class="cab"><h3>Uso por número</h3><span class="m">Multimedia</span></div>
+            <div class="nums">
+              <div class="num"><span class="av" style="background:#0A1424"><i data-lucide="store"></i></span><div class="mid"><div class="n"><span>Kusi Hogar Principal</span><b>0.54 GB</b></div><div class="barra"><i style="width:100%"></i></div></div></div>
+              <div class="num"><span class="av" style="background:#0EB155;color:#0A1424">DQ</span><div class="mid"><div class="n"><span>Ventas Diego</span><b>0.29 GB</b></div><div class="barra"><i style="width:54%"></i></div></div></div>
+              <div class="num"><span class="av" style="background:#16B6D8;color:#0A1424">MR</span><div class="mid"><div class="n"><span>Ventas Milagros</span><b>0.24 GB</b></div><div class="barra"><i style="width:44%"></i></div></div></div>
+              <div class="num"><span class="av" style="background:#1E2E4E">KH</span><div class="mid"><div class="n"><span>Provincias (Kevin)</span><b>0.13 GB</b></div><div class="barra"><i style="width:24%"></i></div></div></div>
+            </div>
+          </div>
+
+          <div class="card f2 crec">
+            <div class="cab"><h3>Crecimiento mensual</h3><span class="badge"><i data-lucide="trending-up"></i>+0.37 GB</span></div>
+            <div class="s">GB al cierre de cada mes · octubre al 24</div>
+            <svg class="graf" viewBox="0 0 257 96" aria-label="Crecimiento mensual del espacio usado, de 0.31 GB en mayo a 1.84 GB en octubre">
+              <!-- rejilla: 0, 0.5, 1, 1.5, 2 GB → 33 px por GB (y 8 a 74) -->
+              <g stroke="#EDF2F7" stroke-width="1">
+                <line x1="26" x2="257" y1="8" y2="8"/><line x1="26" x2="257" y1="24.5" y2="24.5"/><line x1="26" x2="257" y1="41" y2="41"/><line x1="26" x2="257" y1="57.5" y2="57.5"/>
+              </g>
+              <line x1="26" x2="257" y1="74" y2="74" stroke="#C8D8E8" stroke-width="1"/>
+              <g font-size="9" fill="#9FB3CC" text-anchor="end">
+                <text x="18" y="11">2</text><text x="18" y="27.5">1.5</text><text x="18" y="44">1</text><text x="18" y="60.5">0.5</text><text x="18" y="77">0</text>
+              </g>
+              <!-- barras: ancho 22, paso 38 -->
+              <g fill="#16B6D8">
+                <path d="M35 74V67.77a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4V74z"><title>Mayo · 0.31 GB</title></path>
+                <path d="M73 74V58.86a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4V74z"><title>Junio · 0.58 GB</title></path>
+                <path d="M111 74V49.62a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4V74z"><title>Julio · 0.86 GB</title></path>
+                <path d="M149 74V40.38a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4V74z"><title>Agosto · 1.14 GB</title></path>
+                <path d="M187 74V29.49a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4V74z"><title>Septiembre · 1.47 GB</title></path>
+              </g>
+              <path d="M225 74V17.28a4 4 0 0 1 4-4h14a4 4 0 0 1 4 4V74z" fill="#0A1424"><title>Octubre · 1.84 GB</title></path>
+              <g font-size="9.5" font-weight="700" fill="#0A1424" text-anchor="middle" stroke="#fff" stroke-width="3" paint-order="stroke">
+                <text x="46" y="59">0.31</text><text x="236" y="9.5">1.84</text>
+              </g>
+              <g font-size="9.5" fill="#6E819A" text-anchor="middle">
+                <text x="46" y="90">May</text><text x="84" y="90">Jun</text><text x="122" y="90">Jul</text><text x="160" y="90">Ago</text><text x="198" y="90">Sep</text>
+              </g>
+              <text x="236" y="90" font-size="9.5" font-weight="700" fill="#0A1424" text-anchor="middle">Oct</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Fila 3: archivos más pesados -->
+        <div class="card arch">
+          <div class="cab">
+            <div><h3>Archivos más pesados</h3><div class="s">Top 5 de 9,194 archivos multimedia · se respaldan antes de borrarse</div></div>
+            <span class="limpiar"><i data-lucide="trash-2"></i>Limpiar multimedia de más de 90 días<span class="lib">libera 0.46 GB</span></span>
+          </div>
+          <table class="tabla">
+            <colgroup><col style="width:262px"><col style="width:122px"><col style="width:150px"><col style="width:118px"><col style="width:72px"><col style="width:58px"><col></colgroup>
+            <thead><tr><th>Archivo</th><th>Tipo</th><th>Chat</th><th>Número</th><th class="th-tam">Tamaño</th><th>Fecha</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td><div class="fa"><span class="ti"><i data-lucide="video"></i></span><span class="nm">Tienda en Trujillo.mp4</span><span class="viejo">+90 días</span></div></td>
+                <td class="mut">Video · 1:42 min</td>
+                <td><div class="cli"><span class="av cl">CM</span>Carlos Mamani</div></td>
+                <td class="mut">Provincias</td>
+                <td class="tam">38 MB</td>
+                <td class="fec old">4 jul</td>
+                <td><div class="acc"><i data-lucide="download"></i><i data-lucide="trash-2"></i></div></td>
+              </tr>
+              <tr>
+                <td><div class="fa"><span class="ti"><i data-lucide="video"></i></span><span class="nm">Mis ollas actuales.mp4</span></div></td>
+                <td class="mut">Video · 1:15 min</td>
+                <td><div class="cli"><span class="av cl">JP</span>Jhon Paredes</div></td>
+                <td class="mut">Provincias</td>
+                <td class="tam">27 MB</td>
+                <td class="fec">7 oct</td>
+                <td><div class="acc"><i data-lucide="download"></i><i data-lucide="trash-2"></i></div></td>
+              </tr>
+              <tr>
+                <td><div class="fa"><span class="ti"><i data-lucide="video"></i></span><span class="nm">La alfombra de mi sala.mp4</span></div></td>
+                <td class="mut">Video · 0:58 min</td>
+                <td><div class="cli"><span class="av cl">LF</span>Lucía Fernández</div></td>
+                <td class="mut">Ventas Milagros</td>
+                <td class="tam">21 MB</td>
+                <td class="fec">8 oct</td>
+                <td><div class="acc"><i data-lucide="download"></i><i data-lucide="trash-2"></i></div></td>
+              </tr>
+              <tr>
+                <td><div class="fa"><span class="ti"><i data-lucide="video"></i></span><span class="nm">Mi cocina para la freidora.mp4</span></div></td>
+                <td class="mut">Video · 0:47 min</td>
+                <td><div class="cli"><span class="av cl">RH</span>Rosa Huamaní</div></td>
+                <td class="mut">Principal</td>
+                <td class="tam">14 MB</td>
+                <td class="fec">hoy</td>
+                <td><div class="acc"><i data-lucide="download"></i><i data-lucide="trash-2"></i></div></td>
+              </tr>
+              <tr>
+                <td><div class="fa"><span class="ti"><i data-lucide="image"></i></span><span class="nm">Medidas de mi repostero.jpg</span></div></td>
+                <td class="mut">Foto · 12 MP</td>
+                <td><div class="cli"><span class="av cl">AS</span>Andrea Salazar</div></td>
+                <td class="mut">Ventas Diego</td>
+                <td class="tam">8.4 MB</td>
+                <td class="fec">2 oct</td>
+                <td><div class="acc"><i data-lucide="download"></i><i data-lucide="trash-2"></i></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</body></html>

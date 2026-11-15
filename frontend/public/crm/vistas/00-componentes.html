@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>SIRAC · Componentes</title>
+<meta name="viewport" content="width=1440">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="../js/tw-config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../css/sirac.css">
+<script src="../js/shell.js"></script>
+</head>
+<body style="width:1440px;background:#fff">
+<div style="padding:56px 64px">
+  <div class="sobre">Sistema visual · v0.3</div>
+  <div class="titulo" style="font-size:40px">Componentes SIRAC</div>
+  <p class="sub" style="max-width:760px">Referencia única para todas las vistas. Azul Noche estructura, Verde SIRAC = lo que se toca y la venta cerrada, Violeta = solo lo que hace Kinti · IA, Celeste = datos. Avatares de personas con iniciales; el agente con su ilustración y anillo violeta.</p>
+
+  <h3 class="sora" style="margin:40px 0 14px;font-size:20px">Color</h3>
+  <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:12px;font-size:12px">
+    <div><div style="height:72px;border-radius:14px;background:#0A1424"></div><b>Noche</b><br>#0A1424</div>
+    <div><div style="height:72px;border-radius:14px;background:#14213A"></div><b>Noche 2</b><br>#14213A</div>
+    <div><div style="height:72px;border-radius:14px;background:#EEF3F8;border:1px solid #DCE5EF"></div><b>Niebla</b><br>#EEF3F8</div>
+    <div><div style="height:72px;border-radius:14px;background:#0EB155"></div><b>Verde SIRAC</b><br>#0EB155</div>
+    <div><div style="height:72px;border-radius:14px;background:#7C5CFC"></div><b>Violeta IA</b><br>#7C5CFC</div>
+    <div><div style="height:72px;border-radius:14px;background:#16B6D8"></div><b>Celeste dato</b><br>#16B6D8</div>
+    <div><div style="height:72px;border-radius:14px;background:#6E819A"></div><b>Texto 2</b><br>#6E819A</div>
+    <div><div style="height:72px;border-radius:14px;background:#C8D8E8"></div><b>Borde</b><br>#C8D8E8</div>
+  </div>
+
+  <h3 class="sora" style="margin:40px 0 14px;font-size:20px">Tipografía</h3>
+  <div style="display:flex;gap:40px;align-items:flex-end">
+    <div><div class="sora" style="font-size:32px;font-weight:800;letter-spacing:-.03em">Título 32 · Sora 800</div><div class="sora" style="font-size:22px;font-weight:700">Sección 22 · Sora 700</div><div style="font-size:16px;font-weight:700">Título de tarjeta 16 · Inter 700</div><div style="font-size:14px">Texto 14 · Inter 400 — Kinti respondió en 8 s.</div><div class="muted" style="font-size:12.5px">Secundario 12.5 · Inter 400</div></div>
+    <div class="kpi"><div class="v tnum">S/ 18,640</div><div class="l">Cifra · Sora 700 tabular</div></div>
+  </div>
+
+  <h3 class="sora" style="margin:40px 0 14px;font-size:20px">Botones, chips y controles</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+    <span class="btn btn-verde"><i data-lucide="plus"></i>Conectar número</span>
+    <span class="btn btn-noche"><i data-lucide="send"></i>Enviar</span>
+    <span class="btn btn-borde"><i data-lucide="download"></i>Exportar</span>
+    <span class="btn btn-verde btn-sm">Tomar el chat</span>
+    <span class="seg"><span>Hoy</span><span>7 días</span><span class="on">Este mes</span></span>
+    <span class="toggle on"></span><span class="toggle"></span>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px">
+    <span class="chip chip-nuevo"><i class="pt"></i>Nuevo</span>
+    <span class="chip chip-ia"><i class="pt"></i>Calificado por IA</span>
+    <span class="chip chip-cot"><i class="pt"></i>Cotización enviada</span>
+    <span class="chip chip-venta"><i class="pt"></i>Venta cerrada</span>
+    <span class="chip chip-perdido"><i class="pt"></i>Perdido</span>
+    <span class="chip chip-aviso">Espera 12 min</span>
+    <span class="chip chip-osc">Meta Ads · Freidoras octubre</span>
+  </div>
+
+  <h3 class="sora" style="margin:40px 0 14px;font-size:20px">Avatares</h3>
+  <div style="display:flex;gap:14px;align-items:center">
+    <span class="av av-lg" style="background:#1E2E4E">CM</span><span class="av" style="background:#0EB155">DQ</span><span class="av" style="background:#16B6D8">JS</span><span class="av av-sm" style="background:#7C5CFC">RS</span>
+    <span class="av av-lg av-ia"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt=""></span>
+    <span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>
+  </div>
+
+  <h3 class="sora" style="margin:40px 0 14px;font-size:20px">Tarjetas</h3>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+    <div class="card kpi"><div class="l"><i data-lucide="message-circle" style="width:16px"></i>Chats nuevos</div><div class="v tnum">1,284</div><span class="delta">+14 %</span> <span class="muted" style="font-size:12px">vs septiembre</span></div>
+    <div class="card kpi"><div class="l"><i data-lucide="sparkles" style="width:16px"></i>Resueltos por Kinti</div><div class="v tnum">61 %</div><div class="barra" style="margin-top:8px"><i style="width:61%;background:#7C5CFC"></i></div></div>
+    <div class="card-osc"><div style="font-size:11px;letter-spacing:.12em;font-weight:700;color:#0EB155">META DEL MES</div><div class="sora" style="font-size:28px;font-weight:700;margin:6px 0">S/ 18,640</div><div class="muted" style="font-size:13px">de S/ 25,000 · faltan 6 días</div><div class="barra" style="margin-top:12px;background:#1E2E4E"><i style="width:74%"></i></div></div>
+    <div class="card" style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px"><img src="../assets/ilustraciones/vacio-sin-chats.webp" data-asset style="width:120px;height:120px;object-fit:contain" alt=""><b>Todo al día</b><span class="muted" style="font-size:13px">No hay chats esperando respuesta.</span></div>
+  </div>
+
+  <h3 class="sora" style="margin:40px 0 14px;font-size:20px">Chat</h3>
+  <div class="card" style="display:flex;flex-direction:column;gap:10px;max-width:640px;background:#F7FAFC">
+    <div class="burbuja cli">Hola, ¿la freidora de aire de 5 litros tiene garantía? ¿Llega a Comas?<div class="meta">21:47</div></div>
+    <div class="burbuja ia"><b style="color:#4B2FD0;font-size:12px">Kinti · IA</b><br>¡Hola, Rosa! Sí: 12 meses de garantía y delivery a Comas en 24 h por S/ 10. Hoy está a S/ 279. ¿Te la separo?<div class="meta">21:47 · respondió en 6 s</div></div>
+    <div class="burbuja hum"><b style="color:#0A7A3C;font-size:12px">Diego · Ventas</b><br>Rosa, ya te envié el link de pago. Sale mañana a primera hora.<div class="meta">08:12 ✓✓</div></div>
+  </div>
+</div>
+</body></html>

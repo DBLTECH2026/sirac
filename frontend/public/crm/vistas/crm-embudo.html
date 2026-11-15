@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>SIRAC · Embudo</title>
+<meta name="viewport" content="width=1440">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="../js/tw-config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../css/sirac.css">
+<script src="../js/shell.js"></script>
+<style>
+  /* Marco 1440 × 900 y cabecera vienen de sirac.css (body.marco, .main, .top). Aquí solo: columna flex para que el tablero llene el alto. */
+  .main { display: flex; flex-direction: column; }
+  .sub b { color: var(--noche); font-weight: 700; }
+  .seg span { gap: 6px; }
+  .seg span svg { width: 15px; height: 15px; }
+
+  /* Filtros */
+  .filtros { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .fil { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 12px 0 13px; border-radius: 999px; background: #fff; border: 1px solid var(--linea); font-size: 13px; color: var(--t2); white-space: nowrap; }
+  .fil b { color: var(--noche); font-weight: 600; }
+  .fil svg { width: 15px; height: 15px; }
+  .fil .cv { color: var(--t3); width: 14px; height: 14px; }
+  .dato { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 13px; border-radius: 999px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+  .dato svg { width: 15px; height: 15px; }
+  .dato b { font-weight: 700; }
+  .dato.cel { background: var(--celeste-claro); color: var(--celeste-texto); }
+  .dato.avi { background: var(--aviso-claro); color: var(--aviso); }
+
+  /* Tablero */
+  .tablero { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) 124px; gap: 10px; }
+  .col { background: #E4EBF3; border-radius: 16px; border-top: 3px solid var(--c); padding: 10px 8px 8px; display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow: hidden; }
+  .col-h { padding: 0 4px 2px; }
+  .col-h .r1 { display: flex; align-items: center; gap: 7px; }
+  .col-h .pt { width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex: 0 0 auto; }
+  .col-h .nm { font-family: Sora, sans-serif; font-weight: 700; font-size: 14px; letter-spacing: -0.01em; white-space: nowrap; }
+  .col-h .ct { min-width: 20px; height: 18px; padding: 0 6px; border-radius: 999px; background: var(--noche); color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .col-h .mas { margin-left: auto; color: var(--t2); width: 16px; height: 16px; }
+  .col-h .r2 { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 4px; height: 26px; }
+  .col-h .tot { font-family: Sora, sans-serif; font-weight: 700; font-size: 19px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .col-h .prom { font-size: 11.5px; color: var(--t2); font-weight: 600; }
+  .col-h .chip { height: 22px; padding: 0 8px; font-size: 11px; }
+
+  /* Tarjeta de oportunidad */
+  .kc { background: #fff; border-radius: 14px; border: 1px solid var(--linea); padding: 10px 12px 10px; flex: 0 0 auto; }
+  .kc.alerta { border-color: #F2C894; }
+  .kc-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .kc-top b { font-size: 13.5px; font-weight: 700; white-space: nowrap; }
+  .kc-top .m { font-size: 13.5px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .kc-sub { display: flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--t2); margin-top: 1px; white-space: nowrap; }
+  .kc-sub svg { width: 12px; height: 12px; }
+  .kc-sub .t { margin-left: auto; display: inline-flex; align-items: center; gap: 3px; }
+  .kc-sub .t.av-t { color: var(--aviso); font-weight: 700; }
+  .kc-prod { display: flex; gap: 9px; align-items: center; margin-top: 8px; }
+  .kc-prod .th { position: relative; flex: 0 0 40px; width: 40px; height: 40px; }
+  .kc-prod .th img { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; border: 1px solid var(--linea); display: block; }
+  .kc-prod .th .mas1 { position: absolute; right: -5px; bottom: -4px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--noche); color: #fff; font-size: 9.5px; font-weight: 700; display: grid; place-items: center; border: 1.5px solid #fff; }
+  .kc-prod .pn { font-size: 12.5px; font-weight: 600; line-height: 1.25; }
+  .kc-prod .pd { font-size: 11.5px; color: var(--t2); margin-top: 1px; white-space: nowrap; }
+  .kc-nota { margin-top: 8px; display: flex; align-items: center; gap: 6px; height: 26px; padding: 0 9px; border-radius: 8px; font-size: 11.5px; font-weight: 600; white-space: nowrap; overflow: hidden; }
+  .kc-nota svg { width: 13px; height: 13px; flex: 0 0 auto; }
+  .kc-nota img.iso { width: 13px; height: 13px; flex: 0 0 auto; }
+  /* Aviso del sistema (no de Kinti): «SIRAC envió la venta a …» con el isotipo */
+  .kc-nota.sis { padding: 0 6px 0 7px; gap: 5px; letter-spacing: -0.01em; }
+  /* Lo que hace Kinti: chip estándar + acción en violeta (sin caja propia) */
+  .kc-nota.ia { padding: 0; color: var(--violeta-texto); }
+  .kc-nota .chip-kinti { flex: 0 0 auto; }
+  .kc-nota.cot { background: var(--celeste-claro); color: var(--celeste-texto); }
+  .kc-nota.ok { background: var(--verde-claro); color: var(--verde-texto); }
+  .kc-nota.avi { background: var(--aviso-claro); color: var(--aviso); }
+  .kc-pie { margin-top: 9px; display: flex; align-items: center; gap: 6px; min-height: 24px; }
+  .kc-pie .av { width: 22px; height: 22px; font-size: 9.5px; }
+  .kc-pie .quien { font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .kc-pie .quien.sin { color: var(--t2); font-weight: 500; }
+  .av-sin { background: #fff !important; border: 1.5px dashed var(--borde); color: var(--t3) !important; }
+  .av-sin svg { width: 12px; height: 12px; }
+  .org { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; background: var(--niebla); font-size: 11px; font-weight: 600; color: #33445C; white-space: nowrap; }
+  .org svg { width: 12px; height: 12px; }
+
+  .col-pie { margin-top: auto; flex: 0 0 auto; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--t2); }
+  .col-pie svg { width: 15px; height: 15px; }
+  .col-pie.ver { color: var(--verde-texto); }
+
+  /* Pista de Kinti en «Nuevo» (con cifras de octubre) */
+  .tip-ia { border-radius: 14px; border: 1.5px dashed rgba(124, 92, 252, .45); background: #fff; padding: 12px; font-size: 12px; line-height: 1.45; color: #3A2C8C; }
+  .tip-ia p { margin: 8px 0 0; }
+  .tip-ia .tip-st { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; padding-top: 9px; border-top: 1px dashed rgba(124, 92, 252, .35); }
+  .tip-ia .tip-st span { display: block; font-size: 10.5px; color: #5B4FA8; font-weight: 500; line-height: 1.2; }
+  .tip-ia .tip-st b { display: block; font-family: Sora, sans-serif; font-size: 16px; font-weight: 700; color: var(--violeta-texto); letter-spacing: -0.01em; line-height: 1.25; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .tip-ia .tip-st b small { font-family: Inter, sans-serif; font-size: 10.5px; font-weight: 500; color: #5B4FA8; letter-spacing: 0; }
+
+  /* Columna estrecha «Perdidos» */
+  .col.perd { --c: var(--borde); padding: 10px 8px 8px; gap: 10px; }
+  .perd .cab { display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 2px; position: relative; }
+  .perd .cab .cerrar { position: absolute; right: 0; top: 0; width: 22px; height: 22px; border-radius: 7px; background: #fff; display: grid; place-items: center; color: var(--t2); }
+  .perd .cab .cerrar svg { width: 14px; height: 14px; }
+  .perd .cab .nm { font-family: Sora, sans-serif; font-weight: 700; font-size: 14px; margin-top: 18px; }
+  .perd .cab .n { font-family: Sora, sans-serif; font-weight: 800; font-size: 28px; line-height: 1.1; }
+  .perd .cab .s { font-size: 11px; color: var(--t2); font-weight: 600; }
+  .lc { background: #fff; border: 1px solid var(--linea); border-radius: 12px; padding: 8px; }
+  .lc .nm2 { font-size: 12px; font-weight: 700; }
+  .lc .row { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
+  .lc .row img { width: 28px; height: 28px; border-radius: 7px; object-fit: cover; border: 1px solid var(--linea); flex: 0 0 28px; }
+  .lc .row span { font-size: 11px; color: var(--t2); line-height: 1.25; }
+  .lc .sb2 { font-size: 11px; color: var(--t2); margin-top: 1px; }
+  .lc .sb2 b { color: var(--noche); font-weight: 700; }
+  .lc .ft { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+  .lc .chip { height: 18px; padding: 0 6px; font-size: 10px; gap: 4px; }
+  .lc .org { margin-left: 0; height: 18px; padding: 0 6px; font-size: 10px; gap: 3px; }
+  .lc .org svg { width: 10px; height: 10px; }
+  .motivos .k { font-size: 10px; font-weight: 700; letter-spacing: .12em; color: var(--t2); text-transform: uppercase; padding: 0 2px; }
+  .motivos .mt { margin-top: 7px; padding: 0 2px; }
+  .motivos .mt .l { display: flex; justify-content: space-between; font-size: 11.5px; font-weight: 600; }
+  .motivos .barra { height: 5px; margin-top: 4px; background: #fff; }
+  .motivos .barra > i { background: var(--t2); }
+  .reac { background: #fff; border-radius: 12px; padding: 9px 4px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .reac b { font-size: 12px; line-height: 1.2; }
+  .reac .tx { font-size: 10.5px; color: var(--violeta-texto); line-height: 1.3; padding: 0 3px; }
+  .soltar { flex: 1; min-height: 0; border: 1.5px dashed var(--borde); border-radius: 12px; background: rgba(255, 255, 255, .55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 10px 8px; text-align: center; }
+  .soltar img { width: 70px; height: 105px; object-fit: contain; border-radius: 10px; background: transparent; }
+  .soltar .tx { font-size: 11.5px; color: var(--t2); line-height: 1.35; font-weight: 500; }
+  .soltar .tx b { color: var(--noche); font-weight: 600; display: block; margin-bottom: 2px; }
+
+  /* Estado de arrastre: Rosa → Cotización */
+  .kc.arrastre { position: relative; margin-top: 4px; border: 1.5px solid var(--verde); box-shadow: 0 0 0 3px rgba(14, 177, 85, .14), 0 6px 14px rgba(10, 20, 36, .08); }
+  .kc.arrastre .tag-soltar { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); height: 19px; padding: 0 9px 0 6px; border-radius: 999px; background: var(--verde); color: var(--noche); font-size: 10.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+  .kc.arrastre .tag-soltar svg { width: 12px; height: 12px; }
+  .fantasma { flex: 1; min-height: 0; border: 1.5px dashed var(--verde); border-radius: 14px; background: rgba(231, 247, 238, .65); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; text-align: center; padding: 6px; }
+  .fantasma svg { width: 20px; height: 20px; color: var(--verde); stroke-width: 2.5; margin-bottom: 1px; }
+  .fantasma b { font-size: 12px; font-weight: 700; color: var(--noche); }
+  .fantasma span { font-size: 11px; color: var(--t2); }
+
+  /* Alerta con botón-ícono en vez de «Recordar» */
+  .kc-nota .acc-ic { margin-left: auto; width: 20px; height: 20px; border-radius: 6px; background: #fff; display: grid; place-items: center; flex: 0 0 auto; }
+  .kc-nota .acc-ic svg { width: 12px; height: 12px; }
+</style>
+</head>
+<body class="marco" data-rol="admin" data-activo="embudo">
+<div class="app">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="top" id="top" data-sobre="Ventas en curso" data-titulo="Embudo" data-sub="<b>S/ 2,757</b> en juego · <b>8</b> oportunidades abiertas">
+      <span class="seg"><span class="on"><i data-lucide="square-kanban"></i>Kanban</span><span><i data-lucide="list"></i>Lista</span></span>
+      <span class="btn btn-verde"><i data-lucide="plus"></i>Nueva oportunidad</span>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros">
+      <span class="fil"><i data-lucide="user"></i>Vendedor: <b>Todos</b><i class="cv" data-lucide="chevron-down"></i></span>
+      <span class="fil"><i data-lucide="smartphone"></i>Número: <b>Todos</b><i class="cv" data-lucide="chevron-down"></i></span>
+      <span class="fil"><i data-lucide="megaphone"></i>Campaña: <b>Todas</b><i class="cv" data-lucide="chevron-down"></i></span>
+      <span class="fil"><i data-lucide="package"></i>Producto: <b>Todos</b><i class="cv" data-lucide="chevron-down"></i></span>
+      <span style="flex:1"></span>
+      <span class="dato cel"><i data-lucide="trending-up"></i>Conversión <b class="tnum">16.5 %</b></span>
+      <span class="dato avi"><i data-lucide="triangle-alert"></i><b>1</b> estancada · ≥3 días</span>
+    </div>
+
+    <!-- Kanban -->
+    <div class="tablero">
+
+      <!-- NUEVO -->
+      <section class="col" style="--c:#6E819A">
+        <div class="col-h">
+          <div class="r1"><i class="pt"></i><span class="nm">Nuevo</span><span class="ct">2</span><i class="mas" data-lucide="ellipsis"></i></div>
+          <div class="r2"><span class="tot">S/ 555</span><span class="prom">prom. S/ 278</span></div>
+        </div>
+
+        <article class="kc">
+          <div class="kc-top"><b>Martín Ríos</b><span class="m">S/ 378</span></div>
+          <div class="kc-sub"><i data-lucide="map-pin"></i>SJL<span class="t"><i data-lucide="clock"></i>6 min</span></div>
+          <div class="kc-prod"><div class="th"><img src="../assets/fotos/catalogo-freidora-aire.webp" data-asset alt=""><span class="mas1">+1</span></div><div><div class="pn">Freidora + hervidor</div><div class="pd">Combo · 2 productos</div></div></div>
+          <div class="kc-nota ia"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>atiende el chat</div>
+          <div class="kc-pie"><span class="av av-sin"><i data-lucide="user"></i></span><span class="quien sin">Sin asignar</span><span class="org"><i data-lucide="megaphone"></i>Meta</span></div>
+        </article>
+
+        <article class="kc">
+          <div class="kc-top"><b>Elena Quispe</b><span class="m">S/ 177</span></div>
+          <div class="kc-sub"><i data-lucide="map-pin"></i>VES<span class="t"><i data-lucide="clock"></i>25 min</span></div>
+          <div class="kc-prod"><div class="th"><img src="../assets/fotos/catalogo-termo.webp" data-asset alt=""></div><div><div class="pn">Termo acero 1 L ×3</div><div class="pd">3 unid. · color verde</div></div></div>
+          <div class="kc-nota ia"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>le envió fotos</div>
+          <div class="kc-pie"><span class="av av-sin"><i data-lucide="user"></i></span><span class="quien sin">Sin asignar</span><span class="org"><i data-lucide="megaphone"></i>Meta</span></div>
+        </article>
+
+        <div class="tip-ia">
+          <span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>
+          <p>Responde cada chat nuevo en segundos y, cuando hay intención de compra, lo pasa a «Calificado por IA».</p>
+          <div class="tip-st">
+            <div><span>Responde en</span><b>8 s <small>antes 47 min</small></b></div>
+            <div><span>Sin ayuda · oct.</span><b>61 %</b></div>
+          </div>
+        </div>
+        <div class="col-pie"><i data-lucide="plus"></i>Agregar oportunidad</div>
+      </section>
+
+      <!-- CALIFICADO POR IA -->
+      <section class="col" style="--c:#7C5CFC">
+        <div class="col-h">
+          <div class="r1"><i class="pt"></i><span class="nm">Calificado por IA</span><span class="ct">3</span><i class="mas" data-lucide="ellipsis"></i></div>
+          <div class="r2"><span class="tot">S/ 896</span><span class="prom">prom. S/ 299</span></div>
+        </div>
+
+        <article class="kc arrastre">
+          <span class="tag-soltar"><i data-lucide="grip-vertical"></i>Soltar en Cotización</span>
+          <div class="kc-top"><b>Rosa Huamaní</b><span class="m">S/ 279</span></div>
+          <div class="kc-sub"><i data-lucide="map-pin"></i>Comas<span class="t"><i data-lucide="clock"></i>2 h</span></div>
+          <div class="kc-prod"><div class="th"><img src="../assets/fotos/catalogo-freidora-aire.webp" data-asset alt=""></div><div><div class="pn">Freidora de aire 5 L</div><div class="pd">1 unid. · delivery 24 h</div></div></div>
+          <div class="kc-nota ia"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>«quiere comprar»</div>
+          <div class="kc-pie"><span class="av" style="background:#0EB155;color:#0A1424">DQ</span><span class="quien">Diego</span><span class="org"><i data-lucide="megaphone"></i>Meta</span></div>
+        </article>
+
+        <article class="kc">
+          <div class="kc-top"><b>Pedro Cárdenas</b><span class="m">S/ 189</span></div>
+          <div class="kc-sub"><i data-lucide="map-pin"></i>Callao<span class="t"><i data-lucide="clock"></i>5 h</span></div>
+          <div class="kc-prod"><div class="th"><img src="../assets/fotos/catalogo-licuadora.webp" data-asset alt=""></div><div><div class="pn">Licuadora 1.5 L 700 W</div><div class="pd">1 unid. · recojo en tienda</div></div></div>
+          <div class="kc-nota ia"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>«compara precios»</div>
+          <div class="kc-pie"><span class="av" style="background:#16B6D8;color:#0A1424">MR</span><span class="quien">Milagros</span><span class="org"><i data-lucide="megaphone"></i>Meta</span></div>
+        </article>
+
+        <article class="kc">
+          <div class="kc-top"><b>Sofía Vargas</b><span class="m">S/ 428</span></div>
+          <div class="kc-sub"><i data-lucide="map-pin"></i>La Molina<span class="t"><i data-lucide="clock"></i>1 día</span></div>
+          <div class="kc-prod"><div class="th"><img src="../assets/fotos/catalogo-bateria-ollas.webp" data-asset alt=""><span class="mas1">+1</span></div><div><div class="pn">Batería + sartén</div><div class="pd">2 productos · menaje</div></div></div>
+          <div class="kc-nota ia"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>sumó el sartén</div>
+          <div class="kc-pie"><span class="av" style="background:#0EB155;color:#0A1424">DQ</span><span class="quien">Diego</span><span class="org"><i data-lucide="instagram"></i>Instagram</span></div>
+        </article>
+        <div class="col-pie"><i data-lucide="plus"></i>Agregar oportunidad</div>
+      </section>
+
+      <!-- COTIZACIÓN ENVIADA -->
+      <section class="col" style="--c:#16B6D8">
+        <div class="col-h">
+          <div class="r1"><i class="pt"></i><span class="nm">Cotización enviada</span><span class="ct">3</span><i class="mas" data-lucide="ellipsis"></i></div>
+          <div class="r2"><span class="tot">S/ 1,306</span><span class="prom">prom. S/ 435</span></div>
+        </div>
+
+        <article class="kc alerta">
+          <div class="kc-top"><b>Jhon Paredes</b><span class="m">S/ 349</span></div>
+          <div class="kc-sub"><i data-lucide="map-pin"></i>Arequipa · provincia<span class="t av-t"><i data-lucide="clock"></i>3 días</span></div>
+          <div class="kc-prod"><div class="th"><img src="../assets/fotos/catalogo-bateria-ollas.webp" data-asset alt=""></div><div><div class="pn">Batería de ollas 9 piezas</div><div class="pd">Envío por Shalom</div></div></div>
+          <div class="kc-nota avi"><i data-lucide="triangle-alert"></i>3 días sin respuesta<span class="acc-ic" title="Recordar"><i data-lucide="bell"></i></span></div>
+          <div class="kc-pie"><span class="av" style="background:#1E2E4E">KH</span><span class="quien">Kevin</span><span class="org"><i data-lucide="megaphone"></i>Meta</span></div>
+        </article>
+
+        <article class="kc">
+          <div class="kc-top"><b>Andrea Salazar</b><span class="m">S/ 399</span></div>
+          <div class="kc-sub"><i data-lucide="map-pin"></i>Miraflores<span class="t"><i data-lucide="clock"></i>1 día</span></div>
+          <div class="kc-prod"><div class="th"><img src="../assets/fotos/catalogo-batidora.webp" data-asset alt=""></div><div><div class="pn">Batidora de pedestal 5 L</div><div class="pd">1 unid. · delivery 24 h</div></div></div>
+          <div class="kc-nota cot"><i data-lucide="eye"></i>Cotización vista 2 veces</div>
+          <div class="kc-pie"><span class="av" style="background:#0EB155;color:#0A1424">DQ</span><span class="quien">Diego</span><span class="org"><i data-lucide="instagram"></i>Instagram</span></div>
+        </article>
+
+        <article class="kc">
+          <div class="kc-top"><b>Carlos Mamani</b><span class="m">S/ 558</span></div>
+          <div class="kc-sub"><i data-lucide="map-pin"></i>Trujillo · provincia<span class="t"><i data-lucide="clock"></i>4 h</span></div>
+          <div class="kc-prod"><div class="th"><img src="../assets/fotos/catalogo-freidora-aire.webp" data-asset alt=""></div><div><div class="pn">Freidora de aire 5 L ×2</div><div class="pd">Reventa · envío por Olva</div></div></div>
+          <div class="kc-nota cot"><i data-lucide="file-text"></i>Cotización PDF · 2 unidades</div>
+          <div class="kc-pie"><span class="av" style="background:#1E2E4E">KH</span><span class="quien">Kevin</span><span class="org"><i data-lucide="megaphone"></i>Meta</span></div>
+        </article>
+        <div class="fantasma"><i data-lucide="grip-vertical"></i><b>Rosa Huamaní</b><span>moviendo a Cotización…</span></div>
+      </section>
+
+      <!-- VENTA CERRADA (hoy = sábado 24 de octubre) -->
+      <section class="col" style="--c:#0EB155">
+        <div class="col-h">
+          <div class="r1"><i class="pt"></i><span class="nm">Venta cerrada</span><span class="ct">3</span><i class="mas" data-lucide="ellipsis"></i></div>
+          <div class="r2"><span class="tot">S/ 1,047</span><span class="chip chip-venta">Hoy · sáb. 24</span></div>
+        </div>
+
+        <article class="kc">
+          <div class="kc-top"><b>Lucía Fernández</b><span class="m">S/ 459</span></div>
+          <div class="kc-sub"><i data-lucide="map-pin"></i>Surco<span class="t"><i data-lucide="clock"></i>hoy 10:24</span></div>
+          <div class="kc-prod"><div class="th"><img src="../assets/fotos/catalogo-aspiradora.webp" data-asset alt=""></div><div><div class="pn">Aspiradora sin bolsa</div><div class="pd">2000 W · 1 unid.</div></div></div>
+          <div class="kc-nota ok sis"><img class="iso" src="../assets/marca/isotipo-sirac-noche.svg" alt="">SIRAC envió la venta a Google</div>
+          <div class="kc-pie"><span class="av" style="background:#16B6D8;color:#0A1424">MR</span><span class="quien">Milagros</span><span class="org"><i data-lucide="search"></i>Google</span></div>
+        </article>
+
+        <article class="kc">
+          <div class="kc-top"><b>Gaby Torres</b><span class="m">S/ 129</span></div>
+          <div class="kc-sub"><i data-lucide="map-pin"></i>Los Olivos<span class="t"><i data-lucide="clock"></i>hoy 09:10</span></div>
+          <div class="kc-prod"><div class="th"><img src="../assets/fotos/catalogo-olla-arrocera.webp" data-asset alt=""></div><div><div class="pn">Olla arrocera 1.8 L</div><div class="pd">1 unid. · delivery 24 h</div></div></div>
+          <div class="kc-nota ok"><i data-lucide="link"></i>Pagado con link de pago</div>
+          <div class="kc-pie"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="org"><i data-lucide="message-circle"></i>Directo</span></div>
+        </article>
+
+        <article class="kc">
+          <div class="kc-top"><b>Raúl Benites</b><span class="m">S/ 459</span></div>
+          <div class="kc-sub"><i data-lucide="map-pin"></i>Chorrillos<span class="t"><i data-lucide="clock"></i>hoy 09:04</span></div>
+          <div class="kc-prod"><div class="th"><img src="../assets/fotos/catalogo-aspiradora.webp" data-asset alt=""></div><div><div class="pn">Aspiradora sin bolsa</div><div class="pd">2000 W · 1 unid.</div></div></div>
+          <div class="kc-nota ok"><i data-lucide="circle-check"></i>Pagado · delivery hoy</div>
+          <div class="kc-pie"><span class="av" style="background:#0EB155;color:#0A1424">DQ</span><span class="quien">Diego</span><span class="org"><i data-lucide="search"></i>Google</span></div>
+        </article>
+        <div class="col-pie ver">Ver las 212 de octubre<i data-lucide="chevron-right"></i></div>
+      </section>
+
+      <!-- PERDIDOS (columna estrecha) -->
+      <section class="col perd">
+        <div class="cab">
+          <span class="cerrar"><i data-lucide="chevron-left"></i></span>
+          <div class="nm">Perdidos</div>
+          <div class="n">1</div>
+          <div class="s">S/ 219 · ayer</div>
+        </div>
+
+        <div class="lc">
+          <div class="nm2">Luis Ramos</div>
+          <div class="sb2"><b class="tnum">S/ 219</b> · Ate</div>
+          <div class="row"><img src="../assets/fotos/catalogo-ventilador-torre.webp" data-asset alt=""><span>Ventilador de torre</span></div>
+          <div class="ft"><span class="chip chip-perdido"><i class="pt"></i>Sin stock</span><span class="org"><i data-lucide="search"></i>Google</span></div>
+        </div>
+
+        <div class="motivos">
+          <div class="k">Motivos</div>
+          <div class="mt"><div class="l"><span>Sin stock</span><span>1</span></div><div class="barra"><i style="width:100%"></i></div></div>
+          <div class="mt"><div class="l"><span>Precio</span><span>0</span></div><div class="barra"><i style="width:0"></i></div></div>
+        </div>
+
+        <div class="reac">
+          <b>1 para reactivar</b>
+          <span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>
+          <span class="tx">te prepara un mensaje y tú decides si se envía</span>
+        </div>
+
+        <div class="soltar">
+          <img src="../assets/ilustraciones/vacio-columna-embudo.webp" data-asset alt="">
+          <div class="tx"><b>Arrastra aquí</b>para marcar perdida</div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+</body></html>

@@ -16,6 +16,10 @@ export default function Inicio() {
               primeros modelos de machine learning que corren en nuestro servidor.
             </p>
             <Estado />
+            <div className="acciones-hero">
+              <a className="boton" href="/crm/vistas/crm-chats-admin.html">Ver el CRM (prototipo)</a>
+              <a className="boton-sec" href="/crm">Todas las pantallas</a>
+            </div>
           </div>
           <div className="hero-ilustracion">
             <Image src="/ilustraciones/agente-saludando.webp" alt="Kinti, el asistente de SIRAC" width={420} height={360} priority />

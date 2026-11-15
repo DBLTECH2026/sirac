@@ -56,3 +56,8 @@ tr.mejor td { background: #EAF8F0; font-weight: 600; }
 .pie { background: var(--noche); color: var(--t2); margin-top: 3rem; padding: 2rem 0; font-size: .9rem; }
 .pie strong { color: #fff; }
 @media (max-width: 860px) { .hero-grid, .grid-2 { grid-template-columns: 1fr; } .hero-ilustracion { max-width: 280px; } }
+.acciones-hero { display: flex; gap: .8rem; flex-wrap: wrap; margin-top: 1.2rem; }
+.boton, .boton-sec { display: inline-block; font-weight: 700; padding: .7rem 1.2rem; border-radius: .7rem; text-decoration: none; }
+.boton { background: var(--verde); color: var(--noche); }
+.boton-sec { border: 1px solid var(--sup2); color: #fff; }
+.boton:hover, .boton-sec:hover { filter: brightness(1.08); }

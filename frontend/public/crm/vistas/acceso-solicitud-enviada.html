@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>SIRAC · Solicitud enviada</title>
+<meta name="viewport" content="width=1440">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="../js/tw-config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../css/sirac.css">
+<script src="../js/shell.js"></script>
+<style>
+  /* ===== Estructura común de las pantallas de ACCESO (igual que acceso-iniciar-sesion.html y acceso-solicitar-acceso.html) =====
+     .acc 1440×900 · .acc-izq columna blanca 662 px (padding 44/80/36 → contenido de 502 px) · .acc-der panel Azul Noche 778 px
+     (órbitas SVG + círculo Niebla Ø380 en 199/152 con la ilustración + 2 tarjetas flotantes + frase con chip violeta + 3 puntos).
+     Esta es el estado de éxito de «Solicitar acceso»: el formulario se reemplaza por el resumen y los próximos pasos.
+     Marco 1440×900 sin scroll: <body class="marco"> (sirac.css v0.3). */
+  .acc { display: flex; width: 1440px; height: 900px; overflow: hidden; }
+
+  .acc-izq { width: 662px; flex: 0 0 662px; background: #fff; display: flex; flex-direction: column; padding: 44px 80px 36px; }
+  .acc-cab { display: flex; align-items: center; justify-content: space-between; height: 36px; }
+  .acc-cab img { height: 32px; display: block; }
+  .acc-enlace { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600; color: var(--t2); text-decoration: none; }
+  .acc-enlace svg { width: 16px; height: 16px; }
+  .acc-form { flex: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; }
+  /* Sobretítulo en verde oscuro, como .sobre de sirac.css v0.3 */
+  .acc-sobre { font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--verde-texto); display: flex; align-items: center; gap: 8px; }
+  .acc-sobre::before, .acc-sobre::after { content: ''; width: 14px; height: 2px; border-radius: 2px; background: currentColor; }
+  .acc-titulo { font-family: Sora, sans-serif; font-weight: 800; font-size: 38px; line-height: 1.12; letter-spacing: -0.035em; margin: 10px 0 10px; white-space: nowrap; }
+  .acc-texto { font-size: 15px; line-height: 1.55; color: var(--t2); margin: 0; }
+  .acc-texto b { color: var(--noche); font-weight: 600; }
+  .acc-pie { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: var(--t2); padding-top: 16px; border-top: 1px solid #EDF2F7; }
+  .acc-pie span { display: inline-flex; align-items: center; gap: 7px; }
+  .acc-pie svg { width: 15px; height: 15px; }
+
+  .acc-der { flex: 1; position: relative; background: var(--noche); overflow: hidden; color: #fff; }
+  .acc-orbitas { position: absolute; inset: 0; }
+  .acc-circulo { position: absolute; left: 199px; top: 152px; width: 380px; height: 380px; border-radius: 50%; background: var(--niebla); display: grid; place-items: center; overflow: hidden; }
+  /* Objeto entero: el sobre con su órbita va centrado; a 272 px las 2 bolitas de la órbita quedan dentro del círculo */
+  .acc-circulo img { width: 272px; height: auto; background: none; }
+  .acc-flota { position: absolute; display: flex; align-items: center; gap: 11px; padding: 11px 16px 11px 11px; border-radius: 16px; background: #fff; color: var(--noche); }
+  .acc-flota .ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex: 0 0 auto; }
+  .acc-flota .ic svg { width: 19px; height: 19px; }
+  .acc-flota .k { font-size: 11px; font-weight: 700; letter-spacing: .04em; }
+  .acc-flota .chip-kinti { vertical-align: top; }
+  .acc-flota .chip-kinti + .v { margin-top: 3px; }
+  .acc-flota .v { font-size: 14px; font-weight: 700; margin-top: 1px; white-space: nowrap; }
+  .acc-flota .v small { font-weight: 500; color: var(--t2); font-size: 12.5px; }
+  .acc-frase { position: absolute; left: 0; right: 0; top: 576px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .acc-frase h2 { font-family: Sora, sans-serif; font-weight: 700; font-size: 30px; line-height: 1.2; letter-spacing: -0.025em; margin: 16px 0 10px; }
+  .acc-frase p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--t3); max-width: 470px; text-wrap: balance; }
+  .acc-puntos { position: absolute; left: 0; right: 0; bottom: 43px; display: flex; justify-content: center; gap: 8px; }
+  .acc-puntos i { width: 7px; height: 7px; border-radius: 999px; background: var(--noche3); }
+  .acc-puntos i.on { width: 24px; background: var(--verde); }
+
+  /* Píldora-stepper (misma de acceso-solicitar-acceso.html, 4 pasos): paso 1 hecho (check verde) · paso 2 activo (anillo verde) */
+  .acc-ruta { margin-top: 26px; display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 18px 0 9px; border-radius: 999px; background: var(--noche2); border: 1px solid var(--noche3); font-size: 13px; font-weight: 600; color: var(--t3); }
+  .acc-ruta .r { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .acc-ruta .r b { width: 26px; height: 26px; border-radius: 50%; background: var(--noche3); color: #fff; display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+  .acc-ruta .r.hecho b { background: var(--verde); color: var(--noche); }
+  .acc-ruta .r.hecho b svg { width: 14px; height: 14px; stroke-width: 3; }
+  .acc-ruta .r.on { color: #fff; }
+  .acc-ruta .r.on b { background: var(--noche); border: 2px solid var(--verde); color: var(--verde); }
+  .acc-ruta .flecha { width: 15px; height: 15px; color: var(--t2); }
+
+  /* ===== Propio de Solicitud enviada (columna izquierda) ===== */
+  .estado { display: flex; align-items: center; gap: 12px; }
+  .estado .chip { height: 24px; }
+  .estado .chip svg { width: 13px; height: 13px; stroke-width: 2.8; }
+
+  /* Resumen de lo enviado (mismos campos que el formulario de Solicitar acceso) */
+  .resumen { margin-top: 20px; border: 1px solid var(--linea); border-radius: 16px; overflow: hidden; }
+  .resumen-cab { display: flex; align-items: center; justify-content: space-between; height: 40px; padding: 0 14px; background: var(--niebla); border-bottom: 1px solid var(--linea); }
+  .resumen-cab .t { font-size: 13.5px; font-weight: 700; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .resumen-cab .t svg { width: 16px; height: 16px; color: var(--t2); }
+  .resumen-cab .n { font-size: 12px; color: var(--t2); white-space: nowrap; }
+  .resumen-cab .n b { color: #33445C; font-weight: 600; }
+  .resumen-grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .dato { display: flex; gap: 11px; align-items: center; padding: 10px 14px; border-bottom: 1px solid #EDF2F7; min-width: 0; }
+  .dato:nth-child(odd) { border-right: 1px solid #EDF2F7; }
+  .dato.ancho { grid-column: 1 / -1; border-right: 0; border-bottom: 0; }
+  .dato .ico { width: 34px; height: 34px; border-radius: 10px; background: var(--niebla); display: grid; place-items: center; flex: 0 0 auto; color: var(--noche); }
+  .dato .ico svg { width: 17px; height: 17px; }
+  .dato .l { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--t2); }
+  .dato .v { font-size: 14px; font-weight: 600; margin-top: 1px; white-space: nowrap; }
+  .dato .v small { font-weight: 500; color: var(--t2); font-size: 12.5px; }
+  /* «Cómo vendes hoy»: rótulo arriba y los 4 chips en su propia línea */
+  .dato .chips { display: flex; gap: 6px; margin-top: 5px; }
+  .dato .chips .chip { background: var(--verde-claro); color: var(--verde-texto); height: 24px; padding: 0 9px; gap: 5px; }
+  .dato .chips .chip svg { width: 13px; height: 13px; stroke-width: 2.8; }
+
+  /* Próximos pasos */
+  .pasos-t { margin: 20px 0 12px; display: flex; align-items: center; justify-content: space-between; }
+  .pasos-t .k { font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--t2); }
+  .pasos-t .a { font-size: 12.5px; color: var(--t2); }
+  .lista { position: relative; display: flex; flex-direction: column; gap: 12px; }
+  .lista::before { content: ''; position: absolute; left: 17px; top: 28px; bottom: 28px; width: 2px; background: var(--linea); }
+  .item { position: relative; display: flex; gap: 14px; align-items: flex-start; }
+  .item .num { width: 36px; height: 36px; border-radius: 50%; background: #fff; border: 1.5px solid var(--borde); display: grid; place-items: center; flex: 0 0 auto; color: var(--noche); position: relative; z-index: 1; }
+  .item .num svg { width: 17px; height: 17px; }
+  .item.ahora .num { background: var(--verde); border-color: var(--verde); color: var(--noche); }
+  .item .tx { flex: 1; min-width: 0; padding-top: 1px; }
+  .item .tt { font-size: 14.5px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .item .tt .chip { height: 20px; font-size: 11px; padding: 0 8px; }
+  .item .dd { font-size: 13px; color: var(--t2); line-height: 1.45; margin-top: 2px; white-space: nowrap; }
+  .item .dd b { color: var(--noche); font-weight: 600; }
+
+  .acciones { margin-top: 22px; display: flex; align-items: center; gap: 20px; }
+  .acciones .btn { height: 44px; padding: 0 20px; }
+  .acciones .btn svg { width: 17px; height: 17px; }
+  .acciones .lnk { font-size: 13.5px; font-weight: 600; color: #33445C; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .acciones .lnk svg { width: 16px; height: 16px; color: var(--t2); }
+  .acc-demo { position: absolute; top: 56px; right: 40px; margin: 0; }
+</style>
+</head>
+<body class="marco">
+<div class="acc">
+
+  <!-- ===== Columna izquierda: éxito (reemplaza al formulario) ===== -->
+  <section class="acc-izq">
+    <header class="acc-cab">
+      <img src="../assets/marca/logo-sirac-noche.svg" alt="SIRAC">
+      <a class="acc-enlace"><i data-lucide="arrow-left"></i>Volver al inicio</a>
+    </header>
+
+    <div class="acc-form">
+      <div class="estado">
+        <span class="acc-sobre">Acceso · Paso 1 de 4 listo</span>
+        <span class="chip chip-venta"><i data-lucide="check"></i>Solicitud enviada</span>
+      </div>
+      <h1 class="acc-titulo">¡Listo, Carla!<br>Recibimos tu solicitud</h1>
+      <p class="acc-texto">Alguien del equipo SIRAC la revisa y te escribe por <b>WhatsApp en menos de 24&nbsp;h&nbsp;hábiles</b> para darte tu acceso a la demo.</p>
+
+      <div class="resumen">
+        <div class="resumen-cab">
+          <div class="t"><i data-lucide="clipboard-check"></i>Lo que nos enviaste</div>
+          <div class="n">N.º <b>SOL-0148</b> · enviada por <b>Carla Mendoza</b></div>
+        </div>
+        <div class="resumen-grid">
+          <div class="dato"><span class="ico"><i data-lucide="store"></i></span><div><div class="l">Negocio</div><div class="v">Kusi Hogar S.A.C.</div></div></div>
+          <div class="dato"><span class="ico"><i data-lucide="smartphone"></i></span><div><div class="l">WhatsApp</div><div class="v tnum">+51 987 654 321</div></div></div>
+          <div class="dato"><span class="ico"><i data-lucide="tag"></i></span><div><div class="l">Rubro</div><div class="v">Electrohogar y menaje</div></div></div>
+          <div class="dato"><span class="ico"><i data-lucide="map-pin"></i></span><div><div class="l">Ciudad y equipo</div><div class="v">Lima <small>· 6+ personas</small></div></div></div>
+          <div class="dato ancho"><span class="ico"><i data-lucide="megaphone"></i></span><div><div class="l">Cómo vendes hoy</div>
+            <div class="chips">
+              <span class="chip"><i data-lucide="check"></i>Meta Ads</span>
+              <span class="chip"><i data-lucide="check"></i>Google Ads</span>
+              <span class="chip"><i data-lucide="check"></i>WhatsApp</span>
+              <span class="chip"><i data-lucide="check"></i>Tienda física</span>
+            </div></div></div>
+        </div>
+      </div>
+
+      <div class="pasos-t"><span class="k">Próximos pasos</span><span class="a">3 pasos · sin instalar nada</span></div>
+      <div class="lista">
+        <div class="item ahora">
+          <span class="num"><i data-lucide="message-circle"></i></span>
+          <div class="tx"><div class="tt">Te escribimos por WhatsApp <span class="chip chip-nuevo">Siguiente</span></div>
+            <div class="dd">Al <b class="tnum">+51 987 654 321</b>, para confirmar tus datos y resolver dudas.</div></div>
+        </div>
+        <div class="item">
+          <span class="num"><i data-lucide="key-round"></i></span>
+          <div class="tx"><div class="tt">Te damos tu usuario demo</div>
+            <div class="dd">Correo y contraseña para entrar al panel desde tu laptop o celular.</div></div>
+        </div>
+        <div class="item">
+          <span class="num"><i data-lucide="qr-code"></i></span>
+          <div class="tx"><div class="tt">Conectas tu número con QR</div>
+            <div class="dd">Desde WhatsApp Business › Dispositivos vinculados. Toma 2 minutos.</div></div>
+        </div>
+      </div>
+
+      <div class="acciones">
+        <span class="btn btn-borde"><i data-lucide="log-in"></i>Inicia sesión</span>
+        <span class="lnk"><i data-lucide="circle-play"></i>Mientras, mira cómo funciona el panel</span>
+      </div>
+    </div>
+
+    <footer class="acc-pie">
+      <span><i data-lucide="graduation-cap"></i>Demo del proyecto SIRAC · UTP 2026-I</span>
+      <span><i data-lucide="globe"></i>Español (Perú)</span>
+    </footer>
+  </section>
+
+  <!-- ===== Panel derecho Azul Noche ===== -->
+  <section class="acc-der">
+    <!-- Fondo de órbitas (marca-fondo-acceso): centrado en el círculo (389, 342) -->
+    <svg class="acc-orbitas" width="778" height="900" viewBox="0 0 778 900" fill="none" aria-hidden="true">
+      <g transform="translate(389 342) rotate(-24)" stroke="#1E2E4E" stroke-width="1.5">
+        <ellipse rx="300" ry="122"/>
+        <ellipse rx="420" ry="196"/>
+        <ellipse rx="550" ry="282"/>
+        <ellipse rx="700" ry="380"/>
+        <circle cx="300" cy="0" r="5" fill="#0EB155" stroke="none"/>
+        <circle cx="-300" cy="0" r="5" fill="#0EB155" stroke="none"/>
+      </g>
+    </svg>
+
+    <div class="acc-circulo">
+      <img src="../assets/ilustraciones/acceso-solicitud-enviada.webp" data-asset="acceso-solicitud-enviada" alt="Sobre cerrado con un check verde">
+    </div>
+
+    <!-- Sello honesto (equivale al de la barra lateral del CRM) -->
+    <div class="sb-demo acc-demo"><i class="pt"></i>Datos de demostración · Kusi Hogar es ficticia</div>
+
+    <!-- Tarjetas flotantes (mismas esquinas que las otras pantallas de acceso) -->
+    <div class="acc-flota" style="left:64px;top:166px">
+      <span class="ic" style="background:var(--violeta-claro);color:var(--violeta-texto)"><i data-lucide="sparkles"></i></span>
+      <div><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><div class="v">En tu demo <small>· responde 24/7</small></div></div>
+    </div>
+    <div class="acc-flota" style="right:40px;top:466px">
+      <span class="ic" style="background:var(--verde-claro);color:var(--verde-texto)"><i data-lucide="mail-check"></i></span>
+      <div><div class="k" style="color:var(--verde-texto)">Solicitud recibida</div><div class="v tnum">SOL-0148 <small>· hoy, 16:42</small></div></div>
+    </div>
+
+    <div class="acc-frase">
+      <span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>
+      <h2>Tu demo llega con los datos de Kusi Hogar</h2>
+      <p>Datos de ejemplo (Kusi Hogar es ficticia): chats, embudo y catálogo, con Kinti&nbsp;·&nbsp;IA respondiendo como lo haría en tu negocio.</p>
+      <div class="acc-ruta">
+        <span class="r hecho"><b><i data-lucide="check"></i></b>Envías tus datos</span>
+        <i data-lucide="chevron-right" class="flecha"></i>
+        <span class="r on"><b>2</b>Te escribimos</span>
+        <i data-lucide="chevron-right" class="flecha"></i>
+        <span class="r"><b>3</b>Usuario demo</span>
+        <i data-lucide="chevron-right" class="flecha"></i>
+        <span class="r"><b>4</b>Conectas con QR</span>
+      </div>
+    </div>
+
+    <div class="acc-puntos"><i></i><i></i><i class="on"></i></div>
+  </section>
+
+</div>
+</body></html>

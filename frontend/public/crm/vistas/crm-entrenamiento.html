@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>SIRAC · Entrenamiento</title>
+<meta name="viewport" content="width=1440">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="../js/tw-config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../css/sirac.css">
+<script src="../js/shell.js"></script>
+<style>
+  /* v0.3: el marco 1440×900 sin scroll lo da body.marco y la cabecera (.main/.top) es la estándar de sirac.css.
+     Aquí solo se apila la columna para que .cuerpo ocupe el alto restante. */
+  .main { display: flex; flex-direction: column; }
+  /* Entrenamiento trata de la IA: su sobretítulo se queda violeta (excepción permitida) */
+  #top .sobre { color: var(--violeta-texto); }
+  .toggle { display: inline-block; vertical-align: middle; }
+  .cuerpo { flex: 1; min-height: 0; display: flex; gap: 16px; }
+  .izq { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+  .der { width: 328px; flex: 0 0 328px; background: #fff; border: 1px solid var(--linea); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; }
+  .i12 { width: 12px; height: 12px; flex: 0 0 auto; } .i14 { width: 14px; height: 14px; flex: 0 0 auto; } .i16 { width: 16px; height: 16px; flex: 0 0 auto; }
+  /* Sin el rayado de marcador detrás de las PNG transparentes (solo hero y avatar grande; .chip-kinti conserva su fondo blanco compartido) */
+  .hero img.ilus, .av-ia img { background: none; }
+  .lbl { font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+
+  /* Hero de Kinti */
+  .hero { position: relative; overflow: hidden; background: var(--noche); color: #fff; border-radius: 20px; height: 108px; padding: 0 22px; flex: 0 0 auto; display: flex; flex-direction: column; justify-content: center; }
+  .hero .luna { position: absolute; width: 200px; height: 200px; border-radius: 50%; background: var(--niebla); right: -43px; top: -48px; }
+  .hero img.ilus { position: absolute; right: 8px; top: 3px; width: 123px; height: 102px; object-fit: contain; } /* entera dentro de la luna: sin cortar alas ni órbita */
+  .hero > div { position: relative; }
+  .estado { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 999px; background: var(--verde); color: var(--noche); font-size: 10.5px; font-weight: 800; letter-spacing: .1em; }
+  .estado i { width: 6px; height: 6px; border-radius: 50%; background: var(--noche); }
+  .pill-osc { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; background: var(--noche2); border: 1px solid var(--noche3); color: #DCE5EF; font-size: 12px; font-weight: 500; white-space: nowrap; }
+  .pill-osc svg { color: var(--t3); }
+
+  /* Pestañas */
+  .tab { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 14px; border-radius: 999px; background: #fff; border: 1px solid var(--linea); font-size: 13px; font-weight: 600; color: #33445C; white-space: nowrap; }
+  .tab .n { min-width: 22px; height: 18px; padding: 0 6px; border-radius: 999px; background: var(--niebla); color: #33445C; font-size: 11px; font-weight: 700; display: inline-grid; place-items: center; }
+  .tab.on { background: var(--noche); border-color: var(--noche); color: #fff; }
+  .tab.on .n { background: var(--verde); color: var(--noche); }
+  .filtro { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 12px; border-radius: 999px; background: #fff; border: 1px solid var(--linea); font-size: 13px; color: var(--t2); white-space: nowrap; }
+  .filtro b { color: var(--noche); font-weight: 700; }
+
+  /* Tabla de reglas */
+  .reglas { padding: 2px 14px 0; flex: 0 0 auto; }
+  .reglas .tabla th { padding: 8px 8px 7px; font-size: 10.5px; }
+  .reglas .tabla { table-layout: fixed; }
+  .reglas .tabla td { padding: 3px 8px; height: 39px; }
+  .reglas .tabla tr:last-child td { border-bottom: 0; }
+  .rnom { font-size: 11px; line-height: 15px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--noche); white-space: nowrap; }
+  .amb { display: inline-flex; vertical-align: top; align-items: center; gap: 4px; height: 19px; padding: 0 8px; margin-top: 3px; border-radius: 999px; background: var(--niebla); color: #33445C; font-size: 10.5px; font-weight: 600; white-space: nowrap; }
+  .amb svg { width: 11px; height: 11px; color: var(--t2); }
+  .instr { font-size: 12.5px; line-height: 1.36; color: #2A3B52; }
+  .reglas-pie { display: flex; align-items: center; justify-content: space-between; height: 30px; padding: 0 8px; border-top: 1px solid var(--linea); font-size: 11.5px; color: var(--t2); }
+  .reglas-pie a { display: inline-flex; align-items: center; gap: 4px; color: var(--noche); font-weight: 700; text-decoration: none; }
+  .av.av-js { background: #16B6D8; color: var(--noche); }
+  .quien { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .quien .n { font-size: 12.5px; font-weight: 700; line-height: 1.2; }
+  .quien .f { font-size: 11px; color: var(--t2); line-height: 1.2; }
+  .acc { display: flex; gap: 4px; justify-content: flex-end; }
+  .acc span { width: 28px; height: 28px; border-radius: 999px; border: 1px solid var(--linea); display: grid; place-items: center; color: var(--t2); }
+  .acc svg { width: 14px; height: 14px; }
+  .quien-ia { display: flex; flex-direction: column; align-items: flex-start; }
+  .quien-ia .f { font-size: 11px; color: var(--t2); line-height: 1.2; margin-top: 1px; padding-left: 2px; }
+
+  /* Promociones */
+  .promo { background: #fff; border: 1px solid var(--linea); border-radius: 18px; padding: 8px 10px 8px 8px; display: flex; gap: 10px; flex: 1; min-width: 0; }
+  .promo .foto { position: relative; width: 90px; flex: 0 0 90px; align-self: stretch; min-height: 92px; border-radius: 12px; overflow: hidden; background: var(--niebla); }
+  .promo .foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .promo .badge { position: absolute; left: 6px; bottom: 6px; display: inline-flex; align-items: center; gap: 5px; height: 20px; padding: 0 7px; border-radius: 999px; background: #fff; font-size: 9.5px; font-weight: 800; letter-spacing: .08em; }
+  .promo .badge i { width: 6px; height: 6px; border-radius: 50%; }
+  .promo .t { font-size: 14px; font-weight: 700; line-height: 1.25; }
+  .promo .m { font-size: 11.5px; color: var(--t2); line-height: 1.35; margin-top: 3px; }
+  .promo .m b { color: var(--noche); font-weight: 700; }
+  .promo .cond { margin-top: auto; background: var(--niebla); border-radius: 10px; padding: 7px 10px; font-size: 11.5px; line-height: 1.38; color: #2A3B52; }
+  .promo .cond b { color: var(--noche); }
+  .promo.pausa .t { color: var(--t2); }
+
+  /* Probar a Kinti */
+  .pk-btn.pk-ico { width: 32px; height: 32px; padding: 0; justify-content: center; align-self: flex-start; }
+  .pk-head { background: var(--noche); color: #fff; padding: 14px 16px 14px; }
+  .pk-btn { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 11px; border-radius: 999px; border: 1px solid var(--noche3); background: var(--noche2); color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .sel { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--linea); font-size: 12px; font-weight: 600; color: #33445C; white-space: nowrap; }
+  .sel svg { color: var(--t2); }
+  .pk-chat { flex: 1; min-height: 0; background: #F7FAFC; border-top: 1px solid var(--linea); border-bottom: 1px solid var(--linea); padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
+  .pk-chat .burbuja.ia + .burbuja.ia { margin-top: -3px; border-top-right-radius: 16px; }
+  .pk-chat .burbuja { font-size: 12.5px; line-height: 1.4; padding: 7px 11px 6px; max-width: 284px; }
+  .pk-chat .burbuja .qb { display: block; font-size: 11px; font-weight: 700; color: var(--violeta-texto); margin-bottom: 1px; }
+  .pk-chat .burbuja .meta-in { float: right; display: inline-flex; align-items: center; gap: 3px; font-size: 10px; color: var(--t2); margin: 5px 0 -3px 10px; white-space: nowrap; }
+  .pk-chat .burbuja.ia .meta-in .rap { color: var(--violeta-texto); font-weight: 600; }
+  .aplica { align-self: flex-end; display: inline-flex; align-items: center; gap: 5px; font-size: 9.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--violeta-texto); margin-top: -3px; }
+  .aplica svg { width: 11px; height: 11px; color: var(--violeta); }
+  .prod { align-self: flex-end; display: flex; align-items: center; gap: 9px; width: 220px; padding: 6px; background: #fff; border: 1px solid var(--linea); border-radius: 12px; }
+  .prod img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+  /* Aviso de derivación: pastilla neutra con el chip de Kinti (el violeta queda solo en el chip) */
+  .deriva { align-self: center; display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px 0 2px; border-radius: 999px; background: #fff; border: 1px solid var(--linea); color: #33445C; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+  .pk-pie { padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 9px; }
+  .escribe { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 5px 0 14px; border-radius: 999px; border: 1.5px solid var(--borde); font-size: 13px; color: var(--t3); }
+  .enviar { margin-left: auto; width: 34px; height: 34px; border-radius: 999px; background: var(--verde); color: var(--noche); display: grid; place-items: center; }
+  .enviar svg { width: 16px; height: 16px; }
+  .toggle.sm { width: 30px; height: 17px; } .toggle.sm::after { width: 13px; height: 13px; }
+</style>
+</head>
+<body class="marco" data-rol="admin" data-activo="entrenamiento">
+<div class="app">
+  <aside class="sb" id="sb"></aside>
+  <main class="main">
+    <div class="top" id="top" data-sobre="Inteligencia artificial" data-titulo="Entrenamiento" data-sub="Enseña a Kinti · IA a atender como tu mejor vendedor.">
+      <span class="btn btn-borde"><i data-lucide="upload"></i>Subir documento</span>
+      <span class="btn btn-verde"><i data-lucide="plus"></i>Nueva regla</span>
+    </div>
+
+    <div class="cuerpo">
+      <!-- ============ Columna izquierda ============ -->
+      <section class="izq">
+
+        <!-- Hero de Kinti -->
+        <div class="hero">
+          <div class="luna"></div>
+          <img class="ilus" src="../assets/ilustraciones/agente-aprendiendo.webp" data-asset alt="Kinti · IA aprendiendo">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="sora" style="font-size:19px;font-weight:700;letter-spacing:-.02em;white-space:nowrap">Kinti · IA de Kusi Hogar</div>
+            <span class="estado"><i></i>ACTIVO</span>
+            <div style="display:flex;align-items:baseline;gap:7px;margin-left:10px">
+              <span class="sora tnum" style="font-size:24px;font-weight:700;letter-spacing:-.02em">61 %</span>
+              <span style="font-size:12.5px;color:var(--t3);white-space:nowrap">resuelto sin ayuda</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:12px">
+            <span class="pill-osc"><i data-lucide="smile" class="i14"></i>Tono cercano · tutea</span>
+            <span class="pill-osc"><i data-lucide="smartphone" class="i14"></i>Activo en 3 de 4 números</span>
+            <span class="pill-osc"><i data-lucide="list-checks" class="i14"></i>14 reglas</span>
+            <span class="pill-osc"><i data-lucide="file-text" class="i14"></i>3 documentos</span>
+          </div>
+        </div>
+
+        <!-- Pestañas -->
+        <div style="display:flex;align-items:center;gap:8px;flex:0 0 auto">
+          <span class="tab on"><i data-lucide="sliders-horizontal" class="i16"></i>Reglas<span class="n">14</span></span>
+          <span class="tab"><i data-lucide="book-open" class="i16"></i>Conocimiento<span class="n">3</span></span>
+          <span class="tab"><i data-lucide="image" class="i16"></i>Promociones<span class="n">2</span></span>
+          <span class="tab"><i data-lucide="history" class="i16"></i>Historial</span>
+          <span class="filtro" style="margin-left:auto"><i data-lucide="smartphone" class="i16"></i>Número: <b>Todos</b><i data-lucide="chevron-down" class="i14"></i></span>
+        </div>
+
+        <!-- Tabla de reglas -->
+        <div class="card reglas">
+          <table class="tabla">
+            <colgroup><col style="width:52px"><col style="width:150px"><col><col style="width:142px"><col style="width:70px"></colgroup>
+            <thead><tr><th></th><th>Regla</th><th>Instrucción para Kinti · IA</th><th>Creada por</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="toggle on"></span></td>
+                <td><div class="rnom">Personalidad</div><span class="amb"><i data-lucide="smartphone"></i>Todos los números</span></td>
+                <td class="instr">Se presenta como asistente virtual; tutea, frases cortas, sin tecnicismos y máximo un emoji.</td>
+                <td><div class="quien"><span class="av av-sm" style="background:#1E2E4E">CM</span><div><div class="n">Carla Mendoza</div><div class="f">22 sep 2026</div></div></div></td>
+                <td><div class="acc"><span><i data-lucide="pencil"></i></span><span><i data-lucide="trash-2"></i></span></div></td>
+              </tr>
+              <tr>
+                <td><span class="toggle on"></span></td>
+                <td><div class="rnom">Recomendación</div><span class="amb"><i data-lucide="smartphone"></i>Todos los números</span></td>
+                <td class="instr">Ofrece máximo 2 productos según qué cocina el cliente y para cuántos, siempre con precio y foto.</td>
+                <td><div class="quien"><span class="av av-sm av-js">JS</span><div><div class="n">Jorge Salas</div><div class="f">24 sep 2026</div></div></div></td>
+                <td><div class="acc"><span><i data-lucide="pencil"></i></span><span><i data-lucide="trash-2"></i></span></div></td>
+              </tr>
+              <tr>
+                <td><span class="toggle on"></span></td>
+                <td><div class="rnom">Calificación</div><span class="amb"><i data-lucide="smartphone"></i>Todos los números</span></td>
+                <td class="instr">Pregunta una cosa a la vez: qué producto busca, distrito de entrega y para cuándo lo necesita.</td>
+                <td><div class="quien"><span class="av av-sm av-js">JS</span><div><div class="n">Jorge Salas</div><div class="f">24 sep 2026</div></div></div></td>
+                <td><div class="acc"><span><i data-lucide="pencil"></i></span><span><i data-lucide="trash-2"></i></span></div></td>
+              </tr>
+              <tr>
+                <td><span class="toggle on"></span></td>
+                <td><div class="rnom">Precios</div><span class="amb"><i data-lucide="smartphone"></i>Todos los números</span></td>
+                <td class="instr">Usa solo precios del Catálogo, en soles. No inventes descuentos ni ofrezcas productos en pausa.</td>
+                <td><div class="quien"><span class="av av-sm" style="background:#1E2E4E">CM</span><div><div class="n">Carla Mendoza</div><div class="f">22 sep 2026</div></div></div></td>
+                <td><div class="acc"><span><i data-lucide="pencil"></i></span><span><i data-lucide="trash-2"></i></span></div></td>
+              </tr>
+              <tr>
+                <td><span class="toggle on"></span></td>
+                <td><div class="rnom">Delivery</div><span class="amb"><i data-lucide="map-pin"></i>Números de Lima</span></td>
+                <td class="instr">Lima: 24 h por S/ 10, gratis desde S/ 299. Provincia: Shalom u Olva; pide la ciudad y deriva a Kevin.</td>
+                <td><div class="quien"><span class="av av-sm" style="background:#1E2E4E">CM</span><div><div class="n">Carla Mendoza</div><div class="f">01 oct 2026</div></div></div></td>
+                <td><div class="acc"><span><i data-lucide="pencil"></i></span><span><i data-lucide="trash-2"></i></span></div></td>
+              </tr>
+              <tr>
+                <td><span class="toggle on"></span></td>
+                <td><div class="rnom">Derivación</div><span class="amb"><i data-lucide="smartphone"></i>Todos los números</span></td>
+                <td class="instr">Pasa el chat a un vendedor si quiere pagar, pide factura, compra más de 3 unidades o reclama.</td>
+                <td><div class="quien"><span class="av av-sm av-js">JS</span><div><div class="n">Jorge Salas</div><div class="f">26 sep 2026</div></div></div></td>
+                <td><div class="acc"><span><i data-lucide="pencil"></i></span><span><i data-lucide="trash-2"></i></span></div></td>
+              </tr>
+              <tr>
+                <td><span class="toggle on"></span></td>
+                <td><div class="rnom">Horario nocturno</div><span class="amb"><i data-lucide="smartphone"></i>Kusi Hogar Principal</span></td>
+                <td class="instr">De 19 a 9 h avisa que una persona del equipo escribe desde las 9:00 y ayuda con precios, stock y envíos.</td>
+                <td><div class="quien"><span class="av av-sm" style="background:#1E2E4E">CM</span><div><div class="n">Carla Mendoza</div><div class="f">03 oct 2026</div></div></div></td>
+                <td><div class="acc"><span><i data-lucide="pencil"></i></span><span><i data-lucide="trash-2"></i></span></div></td>
+              </tr>
+              <tr>
+                <td><span class="toggle on"></span></td>
+                <td><div class="rnom">Garantía</div><span class="amb"><i data-lucide="smartphone"></i>Todos los números</span></td>
+                <td class="instr">Los eléctricos tienen 12 meses de garantía. Si reporta una falla, pide foto y n.° de pedido.</td>
+                <td><div class="quien-ia"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><div class="f">sugerida · 06 oct 2026</div></div></td>
+                <td><div class="acc"><span><i data-lucide="pencil"></i></span><span><i data-lucide="trash-2"></i></span></div></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="reglas-pie"><span>Mostrando <b style="color:var(--noche)">8</b> de <b style="color:var(--noche)">14</b> reglas activas</span><a>Ver todas<i data-lucide="arrow-right" class="i12"></i></a></div>
+        </div>
+
+        <!-- Promociones con imagen -->
+        <div style="display:flex;align-items:center;gap:12px;flex:0 0 auto;margin-top:1px">
+          <h3 class="sora" style="margin:0;font-size:17px;font-weight:700">Promociones con imagen</h3>
+          <span style="display:inline-flex;align-items:center;gap:6px"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="muted" style="font-size:12.5px">las ofrece cuando se cumple la condición</span></span>
+          <span style="margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700">Ver las 2<i data-lucide="arrow-right" class="i14"></i></span>
+        </div>
+        <div style="display:flex;gap:14px;flex:1 1 auto;min-height:0">
+          <div class="promo">
+            <div class="foto"><img src="../assets/fotos/catalogo-bateria-ollas.webp" data-asset alt="Batería de ollas" style="object-position:38% 50%"><span class="badge" style="color:var(--verde-texto)"><i style="background:var(--verde)"></i>ACTIVA</span></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+              <div style="display:flex;align-items:flex-start;gap:10px"><div class="t">Combo cocina: batería + sartén</div><span class="toggle on" style="margin-left:auto"></span></div>
+              <div class="m">Hasta el 31/10 · <b>21</b> de <b>96 clientes</b> la usaron</div>
+              <div class="cond"><b>Cuándo:</b> pregunta por ollas o viene de «Ollas y menaje». S/ 428 + termo de regalo.</div>
+            </div>
+          </div>
+          <div class="promo pausa">
+            <div class="foto"><img src="../assets/fotos/catalogo-promo-delivery.webp" data-asset alt="Delivery gratis en Lima"><span class="badge" style="color:#4A5C74"><i style="background:var(--t2)"></i>PAUSADA</span></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+              <div style="display:flex;align-items:flex-start;gap:10px"><div class="t">Delivery gratis en Lima</div><span class="toggle" style="margin-left:auto"></span></div>
+              <div class="m">Pausada desde el 05/10 · ofrecida a <b>140 clientes</b></div>
+              <div class="cond"><b>Cuándo:</b> cualquier compra en Lima, sin mínimo. En pausa rige gratis desde S/ 299.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Probar a Kinti ============ -->
+      <aside class="der">
+        <div class="pk-head">
+          <div style="display:flex;align-items:center;gap:11px">
+            <span class="av av-lg av-ia"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="Kinti · IA"></span>
+            <div style="min-width:0">
+              <div class="lbl" style="color:var(--verde)">Modo prueba</div>
+              <div class="sora" style="font-size:15.5px;font-weight:700;margin-top:2px;white-space:nowrap">Probar a Kinti · IA</div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--t3);margin-top:2px;white-space:nowrap"><i data-lucide="flask-conical" class="i12"></i>No se envía a WhatsApp</div>
+            </div>
+            <span class="pk-btn pk-ico" style="margin-left:auto" title="Reiniciar"><i data-lucide="rotate-ccw" class="i14"></i></span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;padding:10px 14px">
+          <span class="sel"><i data-lucide="smartphone" class="i14"></i>Kusi Hogar Principal<i data-lucide="chevron-down" class="i14"></i></span>
+          <span class="sel"><i data-lucide="map-pin" class="i14"></i>Lima<i data-lucide="chevron-down" class="i14"></i></span>
+        </div>
+
+        <div class="pk-chat">
+          <div class="burbuja cli">Hola 🙂 ¿Cuánto está la freidora de 5 L? ¿Llega a Comas?<span class="meta-in">10:42</span></div>
+
+          <div class="burbuja ia"><span class="qb">Kinti · IA</span>Hola, soy Kinti, asistente virtual de Kusi Hogar. Te respondo al toque y, si quieres, te paso con una persona del equipo.</div>
+          <div class="burbuja ia">Está a S/&nbsp;279. A Comas llega en 24&nbsp;h por S/&nbsp;10. ¿Para cuántos cocinas?<span class="meta-in">10:42 · <span class="rap">6 s</span></span></div>
+          <div class="prod">
+            <img src="../assets/fotos/catalogo-freidora-aire.webp" data-asset alt="Freidora de aire 5 L">
+            <div style="min-width:0">
+              <div style="font-size:12.5px;font-weight:700;white-space:nowrap">Freidora de aire 5 L</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:2px"><span class="tnum" style="font-size:12.5px;font-weight:700;color:var(--verde-texto)">S/ 279</span><span style="display:inline-flex;align-items:center;gap:3px;font-size:10.5px;color:var(--t2)"><i data-lucide="star" class="i12"></i>Más vendido</span></div>
+            </div>
+          </div>
+          <div class="aplica"><i data-lucide="sparkles"></i>Personalidad · Precios · Delivery</div>
+
+          <div class="burbuja cli">Somos 4. Si sumo el hervidor, ¿el delivery es gratis?<span class="meta-in">10:43</span></div>
+
+          <div class="burbuja ia"><span class="qb">Kinti · IA</span>¡Sí! Para 4 es ideal. Suman S/&nbsp;378 y el delivery es gratis. ¿Te los separo?<span class="meta-in">10:43 · <span class="rap">5 s</span></span></div>
+          <div class="aplica"><i data-lucide="sparkles"></i>Recomendación · Delivery</div>
+
+          <div class="burbuja cli">Sí, sepáramelos. ¿Cómo pago?<span class="meta-in">10:44</span></div>
+          <div class="deriva"><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>pasaría el chat a Diego</div>
+        </div>
+
+        <div class="pk-pie">
+          <div class="escribe">Escribe como si fueras un cliente…<span class="enviar"><i data-lucide="send"></i></span></div>
+          <div style="display:flex;align-items:center;gap:6px;padding:0 2px;font-size:12.5px;font-weight:600;color:#33445C;white-space:nowrap"><span class="toggle sm"></span>Borradores (2)<span class="chip chip-ia" style="margin-left:auto;height:22px;padding:0 8px;gap:5px;font-size:10.5px"><i data-lucide="shield-check" class="i12"></i>Aplicando 14 reglas</span></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+</body></html>

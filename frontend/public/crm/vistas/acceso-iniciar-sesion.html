@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>SIRAC · Iniciar sesión</title>
+<meta name="viewport" content="width=1440">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="../js/tw-config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../css/sirac.css">
+<script src="../js/shell.js"></script>
+<style>
+  /* ===== Estructura común de las 4 pantallas de ACCESO (1440 × 900, sin barra lateral) =====
+     .acc            marco 1440×900
+     .acc-izq        columna blanca (662 px ≈ 46 %): cabecera (logo + enlace) · formulario centrado · pie (nota demo)
+     .acc-der        panel Azul Noche (778 px): órbitas SVG + círculo Niebla Ø380 con la ilustración + frase con .chip-kinti
+     Mismos anchos, mismas posiciones: solo cambian el formulario, la ilustración y la frase.
+     El marco 1440×900 sin scroll lo pone body.marco (sirac.css v0.3). */
+  .acc { display: flex; height: 900px; background: #fff; }
+
+  .acc-izq { width: 662px; flex: 0 0 662px; background: #fff; display: flex; flex-direction: column; padding: 44px 80px 36px; }
+  .acc-cab { display: flex; align-items: center; justify-content: space-between; height: 36px; }
+  .acc-cab img { height: 32px; display: block; }
+  .acc-enlace { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600; color: var(--t2); text-decoration: none; }
+  .acc-enlace svg { width: 16px; height: 16px; }
+  .acc-form { flex: 1; display: flex; flex-direction: column; justify-content: center; width: 502px; }
+  .acc-sobre { font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--verde-texto); display: flex; align-items: center; gap: 8px; }
+  .acc-sobre::before, .acc-sobre::after { content: ''; width: 14px; height: 2px; border-radius: 2px; background: var(--verde); }
+  .acc-titulo { font-family: Sora, sans-serif; font-weight: 800; font-size: 38px; line-height: 1.12; letter-spacing: -0.035em; margin: 10px 0 10px; }
+  .acc-texto { font-size: 15px; line-height: 1.55; color: var(--t2); margin: 0 0 30px; }
+  .acc-campos { display: flex; flex-direction: column; gap: 18px; }
+  .acc .input { height: 48px; font-size: 15px; }
+  .acc .input svg { width: 18px; height: 18px; color: var(--t3); flex: 0 0 auto; }
+  .acc .input .der { margin-left: auto; color: var(--t2); }
+  .acc .input.foco { border-color: var(--verde); }
+  .acc .input .puntos { letter-spacing: .18em; font-size: 16px; }
+  .acc-fila { display: flex; align-items: center; justify-content: space-between; margin: 16px 0 24px; font-size: 13.5px; }
+  .acc-check { display: inline-flex; align-items: center; gap: 9px; color: #33445C; }
+  .acc-check .caja { width: 18px; height: 18px; border-radius: 5px; background: var(--verde); display: grid; place-items: center; color: var(--noche); }
+  .acc-check .caja svg { width: 13px; height: 13px; stroke-width: 3; }
+  .acc-link { color: var(--verde-texto); font-weight: 700; text-decoration: none; }
+  .acc-btn { width: 100%; height: 50px; justify-content: center; font-size: 15px; }
+  .acc-btn svg { width: 18px; height: 18px; }
+  .acc-sep { display: flex; align-items: center; gap: 14px; margin: 28px 0 16px; font-size: 13px; color: var(--t2); white-space: nowrap; }
+  .acc-sep::before, .acc-sep::after { content: ''; flex: 1; height: 1px; background: var(--linea); }
+  .acc-alt { display: flex; align-items: center; justify-content: center; gap: 14px; font-size: 14px; }
+  .acc-alt a { display: inline-flex; align-items: center; gap: 7px; }
+  .acc-alt svg { width: 16px; height: 16px; }
+  .acc-alt .pto { width: 4px; height: 4px; border-radius: 50%; background: var(--borde); }
+  .acc-pie { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: var(--t2); padding-top: 16px; border-top: 1px solid #EDF2F7; }
+  .acc-pie span { display: inline-flex; align-items: center; gap: 7px; }
+  .acc-pie svg { width: 15px; height: 15px; }
+
+  .acc-der { flex: 1; position: relative; background: var(--noche); overflow: hidden; color: #fff; }
+  .acc-orbitas { position: absolute; inset: 0; }
+  .acc-circulo { position: absolute; left: 199px; top: 152px; width: 380px; height: 380px; border-radius: 50%; background: var(--niebla); display: grid; place-items: end center; overflow: hidden; }
+  /* Persona de pecho arriba, cortada por el borde inferior del círculo (no un busto flotando) */
+  .acc-circulo img { width: 336px; height: auto; margin: 0 0 -2px 6px; background: none; }
+  .acc-flota { position: absolute; display: flex; align-items: center; gap: 11px; padding: 11px 16px 11px 11px; border-radius: 16px; background: #fff; color: var(--noche); }
+  .acc-flota .ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex: 0 0 auto; }
+  .acc-flota .ic svg { width: 19px; height: 19px; }
+  .acc-flota .k { font-size: 11px; font-weight: 700; letter-spacing: .04em; }
+  .acc-flota .chip-kinti + .v { margin-top: 4px; }
+  .acc-demo { position: absolute; top: 56px; right: 40px; margin: 0; }
+  .acc-flota .v { font-size: 14px; font-weight: 700; margin-top: 1px; white-space: nowrap; }
+  .acc-flota .v small { font-weight: 500; color: var(--t2); font-size: 12.5px; }
+  .acc-frase { position: absolute; left: 0; right: 0; top: 576px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .acc-frase h2 { font-family: Sora, sans-serif; font-weight: 700; font-size: 30px; line-height: 1.2; letter-spacing: -0.025em; margin: 16px 0 10px; }
+  .acc-frase p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--t3); max-width: 470px; text-wrap: balance; }
+  .acc-puntos { position: absolute; left: 0; right: 0; bottom: 43px; display: flex; justify-content: center; gap: 8px; }
+  .acc-puntos i { width: 7px; height: 7px; border-radius: 999px; background: var(--noche3); }
+  .acc-puntos i.on { width: 24px; background: var(--verde); }
+</style>
+</head>
+<body class="marco">
+<div class="acc">
+
+  <!-- ===== Columna izquierda: formulario ===== -->
+  <section class="acc-izq">
+    <header class="acc-cab">
+      <img src="../assets/marca/logo-sirac-noche.svg" alt="SIRAC">
+      <a class="acc-enlace"><i data-lucide="arrow-left"></i>Volver al inicio</a>
+    </header>
+
+    <div class="acc-form">
+      <div class="acc-sobre">Acceso al panel</div>
+      <h1 class="acc-titulo">Hola de nuevo</h1>
+      <p class="acc-texto">Entra a tu panel para ver tus chats, tu embudo y todo lo que <span style="color:var(--violeta-texto);font-weight:600">Kinti · IA</span> avanzó por ti.</p>
+
+      <div class="acc-campos">
+        <div class="campo">
+          <label>Correo</label>
+          <div class="input"><i data-lucide="mail"></i><span>carla@kusihogar.pe</span></div>
+        </div>
+        <div class="campo">
+          <label>Contraseña</label>
+          <div class="input foco"><i data-lucide="lock"></i><span class="puntos">••••••••••</span><i data-lucide="eye" class="der"></i></div>
+        </div>
+      </div>
+
+      <div class="acc-fila">
+        <span class="acc-check"><span class="caja"><i data-lucide="check"></i></span>Mantener la sesión iniciada</span>
+        <a class="acc-link">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <span class="btn btn-verde acc-btn">Iniciar sesión<i data-lucide="arrow-right"></i></span>
+
+      <div class="acc-sep">¿Aún no tienes cuenta?</div>
+      <div class="acc-alt">
+        <a class="acc-link"><i data-lucide="store"></i>Crear cuenta</a>
+        <span class="pto"></span>
+        <a class="acc-link"><i data-lucide="send"></i>Solicitar acceso a la demo</a>
+      </div>
+    </div>
+
+    <footer class="acc-pie">
+      <span><i data-lucide="graduation-cap"></i>Demo del proyecto SIRAC · UTP 2026-I</span>
+      <span><i data-lucide="globe"></i>Español (Perú)</span>
+    </footer>
+  </section>
+
+  <!-- ===== Panel derecho Azul Noche ===== -->
+  <section class="acc-der">
+    <!-- Fondo de órbitas (marca-fondo-acceso): centrado en el círculo (389, 342) -->
+    <svg class="acc-orbitas" width="778" height="900" viewBox="0 0 778 900" fill="none" aria-hidden="true">
+      <g transform="translate(389 342) rotate(-24)" stroke="#1E2E4E" stroke-width="1.5">
+        <ellipse rx="300" ry="122"/>
+        <ellipse rx="420" ry="196"/>
+        <ellipse rx="550" ry="282"/>
+        <ellipse rx="700" ry="380"/>
+        <circle cx="300" cy="0" r="5" fill="#0EB155" stroke="none"/>
+        <circle cx="-300" cy="0" r="5" fill="#0EB155" stroke="none"/>
+      </g>
+    </svg>
+
+    <div class="acc-circulo">
+      <img src="../assets/ilustraciones/acceso-iniciar-sesion.webp" data-asset="acceso-iniciar-sesion" alt="Integrante del equipo que empieza su jornada con SIRAC">
+    </div>
+
+    <!-- Sello honesto (equivale al de la barra lateral del CRM) -->
+    <div class="sb-demo acc-demo"><i class="pt"></i>Datos de demostración · Kusi Hogar es ficticia</div>
+
+    <div class="acc-flota" style="left:64px;top:178px">
+      <span class="ic" style="background:var(--violeta-claro);color:var(--violeta-texto)"><i data-lucide="timer"></i></span>
+      <div><span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><div class="v">Responde en 8 s <small>· antes 47 min</small></div></div>
+    </div>
+    <div class="acc-flota" style="right:40px;top:500px">
+      <span class="ic" style="background:var(--verde-claro);color:var(--verde-texto)"><i data-lucide="circle-check"></i></span>
+      <div><div class="k" style="color:var(--verde-texto)">Venta cerrada</div><div class="v">Lucía · Aspiradora <small>· S/ 459</small></div></div>
+    </div>
+
+    <div class="acc-frase">
+      <span class="chip-kinti"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>
+      <h2>Atendió 38 chats mientras no estabas.</h2>
+      <p>Resolvió 23 por su cuenta y le dejó 15 listos a&nbsp;tu&nbsp;equipo para cerrar. Tu equipo y tu IA, en un solo lugar.</p>
+    </div>
+
+    <div class="acc-puntos"><i class="on"></i><i></i><i></i></div>
+  </section>
+
+</div>
+</body></html>

@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>SIRAC · Chats (admin)</title>
+<meta name="viewport" content="width=1440">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="../js/tw-config.js"></script>
+<script>window.__SIRAC_TW = window.tailwind && window.tailwind.config;</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>/* el CDN reinicia window.tailwind: se vuelve a aplicar la paleta SIRAC */ if (window.__SIRAC_TW) tailwind.config = window.__SIRAC_TW;</script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="../css/sirac.css">
+<script src="../js/shell.js"></script>
+<style>
+  /* El marco 1440×900 lo da body.marco (sirac.css v0.3). Chats no usa la cabecera estándar (.top):
+     tres columnas a sangre, por eso este modificador quita el padding de .main solo aquí. */
+  .main.main-chats { padding: 0; display: flex; overflow: hidden; }
+  .col-lista { width: 360px; flex: 0 0 360px; background: #fff; border-right: 1px solid var(--linea); display: flex; flex-direction: column; overflow: hidden; }
+  .col-chat { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--niebla); overflow: hidden; }
+  .col-ficha { width: 316px; flex: 0 0 316px; background: #fff; border-left: 1px solid var(--linea); padding: 18px 18px 16px; overflow: hidden; display: flex; flex-direction: column; gap: 12px; }
+  .col-ficha > * { flex-shrink: 0; }
+  .lbl { font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--t2); }
+  .i12 { width: 12px; height: 12px; flex: 0 0 auto; } .i14 { width: 14px; height: 14px; flex: 0 0 auto; } .i16 { width: 16px; height: 16px; flex: 0 0 auto; } .i18 { width: 18px; height: 18px; flex: 0 0 auto; }
+
+  /* Lista */
+  .tabs { display: flex; padding: 3px; gap: 2px; border: 1px solid var(--linea); border-radius: 999px; }
+  .tab { flex: 1 1 auto; justify-content: center; display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 7px; border-radius: 999px; font-size: 12px; font-weight: 600; color: #33445C; white-space: nowrap; }
+  .tab.on { background: var(--noche); color: #fff; }
+  .tab .n { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; font-size: 10.5px; font-weight: 700; display: inline-grid; place-items: center; }
+  .filtro { display: flex; align-items: center; gap: 7px; height: 34px; padding: 0 10px 0 12px; border-radius: 999px; border: 1px solid var(--linea); font-size: 13px; color: #33445C; flex: 1; }
+  .it { display: flex; gap: 11px; padding: 9px 16px; border-bottom: 1px solid #EDF2F7; position: relative; }
+  .it.sel { background: var(--niebla); }
+  .it.sel::before { content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--verde); }
+  .avc { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; color: var(--noche2); background: #E3EAF2; flex: 0 0 auto; }
+  .it .nom { font-weight: 700; font-size: 14px; white-space: nowrap; }
+  .it .dis { font-size: 11px; color: var(--t2); white-space: nowrap; }
+  .it .hora { margin-left: auto; font-size: 11.5px; color: var(--t2); white-space: nowrap; }
+  .it .hora.text-verde-texto { color: var(--verde-texto); }
+  .it .prev { font-size: 12.5px; color: #4A5C74; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+  .it .prev b { color: var(--noche); font-weight: 600; }
+  .it .prev b.ia { color: var(--violeta-texto); }
+  .unread { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--verde); color: var(--noche); font-size: 10.5px; font-weight: 700; display: inline-grid; place-items: center; }
+  .quien { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .av-xs { width: 18px; height: 18px; font-size: 8.5px; }
+  .av[style*="0EB155"], .av[style*="16B6D8"] { color: var(--noche); }
+  .chip-s { height: 20px; padding: 0 7px; font-size: 11px; gap: 4px; }
+  .chip-s i.pt { width: 6px; height: 6px; }
+  .num { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--t2); white-space: nowrap; }
+
+  /* Conversación */
+  .ibtn { width: 36px; height: 36px; border-radius: 999px; border: 1px solid var(--linea); background: #fff; display: grid; place-items: center; color: var(--noche); flex: 0 0 auto; }
+  .msgs > * { flex-shrink: 0; }
+  .msg { display: flex; gap: 8px; align-items: flex-end; }
+  .msg.der { justify-content: flex-end; }
+  .burbuja { font-size: 13.5px; line-height: 1.42; padding: 7px 12px 6px; max-width: 400px; }
+  .burbuja .quien-b { display: block; font-size: 11.5px; font-weight: 700; margin-bottom: 1px; }
+  .burbuja .meta-in { float: right; display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; color: var(--t2); margin: 6px 0 -3px 12px; white-space: nowrap; }
+  .burbuja.ia .meta-in .rap { color: var(--violeta-texto); font-weight: 600; }
+  .pill-sis { align-self: center; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 12px; border-radius: 999px; background: #fff; border: 1px solid var(--linea); font-size: 11.5px; color: #33445C; white-space: nowrap; }
+  .qr { display: inline-flex; align-items: center; height: 26px; padding: 0 7px; flex-shrink: 0; border-radius: 999px; background: var(--niebla); font-size: 12px; font-weight: 600; color: #33445C; white-space: nowrap; }
+  .seg-s { display: inline-flex; background: var(--niebla); border-radius: 999px; padding: 2px; gap: 2px; }
+  .seg-s span { height: 24px; padding: 0 10px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 11.5px; font-weight: 600; color: var(--t2); white-space: nowrap; }
+  .seg-s span.on { background: var(--noche); color: #fff; }
+  .btn-c { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--borde); background: #fff; font-size: 12.5px; font-weight: 700; color: var(--noche); white-space: nowrap; }
+
+  /* Ficha */
+  .paso { height: 6px; border-radius: 999px; flex: 1; background: #E6EDF5; }
+  .mini { background: var(--niebla); border-radius: 12px; padding: 7px 10px; }
+  .mini .k { font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--t2); display: flex; align-items: center; gap: 4px; }
+  .mini .v { font-size: 13px; font-weight: 700; margin-top: 1px; white-space: nowrap; }
+  .etq { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 9px; border-radius: 999px; border: 1px solid var(--linea); font-size: 11.5px; font-weight: 600; color: #33445C; white-space: nowrap; }
+  .hist { display: flex; align-items: flex-start; gap: 9px; font-size: 12px; color: #33445C; }
+  .hist .p { width: 7px; height: 7px; border-radius: 50%; margin-top: 5px; flex: 0 0 auto; }
+  .hist .h { margin-left: auto; color: var(--t2); font-size: 11px; white-space: nowrap; padding-left: 8px; }
+</style>
+</head>
+<body class="marco" data-rol="admin" data-activo="chats">
+<div class="app">
+  <aside class="sb" id="sb"></aside>
+  <main class="main main-chats">
+
+    <!-- ===================== COLUMNA 1 · LISTA DE CHATS ===================== -->
+    <section class="col-lista" data-col="lista">
+      <div class="px-4 pt-[18px] pb-2.5 border-b border-linea">
+        <div class="flex items-start justify-between">
+          <div>
+            <h1 class="sora text-[26px] font-extrabold leading-none tracking-tight m-0">Chats</h1>
+            <div class="text-[12.5px] text-tinta-2 mt-[7px]"><b class="text-noche tnum font-semibold">1,284</b> este mes · <span class="text-aviso font-semibold">24 sin responder</span></div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="ibtn"><i data-lucide="search" class="i16"></i></span>
+            <span class="ibtn" style="background:var(--verde);border-color:var(--verde)"><i data-lucide="plus" class="i18"></i></span>
+          </div>
+        </div>
+
+        <div class="tabs mt-3">
+          <span class="tab on">Todos <span class="n tnum" style="background:var(--verde);color:var(--noche)">84</span></span>
+          <span class="tab">Sin asignar <span class="n" style="background:var(--aviso-claro);color:var(--aviso)">6</span></span>
+          <span class="tab">Kinti · IA <span class="n" style="background:var(--violeta-claro);color:var(--violeta-texto)">46</span></span>
+          <span class="tab">Míos</span>
+        </div>
+
+        <div class="flex items-center gap-2 mt-2">
+          <span class="filtro"><i data-lucide="smartphone" class="i14 text-tinta-2"></i>Número<i data-lucide="chevron-down" class="i14 ml-auto text-tinta-2"></i></span>
+          <span class="filtro"><i data-lucide="users" class="i14 text-tinta-2"></i>Vendedor<i data-lucide="chevron-down" class="i14 ml-auto text-tinta-2"></i></span>
+          <span class="ibtn" style="width:34px;height:34px"><i data-lucide="sliders-horizontal" class="i14"></i></span>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-hidden">
+        <!-- Martín Ríos · Kinti atendiendo -->
+        <div class="it">
+          <span class="avc">MR</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5"><span class="nom">Martín Ríos</span><span class="dis">· SJL</span><span class="hora">ahora</span></div>
+            <div class="flex items-center gap-2 mt-[3px]"><span class="prev"><b class="ia">Kinti · IA:</b> Hola, soy Kinti, asistente virtual de Kusi Hogar. Te respondo al toque…</span><i data-lucide="check-check" class="i14" style="color:var(--celeste)"></i></div>
+            <div class="flex items-center gap-1.5 mt-[7px]"><span class="chip-kinti shrink-0"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="chip chip-nuevo chip-s"><i class="pt"></i>Nuevo</span><span class="num"><i data-lucide="smartphone" class="i12"></i>Principal</span></div>
+          </div>
+        </div>
+        <!-- Rosa Huamaní · seleccionada -->
+        <div class="it sel">
+          <span class="avc" style="background:#fff;border:1px solid var(--linea)">RH</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5"><span class="nom">Rosa Huamaní</span><span class="dis">· Comas</span><span class="hora">10:04</span></div>
+            <div class="flex items-center gap-2 mt-[3px]"><span class="prev"><b>Diego:</b> Hola Rosa, soy Diego. Te envío el link de pago por S/&nbsp;289…</span><i data-lucide="check-check" class="i14" style="color:var(--celeste)"></i></div>
+            <div class="flex items-center gap-1.5 mt-[7px]"><span class="quien"><span class="av av-xs" style="background:#0EB155">DQ</span>Diego</span><span class="chip chip-ia chip-s"><i class="pt"></i>Calificado por IA</span><span class="num"><i data-lucide="smartphone" class="i12"></i>Principal</span></div>
+          </div>
+        </div>
+        <!-- Elena Quispe · sin asignar -->
+        <div class="it">
+          <span class="avc">EQ</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5"><span class="nom">Elena Quispe</span><span class="dis">· VES</span><span class="hora font-bold text-verde-texto">10:01</span></div>
+            <div class="flex items-center gap-2 mt-[3px]"><span class="prev"><b>Elena:</b> ¿Me atiende una persona? Quiero 3 termos para…</span><span class="unread">2</span></div>
+            <div class="flex items-center gap-1.5 mt-[7px]"><span class="quien" style="color:var(--aviso)"><i data-lucide="clock" class="i12"></i>Sin asignar · 6 min</span><span class="chip chip-nuevo chip-s"><i class="pt"></i>Nuevo</span><span class="ml-auto inline-flex items-center h-[22px] px-2.5 rounded-full bg-verde text-noche text-[11px] font-bold">Asignar</span></div>
+          </div>
+        </div>
+        <!-- Andrea Salazar -->
+        <div class="it">
+          <span class="avc">AS</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5"><span class="nom">Andrea Salazar</span><span class="dis">· Miraflores</span><span class="hora font-bold text-verde-texto">09:48</span></div>
+            <div class="flex items-center gap-2 mt-[3px]"><span class="prev"><b>Andrea:</b> ¿La batidora de pedestal viene en negro?</span><span class="unread">1</span></div>
+            <div class="flex items-center gap-1.5 mt-[7px]"><span class="quien"><span class="av av-xs" style="background:#0EB155">DQ</span>Diego</span><span class="chip chip-cot chip-s"><i class="pt"></i>Cotización</span><span class="num"><i data-lucide="smartphone" class="i12"></i>Principal</span></div>
+          </div>
+        </div>
+        <!-- Pedro Cárdenas -->
+        <div class="it">
+          <span class="avc">PC</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5"><span class="nom">Pedro Cárdenas</span><span class="dis">· Callao</span><span class="hora">09:41</span></div>
+            <div class="flex items-center gap-2 mt-[3px]"><span class="prev"><b>Milagros:</b> Pedro, ¿te envío la licuadora hoy mismo?</span><i data-lucide="check-check" class="i14" style="color:var(--celeste)"></i></div>
+            <div class="flex items-center gap-1.5 mt-[7px]"><span class="quien"><span class="av av-xs" style="background:#16B6D8">MR</span>Milagros</span><span class="chip chip-ia chip-s"><i class="pt"></i>Calificado por IA</span><span class="num"><i data-lucide="smartphone" class="i12"></i>Principal</span></div>
+          </div>
+        </div>
+        <!-- Jhon Paredes -->
+        <div class="it">
+          <span class="avc">JP</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5"><span class="nom">Jhon Paredes</span><span class="dis">· Arequipa</span><span class="hora">09:30</span></div>
+            <div class="flex items-center gap-2 mt-[3px]"><span class="prev"><b>Kevin:</b> Te cotizo la batería con envío por Shalom…</span><i data-lucide="check" class="i14 text-tinta-2"></i></div>
+            <div class="flex items-center gap-1.5 mt-[7px]"><span class="quien"><span class="av av-xs" style="background:#1E2E4E">KH</span>Kevin</span><span class="chip chip-cot chip-s"><i class="pt"></i>Cotización</span><span class="num"><i data-lucide="smartphone" class="i12"></i>Provincias</span></div>
+          </div>
+        </div>
+        <!-- Gaby Torres -->
+        <div class="it">
+          <span class="avc">GT</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5"><span class="nom">Gaby Torres</span><span class="dis">· Los Olivos</span><span class="hora">09:12</span></div>
+            <div class="flex items-center gap-2 mt-[3px]"><span class="prev"><b class="ia">Kinti · IA:</b> ¡Pago recibido, Gaby! Tu olla arrocera sale hoy.</span><i data-lucide="check-check" class="i14" style="color:var(--celeste)"></i></div>
+            <div class="flex items-center gap-1.5 mt-[7px]"><span class="chip-kinti shrink-0"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="chip chip-venta chip-s"><i class="pt"></i>Venta cerrada</span><span class="num"><i data-lucide="smartphone" class="i12"></i>Principal</span></div>
+          </div>
+        </div>
+        <!-- Carlos Mamani -->
+        <div class="it">
+          <span class="avc">CM</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5"><span class="nom">Carlos Mamani</span><span class="dis">· Trujillo</span><span class="hora font-bold text-verde-texto">08:57</span></div>
+            <div class="flex items-center gap-2 mt-[3px]"><span class="prev"><b>Carlos:</b> Si llevo 2 freidoras, ¿me haces precio por mayor?</span><span class="unread">3</span></div>
+            <div class="flex items-center gap-1.5 mt-[7px]"><span class="quien"><span class="av av-xs" style="background:#1E2E4E">KH</span>Kevin</span><span class="chip chip-cot chip-s"><i class="pt"></i>Cotización</span><span class="num"><i data-lucide="smartphone" class="i12"></i>Provincias</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== COLUMNA 2 · CONVERSACIÓN ===================== -->
+    <section class="col-chat" data-col="chat">
+      <!-- Cabecera del chat -->
+      <div class="bg-white border-b border-linea px-5 pt-3.5 pb-3">
+        <div class="flex items-center gap-3">
+          <span class="avc" style="width:44px;height:44px;font-size:14px">RH</span>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2"><span class="sora text-[18px] font-bold leading-tight">Rosa Huamaní</span><span class="chip chip-ia chip-s"><i class="pt"></i>Calificado por IA</span></div>
+            <div class="flex items-center gap-1.5 text-[12.5px] text-tinta-2 mt-0.5"><i data-lucide="phone" class="i14"></i><b class="text-noche font-semibold tnum">+51 986 214 377</b> · vía Kusi Hogar Principal</div>
+          </div>
+          <div class="ml-auto flex items-center gap-2">
+            <span class="ibtn"><i data-lucide="search" class="i16"></i></span>
+            <span class="ibtn"><i data-lucide="more-vertical" class="i16"></i></span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 mt-3 whitespace-nowrap">
+          <span class="lbl">Asignado a</span>
+          <span class="inline-flex items-center gap-2 h-[32px] pl-1 pr-2.5 rounded-full border border-linea text-[13px] font-semibold"><span class="av av-sm" style="background:#0EB155;width:24px;height:24px">DQ</span>Diego Quispe<i data-lucide="chevron-down" class="i14 text-tinta-2"></i></span>
+          <span class="inline-flex items-center gap-1 text-[12px] text-tinta-2 whitespace-nowrap"><i data-lucide="clock" class="i12"></i>desde 09:56</span>
+          <span class="btn btn-verde btn-sm ml-auto"><i data-lucide="hand" class="i14"></i>Tomar el chat</span>
+        </div>
+      </div>
+
+      <!-- Banner fino de derivación -->
+      <div class="mx-5 mt-3 flex items-center gap-2 h-[38px] pl-[7px] pr-3.5 rounded-xl bg-noche text-white text-[12px]">
+        <span class="chip-kinti shrink-0"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>
+        <span class="whitespace-nowrap"><b>derivó este chat a Diego</b><span class="text-tinta-3"> · motivo: </span><b class="text-verde">quiere pagar</b></span>
+        <span class="ml-auto inline-flex items-center gap-0.5 font-bold text-verde whitespace-nowrap shrink-0">Resumen<i data-lucide="chevron-right" class="i14"></i></span>
+      </div>
+
+      <!-- Mensajes -->
+      <div class="msgs flex-1 min-h-0 overflow-hidden px-5 pt-2 pb-2.5 flex flex-col gap-[5px] justify-end">
+        <span class="self-center lbl px-2.5 h-[22px] inline-flex items-center rounded-full bg-white border border-linea" style="font-size:10px">Hoy · sáb 24 oct</span>
+
+        <div class="msg"><div class="burbuja cli">Hola 👋 vi su anuncio de la freidora de aire. ¿Cuánto está y tiene garantía?<span class="meta-in">09:52</span></div></div>
+
+        <!-- Primer mensaje de Kinti: siempre se presenta como asistente virtual y ofrece pasar con una persona -->
+        <div class="msg der">
+          <div class="burbuja ia"><span class="quien-b" style="color:var(--violeta-texto)">Kinti · IA</span>Hola, soy Kinti, asistente virtual de Kusi Hogar. Te respondo al toque y, si quieres, te paso con una persona del equipo.<span class="meta-in">09:52 · <span class="rap">respondió en 6&nbsp;s</span></span></div>
+          <span class="av av-ia av-sm"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt=""></span>
+        </div>
+        <div class="msg der">
+          <div class="burbuja ia">La freidora de aire de 5&nbsp;L está a S/&nbsp;279 y tiene 12 meses de garantía. Te dejo la ficha:<span class="meta-in">09:52</span></div>
+          <span style="width:26px;flex:0 0 26px"></span>
+        </div>
+
+        <!-- Tarjeta de producto enviada por Kinti -->
+        <div class="msg der">
+          <div class="flex gap-3 p-2 pr-3 bg-white rounded-2xl border-[1.5px] border-violeta" style="width:340px">
+            <img src="../assets/fotos/catalogo-freidora-aire.webp" data-asset alt="Freidora de aire 5&nbsp;L" class="rounded-xl object-cover" style="width:68px;height:68px;flex:0 0 68px">
+            <div class="flex-1 min-w-0 flex flex-col">
+              <span class="inline-flex items-center gap-1 self-start h-[18px] px-2 rounded-full bg-verde-claro text-verde-texto text-[10px] font-bold tracking-wider uppercase"><i data-lucide="star" class="i12"></i>Más vendido</span>
+              <div class="font-bold text-[14px] mt-1 leading-tight">Freidora de aire 5&nbsp;L <span class="font-medium text-[11.5px] text-tinta-2">· Cocina eléctrica</span></div>
+              <div class="flex items-center mt-auto pt-1">
+                <span class="sora font-bold text-[17px] tnum">S/&nbsp;279</span>
+                <span class="ml-auto inline-flex items-center gap-1 h-[26px] px-3 rounded-full bg-verde text-noche text-[12px] font-bold">Ver ficha<i data-lucide="arrow-up-right" class="i12"></i></span>
+              </div>
+            </div>
+          </div>
+          <span style="width:26px;flex:0 0 26px"></span>
+        </div>
+
+        <div class="msg"><div class="burbuja cli">Ya, me gusta. ¿Llega a Comas? Quiero pagar hoy<span class="meta-in">09:55</span></div></div>
+
+        <div class="msg der">
+          <div class="burbuja ia"><span class="quien-b" style="color:var(--violeta-texto)">Kinti · IA</span>Sí, llega a Comas en 24&nbsp;h. Con delivery (S/&nbsp;10) serían S/&nbsp;289. Te paso con Diego para el pago.<span class="meta-in">09:55 · <span class="rap">respondió en 4&nbsp;s</span></span></div>
+          <span class="av av-ia av-sm"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt=""></span>
+        </div>
+
+        <span class="pill-sis" style="padding-left:1px"><span class="chip-kinti shrink-0"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>derivó a Diego Quispe · quiere pagar · 09:56</span>
+
+        <div class="msg der">
+          <div class="burbuja hum"><span class="quien-b" style="color:var(--verde-texto)">Diego · Ventas</span>Hola Rosa, soy Diego. Te envío el link de pago por S/&nbsp;289 (freidora + delivery).<span class="meta-in">10:04 <i data-lucide="check-check" class="i12" style="color:var(--celeste)"></i></span></div>
+          <span class="av av-sm" style="background:#0EB155">DQ</span>
+        </div>
+      </div>
+
+      <!-- Compositor -->
+      <div class="bg-white border-t border-linea px-5 pt-2.5 pb-3.5">
+        <div class="flex items-center gap-1.5">
+          <span class="inline-flex items-center justify-center w-[20px] h-[26px] shrink-0" title="Respuestas rápidas" style="color:var(--verde-texto)"><i data-lucide="zap" class="i14"></i></span>
+          <span class="qr">Saludo</span><span class="qr">Precio</span><span class="qr">Link de pago</span><span class="qr">Delivery Lima</span>
+          <span class="inline-flex items-center gap-1 ml-auto shrink-0"><span class="chip-kinti shrink-0"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span><span class="text-[12px] font-semibold whitespace-nowrap" style="color:var(--violeta-texto)">sugiere</span></span>
+        </div>
+        <div class="mt-2.5 rounded-2xl border-[1.5px] border-borde px-3.5 pt-2.5 pb-2">
+          <div class="flex items-center gap-3">
+            <span class="text-[13.5px] text-tinta-3">Escribe un mensaje a Rosa…</span>
+            <span class="seg-s ml-auto"><span class="on">Responder</span><span>Nota interna</span></span>
+          </div>
+          <div class="flex items-center gap-3 mt-2.5 text-tinta-2">
+            <i data-lucide="paperclip" class="i18"></i><i data-lucide="image" class="i18"></i><i data-lucide="smile" class="i18"></i><i data-lucide="mic" class="i18"></i>
+            <span class="btn-c ml-auto"><i data-lucide="package" class="i14"></i>Enviar producto</span>
+            <span class="btn-c"><i data-lucide="link" class="i14"></i>Link de pago</span>
+            <span class="w-[38px] h-[38px] rounded-full bg-verde text-noche grid place-items-center"><i data-lucide="send" class="i16"></i></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== COLUMNA 3 · FICHA DEL CLIENTE ===================== -->
+    <aside class="col-ficha" data-col="ficha">
+      <div class="flex items-center justify-between">
+        <span class="lbl">Ficha del cliente</span>
+        <div class="flex gap-1.5"><span class="ibtn" style="width:30px;height:30px"><i data-lucide="pencil" class="i14"></i></span><span class="ibtn" style="width:30px;height:30px"><i data-lucide="x" class="i14"></i></span></div>
+      </div>
+
+      <div>
+        <div class="flex items-center gap-3">
+          <span class="avc" style="width:50px;height:50px;font-size:16px">RH</span>
+          <div class="min-w-0">
+            <div class="sora text-[18px] font-bold leading-tight">Rosa Huamaní</div>
+            <div class="text-[12.5px] text-tinta-2 mt-0.5">Comas, Lima · cliente nueva</div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5 mt-2.5 text-[12.5px]">
+          <div class="flex items-center gap-2"><i data-lucide="phone" class="i14 text-tinta-2"></i>+51 986 214 377</div>
+          <div class="flex items-center gap-2"><i data-lucide="megaphone" class="i14 text-tinta-2"></i><span class="chip chip-osc chip-s">Meta Ads · Freidoras octubre</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="lbl">Etapa</span>
+          <span class="chip chip-ia chip-s"><i class="pt"></i>Calificado por IA<i data-lucide="chevron-down" class="i12"></i></span>
+        </div>
+        <div class="flex gap-1.5 mt-2"><span class="paso" style="background:#6E819A"></span><span class="paso" style="background:#7C5CFC"></span><span class="paso"></span><span class="paso"></span></div>
+        <div class="flex justify-between text-[11.5px] text-tinta-2 mt-1.5"><span>Paso 2 de 4</span><span>Siguiente: <b class="text-noche font-semibold">Cotización</b></span></div>
+      </div>
+
+      <div>
+        <span class="lbl">Producto de interés</span>
+        <div class="flex items-center gap-2.5 mt-1.5 p-1.5 pr-3 rounded-xl bg-niebla">
+          <img src="../assets/fotos/catalogo-freidora-aire.webp" data-asset alt="" class="rounded-lg object-cover" style="width:46px;height:46px;flex:0 0 46px">
+          <div class="min-w-0 flex-1">
+            <div class="text-[13px] font-bold leading-tight">Freidora de aire 5&nbsp;L</div>
+            <div class="text-[11px] text-tinta-2 mt-0.5 flex items-center gap-1"><i data-lucide="star" class="i12 text-verde"></i>Más vendido · 1 unidad</div>
+          </div>
+          <span class="sora font-bold text-[15px] tnum">S/&nbsp;279</span>
+        </div>
+        <div class="grid grid-cols-2 gap-1.5 mt-1.5">
+          <div class="mini"><div class="k"><i data-lucide="truck" class="i12"></i>Entrega</div><div class="v">Delivery · 24&nbsp;h</div></div>
+          <div class="mini"><div class="k"><i data-lucide="wallet" class="i12"></i>Total a pagar</div><div class="v tnum">S/&nbsp;289</div></div>
+        </div>
+      </div>
+
+      <div class="card-osc" style="padding:13px 14px;border-radius:16px">
+        <div class="flex items-center gap-2">
+          <span class="chip-kinti shrink-0"><img src="../assets/ilustraciones/agente-avatar.webp" data-asset alt="">Kinti · IA</span>
+          <span class="text-[10.5px] font-bold tracking-[.12em] uppercase" style="color:#EFEBFF">Resumen</span>
+          <span class="ml-auto text-[11px] text-tinta-3">hace 8 min</span>
+        </div>
+        <p class="text-[12.5px] leading-[1.45] m-0 mt-2" style="color:#DCE5EF">Viene del anuncio de freidoras y la quiere para su casa en Comas. Quiere pagar hoy; con delivery son S/&nbsp;289: <b class="text-verde">solo falta el pago.</b></p>
+      </div>
+
+      <div>
+        <span class="lbl">Etiquetas</span>
+        <div class="flex flex-wrap gap-1.5 mt-1.5">
+          <span class="etq">Freidora</span><span class="etq">Delivery Comas</span><span class="etq">Paga hoy</span><span class="etq">Primera compra</span>
+          <span class="etq" style="padding:0 6px"><i data-lucide="plus" class="i12"></i></span>
+        </div>
+      </div>
+
+      <div>
+        <span class="lbl">Notas</span>
+        <div class="mt-1.5 rounded-xl bg-niebla px-3 py-2 text-[12px] leading-[1.45]">
+          <div class="flex gap-2"><i data-lucide="sticky-note" class="i14 text-tinta-2 mt-[2px]"></i><span>Confirmar dirección antes de despachar. Llamarla después de las 6&nbsp;p.&nbsp;m.</span></div>
+          <div class="text-[11px] text-tinta-2 mt-1 pl-[22px]"><b class="text-noche font-semibold">Diego</b> · 10:06</div>
+        </div>
+      </div>
+
+      <div>
+        <span class="lbl">Historial</span>
+        <div class="flex flex-col gap-[7px] mt-2">
+          <div class="hist"><span class="p" style="background:var(--verde)"></span><span><b class="font-semibold text-noche">Link de pago</b> enviado por Diego</span><span class="h">10:04</span></div>
+          <div class="hist"><span class="p" style="background:var(--violeta)"></span><span><b class="font-semibold text-noche">Derivada a Diego</b> por Kinti · IA</span><span class="h">09:56</span></div>
+          <div class="hist"><span class="p" style="background:var(--violeta)"></span><span><b class="font-semibold text-noche">Precio enviado</b> · S/&nbsp;279 por Kinti · IA</span><span class="h">09:52</span></div>
+          <div class="hist"><span class="p" style="background:var(--violeta)"></span><span><b class="font-semibold text-noche">Respondida</b> por Kinti · IA en 6&nbsp;s</span><span class="h">09:52</span></div>
+          <div class="hist"><span class="p" style="background:var(--t2)"></span><span><b class="font-semibold text-noche">Creada</b> desde Meta Ads</span><span class="h">09:52</span></div>
+        </div>
+      </div>
+    </aside>
+
+  </main>
+</div>
+</body></html>
