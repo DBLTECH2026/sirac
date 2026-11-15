@@ -1,0 +1,10 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+db.sqlite3
+backend/staticfiles/
+backend/ia/modelos/*
+!backend/ia/modelos/.gitkeep
+node_modules/
+.next/

@@ -1,0 +1,22 @@
+# Caddy obtiene y renueva solo el certificado SSL de Let's Encrypt para el dominio.
+sirac.dbltech.tech {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# API de Django (Python)
+	handle /api/* {
+		reverse_proxy backend:8000
+	}
+
+	# Front-end de Next.js
+	handle {
+		reverse_proxy frontend:3000
+	}
+}
