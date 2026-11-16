@@ -287,7 +287,7 @@ select.input { padding-right: 8px; }
 .etiquetas span { height: 28px; padding: 0 11px; border-radius: 999px; border: 1px solid var(--linea); font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; }
 .etiquetas button { background: none; border: 0; padding: 0; color: var(--t2); display: grid; }
 .prob { display: flex; align-items: baseline; gap: 8px; }
-.prob b { font-family: var(--f-titulo); font-size: 26px; }
+.prob b { font-family: var(--f-titulo); font-size: 26px; white-space: nowrap; flex-shrink: 0; }
 
 /* ---------- Embudo ---------- */
 .filtros { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
