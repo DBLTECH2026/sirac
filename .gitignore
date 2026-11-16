@@ -8,3 +8,4 @@ backend/ia/modelos/*
 !backend/ia/modelos/.gitkeep
 node_modules/
 .next/
+frontend/AGENTS.md

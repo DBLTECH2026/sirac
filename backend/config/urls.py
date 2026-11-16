@@ -1,3 +1,3 @@
 from django.urls import include, path
 
-urlpatterns = [path("api/", include("ia.urls"))]
+urlpatterns = [path("api/", include("ia.urls")), path("api/", include("crm.urls"))]

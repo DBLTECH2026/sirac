@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Asignacion, Calificar, Conversacion, Estado, Metricas, Proyeccion, Ruta } from "./Demos";
+import "./globals.css";
 
 export default function Inicio() {
   return (
@@ -17,8 +18,9 @@ export default function Inicio() {
             </p>
             <Estado />
             <div className="acciones-hero">
-              <a className="boton" href="/crm/vistas/crm-chats-admin.html">Ver el CRM (prototipo)</a>
-              <a className="boton-sec" href="/crm">Todas las pantallas</a>
+              <a className="boton" href="/crm">Entrar al CRM</a>
+              <a className="boton-sec" href="/whatsapp">Escribir como cliente</a>
+              <a className="boton-sec" href="/prototipo">Prototipo de diseño</a>
             </div>
           </div>
           <div className="hero-ilustracion">

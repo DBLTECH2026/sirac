@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="132" height="64" viewBox="0 0 132 64">
+  <!-- Patrón SIRAC: órbitas del logo (verde, violeta, celeste) para el pie de la barra lateral -->
+  <g fill="none" stroke-linecap="round" stroke-width="3">
+    <ellipse cx="22" cy="40" rx="17" ry="8" transform="rotate(-24 22 40)" stroke="#0EB155"/>
+    <ellipse cx="66" cy="40" rx="17" ry="8" transform="rotate(-24 66 40)" stroke="#2A3B5C"/>
+    <ellipse cx="110" cy="40" rx="17" ry="8" transform="rotate(-24 110 40)" stroke="#1E2E4E"/>
+  </g>
+  <g>
+    <circle cx="37.5" cy="33" r="3.6" fill="#0EB155"/><circle cx="6.5" cy="47" r="3.6" fill="#0EB155"/>
+    <circle cx="81.5" cy="33" r="3.6" fill="#0EB155"/><circle cx="50.5" cy="47" r="3.6" fill="#0EB155"/>
+    <circle cx="125.5" cy="33" r="3.6" fill="#2A3B5C"/><circle cx="94.5" cy="47" r="3.6" fill="#2A3B5C"/>
+  </g>
+</svg>

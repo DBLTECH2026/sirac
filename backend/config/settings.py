@@ -10,7 +10,7 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,backend,testserver").split(",")
 CSRF_TRUSTED_ORIGINS = ["https://sirac.dbltech.tech"]
 
-INSTALLED_APPS = ["django.contrib.contenttypes", "django.contrib.staticfiles", "ia"]
+INSTALLED_APPS = ["django.contrib.contenttypes", "django.contrib.auth", "django.contrib.staticfiles", "ia", "crm"]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -38,3 +38,14 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 VERSION = os.environ.get("GIT_SHA", "local")
+
+# CRM: contraseña de las cuentas de demostración (solo en el .env del servidor; si falta, se genera una al azar)
+CRM_CLAVE_DEMO = os.environ.get("CRM_CLAVE_DEMO", "")
+# WhatsApp real con Evolution API (contenedor interno). Sin EVOLUTION_URL/API_KEY la integración queda apagada.
+EVOLUTION_URL = os.environ.get("EVOLUTION_URL", "")
+EVOLUTION_API_KEY = os.environ.get("EVOLUTION_API_KEY", "")
+EVOLUTION_INSTANCIA = os.environ.get("EVOLUTION_INSTANCIA", "sirac")
+EVOLUTION_WEBHOOK_TOKEN = os.environ.get("EVOLUTION_WEBHOOK_TOKEN", "")
+EVOLUTION_WEBHOOK_BASE = os.environ.get("EVOLUTION_WEBHOOK_BASE", "http://backend:8000")
+SITIO_URL = os.environ.get("SITIO_URL", "https://sirac.dbltech.tech")
+CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}

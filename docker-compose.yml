@@ -25,6 +25,42 @@ services:
       DJANGO_ALLOWED_HOSTS: sirac.dbltech.tech,backend,localhost,127.0.0.1
       GIT_SHA: ${GIT_SHA:-sin-version}
       SERVIDOR_VPS: srv2164565.hstgr.cloud
+      EVOLUTION_URL: http://evolution:8080
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # WhatsApp real (Baileys). Solo en la red interna: Django le habla con la API key y Evolution avisa al webhook del backend.
+  evolution:
+    image: evoapicloud/evolution-api:v2.3.7
+    restart: unless-stopped
+    environment:
+      SERVER_TYPE: http
+      SERVER_PORT: 8080
+      SERVER_URL: http://evolution:8080
+      AUTHENTICATION_API_KEY: ${EVOLUTION_API_KEY:?falta EVOLUTION_API_KEY en .env}
+      AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES: "false"
+      DATABASE_ENABLED: "true"
+      DATABASE_PROVIDER: postgresql
+      DATABASE_CONNECTION_URI: postgresql://sirac:${POSTGRES_PASSWORD}@db:5432/sirac?schema=evolution
+      DATABASE_CONNECTION_CLIENT_NAME: sirac_evolution
+      DATABASE_SAVE_DATA_INSTANCE: "true"
+      DATABASE_SAVE_DATA_NEW_MESSAGE: "false"
+      DATABASE_SAVE_MESSAGE_UPDATE: "false"
+      DATABASE_SAVE_DATA_CONTACTS: "false"
+      DATABASE_SAVE_DATA_CHATS: "false"
+      DATABASE_SAVE_DATA_LABELS: "false"
+      DATABASE_SAVE_DATA_HISTORIC: "false"
+      CACHE_REDIS_ENABLED: "false"
+      CACHE_LOCAL_ENABLED: "true"
+      CONFIG_SESSION_PHONE_CLIENT: SIRAC CRM
+      CONFIG_SESSION_PHONE_NAME: Chrome
+      QRCODE_LIMIT: 30
+      DEL_INSTANCE: "false"
+      WEBHOOK_GLOBAL_ENABLED: "false"
+      LOG_LEVEL: ERROR,WARN
+    volumes:
+      - evolution_instancias:/evolution/instances
     depends_on:
       db:
         condition: service_healthy
@@ -52,5 +88,6 @@ services:
 
 volumes:
   db_datos:
+  evolution_instancias:
   caddy_datos:
   caddy_config:
