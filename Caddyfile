@@ -20,3 +20,6 @@ sirac.dbltech.tech {
 		reverse_proxy frontend:3000
 	}
 }
+
+# Otros sitios del mismo VPS (por ejemplo eless-bi.dbltech.tech): un archivo .caddy por sitio en /opt/caddy-extra
+import /etc/caddy/extra/*.caddy
